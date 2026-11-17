@@ -50,16 +50,32 @@
   },
   "ai_note_title_similarity_over_0.8": 0,
   "audit": {
-    "mcp_servers": [],
-    "permission_denials": 0,
-    "reads_of_sympy_checkout": 3,
-    "tool_calls_outside_sandbox": [],
-    "tools_available": [
-      "Glob",
-      "Grep",
-      "Read",
-      "StructuredOutput"
-    ]
+    "generation": {
+      "mcp_servers": [],
+      "permission_denials": 0,
+      "reads_of_linked_issues": 0,
+      "reads_of_sympy_checkout": 3,
+      "tool_calls_outside_sandbox": [],
+      "tools_available": [
+        "Glob",
+        "Grep",
+        "Read",
+        "StructuredOutput"
+      ]
+    },
+    "judge": {
+      "mcp_servers": [],
+      "permission_denials": 0,
+      "reads_of_linked_issues": 6,
+      "reads_of_sympy_checkout": 17,
+      "tool_calls_outside_sandbox": [],
+      "tools_available": [
+        "Glob",
+        "Grep",
+        "Read",
+        "StructuredOutput"
+      ]
+    }
   },
   "both_entry": 67,
   "decision_matrix": {
@@ -210,24 +226,41 @@
   "judged": 100,
   "mechanical": {
     "ai": {
+      "capitalized_and_ends_with_period": 85,
       "ends_with_period": 85,
       "entries": 85,
       "invalid_header": 0,
       "mentions_issue_number": 0,
+      "more_than_one_sentence": 24,
       "multi_line": 0,
       "starts_capitalized": 85
     },
     "human": {
+      "capitalized_and_ends_with_period": 63,
       "ends_with_period": 67,
       "entries": 91,
       "invalid_header": 0,
       "mentions_issue_number": 1,
+      "more_than_one_sentence": 4,
       "multi_line": 0,
       "starts_capitalized": 73
     }
   },
   "n": 100,
   "release_context_variant": {
+    "audit": {
+      "mcp_servers": [],
+      "permission_denials": 0,
+      "reads_of_linked_issues": 76,
+      "reads_of_sympy_checkout": 4,
+      "tool_calls_outside_sandbox": [],
+      "tools_available": [
+        "Glob",
+        "Grep",
+        "Read",
+        "StructuredOutput"
+      ]
+    },
     "changed": [
       {
         "human": "NO ENTRY",

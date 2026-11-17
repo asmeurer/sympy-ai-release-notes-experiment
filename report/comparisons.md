@@ -8,17 +8,17 @@ Author: `tusharcancodehere`
 
 **Human**
 
-```markdown
+````markdown
 * printing
   * Fixed `IndexError` when calling `latex()` or `pretty()` on an `NDimArray` with a zero dimension (e.g. `Array([], (0, 2))`).
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * printing
   * Fixed an `IndexError` when printing an empty array, such as `Array([], (0, 2))`, with `latex` or `pretty`.
-```
+````
 
 AI's reasoning: The PR fixes a user-visible crash in the LaTeX and pretty printers for arrays with a zero dimension, based on the changes to `_print_NDimArray` in the diff. The .mailmap and test changes need no entry of their own.
 
@@ -39,17 +39,17 @@ Author: `pranjal9091`
 
 **Human**
 
-```markdown
+````markdown
 * assumptions
   * Fixed `AttributeError` when evaluating predicates on radical roots whose symbolic components evaluate to complex expressions.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * assumptions
   * Fixed an `AttributeError` raised by `ask` for predicates such as `Q.real`, `Q.imaginary`, `Q.positive`, `Q.negative` and `Q.nonzero` on some numeric expressions, such as radical roots of quartic polynomials. They now return `None` when the result cannot be determined.
-```
+````
 
 AI's reasoning: The diff fixes a user-visible crash (AttributeError from `._prec` on an `Add` result of `evalf`) in assumption handlers, so it needs an entry. The positive/negative refactor is internal. I based the entry on the final diff, which is the narrow crash fix, not on the earlier whole-expression evaluation approach.
 
@@ -75,15 +75,15 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The pull request is an internal refactoring that replaces append loops with list operations. The diff shows no change in user-visible behavior, so it needs no release notes entry.
 
@@ -99,17 +99,17 @@ Author: `MajesticSlacks`
 
 **Human**
 
-```markdown
+````markdown
 * sets
   * ordinals: fixed a bug where `Ordinal` could produce non-canonical outputs.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * sets
   * Fixed a bug where `Ordinal` accepted terms with repeated powers, such as `Ordinal(OmegaPower(0, 3), OmegaPower(0, 2))`, and produced non-canonical results. A `ValueError` is now raised.
-```
+````
 
 AI's reasoning: The diff makes the Ordinal constructor reject equal consecutive powers (>= changed to >), so it now raises ValueError instead of silently creating non-canonical ordinals. This is a user-visible bug fix.
 
@@ -134,16 +134,16 @@ Author: `oscarbenjamin`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * core
   * Fixed a bug where `And`, `Or`, and other lattice operations created with `evaluate=False` from an iterator such as a generator lost their arguments.
-```
+````
 
 AI's reasoning: The diff converts args to a tuple before building the object and its `_argset` in the lattice-op `__new__` with evaluate=False. Previously an iterator input was consumed, so arguments were dropped. This is a user-visible bug fix in core/operations.py. The wording about iterators is inferred from the diff, since the PR text gives no detail.
 
@@ -167,17 +167,17 @@ Author: `raman118`
 
 **Human**
 
-```markdown
+````markdown
 * sets
   * Fixed interval unions raising a `TypeError` when one open endpoint is known to belong to the other set but membership of the opposite endpoint is undecidable.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * sets
   * Fixed a `TypeError` in `Union` of an open `Interval` with a `FiniteSet` containing an endpoint and a symbolic element, such as `Union(Interval.open(-1, 1), FiniteSet(x, 1))`.
-```
+````
 
 AI's reasoning: The diff fixes a user-visible TypeError in Union of an interval and a finite set with symbolic elements, by reusing the definite endpoint-membership checks instead of Python `in`. The entry is based on the diff and the example in the description.
 
@@ -199,17 +199,17 @@ Author: `hardikkaurani`
 
 **Human**
 
-```markdown
+````markdown
 * algebras
   * Fixed `Quaternion.from_rotation_matrix` returning zero quaternion for 180-degree rotation matrices and eliminated premature branching using algebraic sign selection.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * algebras
   * Fixed `Quaternion.from_rotation_matrix` returning the zero quaternion for 180-degree rotation matrices; it now returns a unit quaternion.
-```
+````
 
 AI's reasoning: The diff fixes a user-visible bug in `Quaternion.from_rotation_matrix`, which returned a zero quaternion for half-turn rotations, so it needs an entry. The entry is based on the diff, which changes the sign computation of the vector components.
 
@@ -235,15 +235,15 @@ Author: `oscarbenjamin`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The PR only updates the AUTHORS file and .mailmap, which are release/developer bookkeeping files with no effect on SymPy's behavior for users.
 
@@ -259,19 +259,19 @@ Author: `oscarbenjamin`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * external
   * Updated the python-flint versions that SymPy uses automatically to 0.9, 0.10, 0.11 and 0.12. Older versions are only used if requested with `SYMPY_GROUND_TYPES=flint`.
 
 * other
   * Set an upper bound of `<1.5` on the mpmath version that SymPy requires.
-```
+````
 
 AI's reasoning: Most of the PR changes the release CI workflow, benchmarks setup and release docs, which don't affect users. Two changes do: the python-flint tested-version list in `sympy/external/gmpy.py` and the new `mpmath<1.5` dependency bound in `pyproject.toml`.
 
@@ -294,17 +294,17 @@ Author: `jiyakaushik26`
 
 **Human**
 
-```markdown
+````markdown
 * simplify
   * Fixed a `PolificationFailed` error in `trigsimp` when using the `groebner` or `combined` methods on expressions without polynomial generators.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * simplify
   * Fixed `trigsimp` with `method='groebner'` or `method='combined'` raising `PolificationFailed` on expressions such as `y + sin(x)**2 + cos(x)**2`, where a coefficient contains no polynomial generators.
-```
+````
 
 AI's reasoning: The diff fixes a user-visible exception in trigsimp's groebner and combined methods, so it needs an entry. The entry is based on the one-line change in trigsimp.py that catches PolificationFailed, and on the regression tests, which supplied the example expression.
 
@@ -329,17 +329,17 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * printing
   * Fixed incorrect grouping of nested reciprocals in code printers.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * printing
   * Fixed the string and code printers (including Python, C, Julia, and Octave) omitting parentheses around a reciprocal in a denominator, which previously printed `x/1/y` instead of `x/(1/y)`.
-```
+````
 
 AI's reasoning: The diff fixes a user-visible printing bug: missing parentheses when a reciprocal appears in a denominator of unevaluated expressions, across the string and code printers. The rest (shared helper refactoring, tests) is internal, so the entry describes only the bug fix.
 
@@ -366,17 +366,17 @@ Author: `wermos`
 
 **Human**
 
-```markdown
+````markdown
 * parsing
   * The Lark-based LaTeX parser now parses expressions with `\leqq` and `\geqq`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * parsing
   * The Lark LaTeX parser now supports `\leqq` and `\geqq` as less-than-or-equal-to and greater-than-or-equal-to.
-```
+````
 
 AI's reasoning: The diff adds `\leqq` and `\geqq` tokens to the Lark LaTeX grammar, a user-visible parsing feature. The `\geqslant` test is test-only and does not need its own entry.
 
@@ -397,17 +397,17 @@ Author: `hardikkaurani`
 
 **Human**
 
-```markdown
+````markdown
 * matrices
   * Fixed `QRsolve` and `A.inv(method='QR')` returning incorrect results for complex matrices by using `Q.H` instead of `Q.T`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * matrices
   * Fixed `QRsolve` and `inv(method='QR')` returning incorrect results for matrices with complex entries.
-```
+````
 
 AI's reasoning: The diff changes `_QRsolve` to use the conjugate transpose `Q.H` instead of `Q.T`. This fixes wrong solutions and inverses for complex matrices, which is a user-visible bug fix. Real matrices behave the same as before.
 
@@ -428,16 +428,16 @@ Author: `hunterhogan`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * Annotate `Expr.coeff` signature.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The PR only adds type annotations to Expr.coeff and makes small refactors (variable rename, isinstance check, else instead of elif) that don't change behavior, so end users see no difference.
 
@@ -460,17 +460,17 @@ Author: `zorgonk`
 
 **Human**
 
-```markdown
+````markdown
 * solvers
   * `nsolve` now raises a `TypeError` when an unevaluated SymPy `Expr` (such as `pi` or `E`) is passed as an initial guess instead of a `Number` or Python number
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * solvers
   * `nsolve` now raises a `TypeError` with a clear message when an unevaluated symbolic initial guess such as `pi` is given, instead of failing with `cannot create mpf from pi`; use `pi.n()` instead.
-```
+````
 
 AI's reasoning: The diff makes nsolve raise a descriptive TypeError for non-numeric symbolic initial guesses (e.g. pi) instead of an obscure mpmath error, which is a user-visible behavior change. The entry is based on the diff in solvers.py.
 
@@ -497,15 +497,15 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only changes a test helper in sympy/parsing/tests/test_custom_latex.py so the test works on Windows. No library code changed and end users are not affected.
 
@@ -521,17 +521,17 @@ Author: `Cypher-Monarch`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * Fixed unintended free symbols introduced when differentiating undefined functions with composite arguments.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * core
   * Fixed a bug where differentiating an undefined function with several composite arguments, such as `f(x + y, x*y).diff(y).diff(x)`, introduced spurious symbols into the result, and where unequal `Subs` objects could compare as equal.
-```
+````
 
 AI's reasoning: The diff changes Subs.__new__ symbol-collision handling and Subs hashing/equality in sympy/core/function.py, fixing a user-visible bug with spurious symbols in derivatives of functions with composite arguments. The entry is based on the diff and the added test showing previously equal Subs objects now compare unequal.
 
@@ -556,15 +556,15 @@ Author: `jiyakaushik26`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only reorders typing overloads for Integer.__pow__ (plus a .mailmap line); runtime behavior is unchanged, so it has no effect on end users.
 
@@ -580,15 +580,15 @@ Author: `shreeeeee-rgb`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only adds docstring notes and doctests to Sum and summation, plus a .mailmap line. It has no behavior change, and the documentation change is minor.
 
@@ -604,21 +604,21 @@ Author: `ish1416`
 
 **Human**
 
-```markdown
+````markdown
 * matrices
   * Refined unitary matrix inverse to `Adjoint` and simplified unitary matrix products with adjoints.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * matrices
   * Fixed `refine` of the inverse of a unitary matrix to return its `Adjoint` (conjugate transpose) instead of its elementwise `Conjugate`.
   * Fixed `refine` of matrix products so that `U*U.adjoint()` and `U.adjoint()*U` simplify to the identity for unitary `U`, and so that products of rectangular orthogonal matrices such as `A*A.T` give an identity matrix of the correct size.
 
 * assumptions
   * The `unitary`, `invertible`, `fullrank` and `diagonal` matrix assumptions are now propagated through `Adjoint` and `Conjugate` expressions.
-```
+````
 
 AI's reasoning: The diff fixes user-visible behavior: refine of unitary inverse returned the wrong Conjugate rather than Adjoint, refine_MatMul gave wrong or missing simplifications and wrong identity dimensions, and assumption handlers now cover Adjoint and Conjugate. The entries are based on the diff, which matches the description.
 
@@ -645,15 +645,15 @@ Author: `wermos`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only changes tests for the Lark LaTeX parser and the .mailmap file. No library code changed, so users see no difference.
 
@@ -669,17 +669,17 @@ Author: `raman118`
 
 **Human**
 
-```markdown
+````markdown
 * printing
   * Fixed a `RecursionError` when printing floating-point constants with `CmathPrinter`, including when using `lambdify` with the `"cmath"` module.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * printing
   * Fixed `torch_code` so that printer settings such as `fully_qualified_modules` are now passed to the printer, and `assign_to` still works alongside them.
-```
+````
 
 AI's reasoning: The diff shows `torch_code` previously passed extra settings to `doprint` rather than to the printer, so they were ignored or broke; this is a user-visible bug fix. The description is about an unrelated cmath fix and is stale, so I based the entry on the diff.
 
@@ -705,19 +705,19 @@ Author: `hunterhogan`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * Annotate signatures of Basic.doit, Atom.doit, and Expr.doit
 
 * tensor
   * Annotate TensAdd.doit
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only adds type annotations to `doit` and TYPE_CHECKING-only declarations. It makes no runtime change, so end users would see no difference.
 
@@ -742,16 +742,16 @@ Author: `hunterhogan`
 
 **Human**
 
-```markdown
+````markdown
 * sets
   * add signatures to methods in `Set` and `Union`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only adds type annotations to a few set methods and swaps internal lists for tuples in Union.__new__, with no change in user-visible behavior, so no release notes entry is needed.
 
@@ -775,17 +775,17 @@ Author: `raman118`
 
 **Human**
 
-```markdown
+````markdown
 * printing
   * Fixed a `RecursionError` when printing floating-point constants with `CmathPrinter`, including when using `lambdify` with the `"cmath"` module.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * printing
   * Fixed a `RecursionError` when using `lambdify` with the `'cmath'` module on expressions containing floating-point numbers, such as `lambdify(x, x + 2.5, 'cmath')`.
-```
+````
 
 AI's reasoning: The diff removes a broken `CmathPrinter._print_Float` that caused infinite recursion, so `lambdify(..., 'cmath')` now works with float constants; this is a user-visible bug fix. The entry is based on the diff and the PR's example.
 
@@ -807,16 +807,16 @@ Author: `hunterhogan`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * Annotations for `Basic.has`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only adds a type annotation to the arguments of Basic.has, with no change in runtime behavior, so it doesn't affect users enough to need a release note.
 
@@ -839,17 +839,17 @@ Author: `raman118`
 
 **Human**
 
-```markdown
+````markdown
 * printing
   * Fixed incorrect results for powers and reciprocals of `log2` in generated mpmath code.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * printing
   * Fixed the mpmath printer, and `lambdify` with the `mpmath` module, giving incorrect results for `log2(x)` inside a power or denominator, such as `log2(x)**2` or `1/log2(x)`.
-```
+````
 
 AI's reasoning: The diff fixes a user-visible bug: the mpmath printer emitted `log2(x)` as an unparenthesized quotient, which gave wrong numerical results in powers and denominators. The .mailmap and test changes need no entry. The entry is based on the change to `_print_log2` in `sympy/printing/pycode.py`.
 
@@ -873,15 +873,15 @@ Author: `ninglinLiu`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only fixes a duplicated word in a docstring, rewords a documentation paragraph on optional dependencies, and adds a .mailmap entry. There are no behavior changes, so it needs no release notes entry.
 
@@ -897,17 +897,17 @@ Author: `raman118`
 
 **Human**
 
-```markdown
+````markdown
 * printing
   * Fixed ambiguous LaTeX output for derivatives of products by parenthesizing the differentiated expression.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * printing
   * Fixed the LaTeX printer so that a product inside a derivative is now parenthesized, e.g. `Derivative(f(x)*g(x), x)` prints as `\frac{d}{d x} \left(f{\left(x \right)} g{\left(x \right)}\right)`, which distinguishes it from a derivative multiplied by a noncommutative factor.
-```
+````
 
 AI's reasoning: The diff changes the LaTeX printer's output for derivatives of products (and integrals) so they are now parenthesized by default, which is user-visible output and fixes an ambiguity. The .mailmap and test changes are not user-facing.
 
@@ -929,17 +929,17 @@ Author: `Shakestein`
 
 **Human**
 
-```markdown
+````markdown
 * printing
   * Removed duplicate denominator parentheses when printing unevaluated fractions as strings.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * printing
   * Fixed string printing of unevaluated fractions so that denominators no longer get duplicate parentheses (for example, `2/(x*y)` instead of `2/((x*y))`) and fractional denominators are correctly parenthesized (for example, `1/(1/y)` instead of `1/1/y`).
-```
+````
 
 AI's reasoning: The diff changes str printing of unevaluated Mul/Pow in sympy/printing/str.py, fixing duplicate parentheses and incorrect grouping of reciprocal denominators, which is user-visible output. The .mailmap, doctest, and test changes are incidental.
 
@@ -964,17 +964,17 @@ Author: `Shakestein`
 
 **Human**
 
-```markdown
+````markdown
 * printing
   * Fixed missing parentheses around additive modulo divisors in pretty printing.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * printing
   * Fixed pretty printing of `Mod` to parenthesize the divisor when needed, so `pretty(Mod(x, y + z))` now gives `x mod (y + z)` instead of the ambiguous `x mod y + z`.
-```
+````
 
 AI's reasoning: The diff changes `_print_Mod` in the pretty printer to parenthesize additive divisors, fixing ambiguous output that users see. The .mailmap and test changes are developer-only.
 
@@ -996,16 +996,16 @@ Author: `ish1416`
 
 **Human**
 
-```markdown
+````markdown
 * matrices
   * Decoupled `MatrixExpr._eval_derivative` by defining independent derivative methods in `MatAdd` and `MatMul`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The PR is an internal refactoring of how `_eval_derivative` is organized across MatrixExpr, MatAdd and MatMul. The diff and the tests show the same results as before for end users, with no new feature or bug fix, so no entry is needed.
 
@@ -1028,17 +1028,17 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * mod(a,b) with a/b < 0 now correctly computes value for symbolic a and b (and numeric a/b)
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * core
   * Fixed `Mod` giving incorrect results when the ratio of the arguments is a known negative number, for example `Mod(-x, 2*x)` with a symbol `x` of unknown sign.
-```
+````
 
 AI's reasoning: The diff fixes a user-visible bug in `Mod` evaluation: truncation toward zero was used instead of floor when p/q is a known negative ratio. The entry is based on the diff and its new tests.
 
@@ -1062,15 +1062,15 @@ Author: `oscarbenjamin`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: This is a typing-only change: it annotates `@cacheit` and fixes the mypy errors that surfaced. The base-class swaps from `Function` to `DefinedFunction` and the one small `convert_matrix_to_array` edit do not change behaviour that users see.
 
@@ -1086,16 +1086,16 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * printing
   * Fixed the string printer so that `Mod` is no longer wrapped in unnecessary parentheses when it appears as a factor, e.g. `3*Mod(x, y)` instead of `3*(Mod(x, y))`.
-```
+````
 
 AI's reasoning: The diff changes StrPrinter.parenthesize so Mod is treated like a function call, removing redundant parentheses in str output; this is user-visible. Code printers keep the old Mul precedence behavior.
 
@@ -1114,17 +1114,17 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * solvers
   * Improved `solveset` for modular powers using cycle detection; handle non-coprime bases and possible exponent expansion.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * solvers
   * Improved `solveset` for equations with `Mod` of a power, such as `Mod(12**x, 21) - 18`, so that solutions are now returned when the base and modulus share a common factor.
-```
+````
 
 AI's reasoning: The diff extends solveset's modular power solving to handle bases sharing a factor with the modulus, using cycle detection, which is a user-visible change. It also stops using discrete logarithms for non-integer exponents and unit bases, but I wrote the entry around the main improvement.
 
@@ -1152,18 +1152,18 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * evaluation of Mod upon instantiation has been improved wrt Float and Rational coefficients
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * core
   * `Mod` no longer rearranges, rescales, or cancels common factors in symbolic expressions containing Floats, since this could change the numerical result after substitution. For example, `Mod(6*x, 0.2*x)` is now left unevaluated instead of simplifying to `0`.
   * `Mod` now reduces Integer or Rational coefficients of integer-valued terms modulo an exact Rational modulus, even if the whole expression is not integer-valued. For example, `Mod(3*i + x, 2)` now gives `Mod(i + x, 2)` when `i` is an integer symbol.
-```
+````
 
 AI's reasoning: The diff changes user-visible behavior of `Mod.eval` in sympy/core/mod.py: it stops Float-related rearrangements that gave wrong results, and it adds exact coefficient reduction for integer-valued terms. The entries are based on the code changes and the new tests, not the ChatGPT-written description.
 
@@ -1190,15 +1190,15 @@ Author: `oscarbenjamin`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only deletes a CI workflow, updates a release-script whitelist, and fixes a test for PyPy. These are developer-only changes with no effect on SymPy users.
 
@@ -1214,17 +1214,17 @@ Author: `Hirata-Origami`
 
 **Human**
 
-```markdown
+````markdown
 * sets
   * Fixed interval measure calculation for symbolic endpoints to use `Max(0, end - start)` instead of returning a negative measure or a complex `Piecewise` expression.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * sets
   * Fixed `Interval.measure` so that it gives `Max(0, end - start)` instead of a possibly negative value when the endpoints are symbolic and may be reversed.
-```
+````
 
 AI's reasoning: The diff changes the behavior of the public `Interval.measure` property, which fixes a bug where symbolic reversed endpoints gave a negative measure. The entry is based on the one-line change in `sympy/sets/sets.py`. The tests and the .mailmap change need no entry.
 
@@ -1246,15 +1246,15 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only changes a CI test script and the expected output of doctests in a documentation guide. No library behavior changed, so it doesn't affect end users.
 
@@ -1270,17 +1270,17 @@ Author: `hunterhogan`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * singleton: Add 8 more types
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * core
   * Added type annotations for `S.Integers`, `S.Naturals`, `S.Naturals0`, `S.Rationals`, `S.Reals`, `S.Complexes` and `S.UniversalSet` so that type checkers recognize them.
-```
+````
 
 AI's reasoning: The diff adds type declarations for the set singletons on S, which helps users who type check code, plus typing changes to StochasticProcess. There is no runtime change except that StochasticProcess.__new__ no longer accepts ignored **kwargs, which is minor; I wrote a short core entry.
 
@@ -1308,16 +1308,16 @@ Author: `hunterhogan`
 
 **Human**
 
-```markdown
+````markdown
 * simplify
   * radsimp: Add types to `fraction`
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The PR only adds type annotations to fraction, numer and denom, plus small type-narrowing changes in the LaTeX printer. Runtime behavior is unchanged, so end users see no difference.
 
@@ -1341,17 +1341,17 @@ Author: `hunterhogan`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * mul
   * Add types to 3 Mul attributes
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only adds type annotations to Mul methods and a docs stub for the signature, with no runtime change, so it doesn't affect end users' behavior.
 
@@ -1376,17 +1376,17 @@ Author: `suchishah2807`
 
 **Human**
 
-```markdown
+````markdown
 * discrete
   * convolution functions no longer return [0] or raise an error when one input is empty.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * discrete
   * Fixed `convolution`, `convolution_fft`, `convolution_ntt` and `convolution_int` to return an empty list when either input is empty; previously some of these returned `[0]` or raised a `ValueError`.
-```
+````
 
 AI's reasoning: The diff fixes user-visible bugs in the discrete convolution functions: empty inputs gave [0] or raised ValueError, and now give []. The entry is based on the diff, ignoring the .mailmap and test changes.
 
@@ -1413,17 +1413,17 @@ Author: `ish1416`
 
 **Human**
 
-```markdown
+````markdown
 * matrices
   * Implemented `Conjugate(MatrixExpr)` for complex matrix conjugation, resolving #16498 and fixing regression #30900.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * matrices
   * Added `Conjugate`, a matrix expression for the elementwise complex conjugate of a matrix expression. `conjugate` and `adjoint` of matrix expressions, such as `adjoint(C**-2)` for a `MatrixSymbol` `C`, now give valid matrix expressions instead of raising `AttributeError`.
-```
+````
 
 AI's reasoning: The PR adds a new public matrix expression class `Conjugate` (exported from `sympy` and `sympy.matrices`), with printing support. It also fixes an `AttributeError` for the conjugate and adjoint of unevaluated matrix powers. The entry is based on the diff and the PR description.
 
@@ -1451,17 +1451,17 @@ Author: `deadstrobe5`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * `subs` is faster, up to 5x for substitutions with large dicts, because `Basic.is_same` no longer walks identical or differently typed subtrees.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * core
   * Made `subs` faster, up to about 5x for substitutions with large dictionaries, by speeding up the internal comparison of expressions.
-```
+````
 
 AI's reasoning: The diff adds fast paths to `Basic.is_same` (used by `subs`), a user-visible performance improvement, which the guide says needs an entry. Speedup figures come from the PR's benchmarks. The nan-handling change only affects the `is_same` edge cases tested and is not separately user-facing.
 
@@ -1484,18 +1484,18 @@ Author: `adityaanikam`
 
 **Human**
 
-```markdown
+````markdown
 * solvers
   * Fixed wrong results from `solveset` for `Mod(b**x, m) = r` when `b` shares a factor with `m`; these are now left unevaluated.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * solvers
   * Fixed `solveset` returning wrong results for modular equations like `Mod(2**x, 42) = r` where the base of the power shares a factor with the modulus; these are now returned as an unevaluated `ConditionSet`.
   * Fixed `solveset` raising `TypeError` for modular equations such as `Mod(2*2**x - 1, 42)`.
-```
+````
 
 AI's reasoning: The diff changes `_invert_modular` in solveset so wrong results for non-coprime bases become unevaluated ConditionSets, and fixes a TypeError for non-Mod terms. Both are user-visible bug fixes. The .mailmap and test changes need no entry.
 
@@ -1521,17 +1521,17 @@ Author: `rynwang`
 
 **Human**
 
-```markdown
+````markdown
 * tensor
   * Fixed `HadamardProduct` derivatives raising `NotImplementedError` instead of using the generic array-expression fallback.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * matrices
   * Fixed a `NotImplementedError` when differentiating matrix expressions that contain a `HadamardProduct`, such as `Determinant(HadamardProduct(X, Y)).diff(X)` or `Inverse(HadamardProduct(X, Y)).diff(X)`.
-```
+````
 
 AI's reasoning: The diff removes a HadamardProduct handler that always raised NotImplementedError, so .diff() now works for matrix expressions containing HadamardProduct, which is a user-visible bug fix. The handler lived in tensor/array, but the affected API is matrix expressions, so I filed it under matrices.
 
@@ -1555,20 +1555,20 @@ Author: `rynwang`
 
 **Human**
 
-```markdown
+````markdown
 * matrices
   * Fixed the elementwise derivative rules dropping the argument of the differentiated function (e.g. `exp(z + 1)` was treated as `exp(z)`).
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * matrices
   * Fixed a bug where differentiating an elementwise function applied to a matrix, such as `X.applyfunc(lambda z: exp(z + 1)).diff(X)`, dropped the shift or scaling in the function argument and gave `exp(z)` instead of `exp(z + 1)`.
 
 * tensor
   * Fixed a bug where the derivative of `ArrayElementwiseApplyFunc` lost the argument of the differentiated function, for example giving `exp(x)` instead of `exp(x + 1)`.
-```
+````
 
 AI's reasoning: The diff fixes wrong derivative results (argument dropped, e.g. exp(z+1) became exp(z)) in both ElementwiseApplyFunction (matrices) and ArrayElementwiseApplyFunc (tensor array expressions), which are user-visible bug fixes. The .mailmap and test changes need no entry.
 
@@ -1596,17 +1596,17 @@ Author: `vyassoham`
 
 **Human**
 
-```markdown
+````markdown
 * matrices
   * Fixed `trace()` crashing with `NonSquareMatrixError` on a `KroneckerProduct` of rectangular factors that has a square shape.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * matrices
   * Fixed a `NonSquareMatrixError` raised by `trace` and `Trace` of a `KroneckerProduct` whose factors are rectangular but whose product is square; the trace is now left unevaluated.
-```
+````
 
 AI's reasoning: The diff fixes a user-visible crash in `KroneckerProduct._eval_trace` for rectangular factors forming a square product, so it needs an entry. The entry is based on the code change in kronecker.py, and the .mailmap and test changes are ignored.
 
@@ -1631,18 +1631,18 @@ Author: `vyassoham`
 
 **Human**
 
-```markdown
+````markdown
 * matrices
   * Fixed `Trace(MatrixUnit(...))` evaluating to 0 for diagonal matrix units larger than 1x1.
   * Fixed `MatrixUnit.is_square` returning a SymPy boolean atom instead of a Python boolean.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * matrices
   * Fixed `Trace(MatrixUnit(n, n, i, j)).doit()` to give the correct trace (1 for diagonal units, 0 otherwise) instead of always giving 0 for sizes larger than 1, and fixed `MatrixUnit.is_square` to return a Python `bool` or `None` so that `Trace` of a non-square `MatrixUnit` raises `NonSquareMatrixError`.
-```
+````
 
 AI's reasoning: The diff fixes two user-visible bugs in MatrixUnit: the trace of an n×n diagonal unit was wrongly 0, and is_square returned a SymPy boolean, so Trace did not reject non-square units. The .mailmap and test changes need no entry. I could not confirm whether MatrixUnit was already in the last release; if it was added after it, this entry should be dropped.
 
@@ -1667,17 +1667,17 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * fixed a condition that allowed a hollow multiplication by 1 to remain in a final expression
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * core
   * Fixed `factor_terms` sometimes returning an unevaluated multiplication by one, such as `(1/2)*1`, in its result.
-```
+````
 
 AI's reasoning: The diff changes `_keep_coeff` in core/mul.py, which `factor_terms` uses, so results no longer contain a hollow `Mul` such as `Rational(1, 2)*1`. That is a user-visible bug fix, so it gets an entry.
 
@@ -1701,17 +1701,17 @@ Author: `ish1416`
 
 **Human**
 
-```markdown
+````markdown
 * matrices
   * Implemented complete symbolic formula for `MatrixSlice` supporting negative steps, out-of-bounds clipping, and negative index normalization. However, because symbolic expressions are allowed to handle generic cases, the expression can be complicated for matrix shape for generic matrices without sufficient assumptions. Users are encouraged to use assumptions (such as is_integer, is_positive, is_nonnegative) such that evaluation of shape, or MatrixElement can simplify better.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * matrices
   * Fixed `MatrixSlice` to follow Python and NumPy slicing semantics: negative steps such as `X[::-1, :]` are now supported, out-of-bounds slice bounds are clipped instead of raising `IndexError`, and negative bounds give correct shapes.
-```
+````
 
 AI's reasoning: The diff changes how matrix expression slicing (`MatrixSlice`) behaves: negative steps now work, out-of-range slices clip instead of raising IndexError, and shapes are computed correctly. That is a user-visible bug fix. The entry is based on the diff and the new tests, not the PR description alone.
 
@@ -1740,17 +1740,17 @@ Author: `ish1416`
 
 **Human**
 
-```markdown
+````markdown
 * matrices
   * Added scalar derivative for `Inverse` and safe dispatch in `Trace._eval_derivative`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * matrices
   * Fixed a `TypeError` when differentiating the trace of a matrix inverse with respect to a scalar, e.g. `Trace(Inverse(x*X + Z)).diff(x)`. The derivative of `Inverse` with respect to a scalar is now computed as `-M**-1 * M.diff(x) * M**-1`.
-```
+````
 
 AI's reasoning: The diff adds Inverse._eval_derivative for scalar variables and simplifies Trace._eval_derivative, fixing a user-visible crash when differentiating Trace(Inverse(...)) with respect to a scalar. The entry is based on the diff, not the description's earlier fallback approach, which was not merged.
 
@@ -1776,18 +1776,18 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * simplify
   * cse post-processor `cse_to_functions` is now available
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * simplify
   * Added `cse_to_functions`, a postprocessor for `cse` that represents the replacement symbols as undefined functions of the differentiation variables they depend on, so that `Derivative` and similar objects in the result keep working with `doit`.
   * `cse` no longer extracts symbol-like objects, such as `Indexed` elements, `ArraySymbol` elements and `MatrixSymbol` elements, as common subexpressions.
-```
+````
 
 AI's reasoning: The PR adds a new public function `cse_to_functions` in `sympy/simplify/cse_main.py` for use as `cse`'s `postprocess` argument. It also changes `cse` so that anything with `is_symbol` true is no longer extracted, which affects user-visible output. I based the entries on the diff.
 
@@ -1815,17 +1815,17 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * simplify
   * an inadvertent rebuild of an UnevaluateExpr is now avoided
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * simplify
   * Fixed a bug in `cse` where unevaluated expressions such as `Pow(x, 1, evaluate=False)` were needlessly rebuilt, causing a bare symbol to be wrongly extracted as a common subexpression.
-```
+````
 
 AI's reasoning: The diff fixes a user-visible bug in `cse`: a tuple-vs-list comparison caused needless rebuilds, so a symbol could be captured as a replacement. The entry is based on the diff and the test added with it.
 
@@ -1849,17 +1849,17 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * testing
   * ellipses can now be used in doctest expectations; if they are, then any visible Floats must match exactly.
   * Float delimiters in expectations were extended to include `()[]{}` and `:=/`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The change only affects SymPy's internal doctest output checker (sympy/testing/runtests.py), which is used for developers running SymPy's own docstring tests, and adds tests. It has no effect on end users of SymPy.
 
@@ -1886,14 +1886,14 @@ Author: `oscarbenjamin`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * Removed workarounds in Basic.xreplace, Basic.subs, Basic.replace, Basic.sort_key, and Basic.doit that allowed non-Basic objects in the args of a Basic instance. Downstream Basic subclasses that have non-Basic args may now raise errors in these methods (they should be fixed so that all args are Basic).
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * core
   * Removed workarounds in `Basic` methods such as `xreplace`, `subs`, `replace`, `doit` and `sort_key` that tolerated non-`Basic` objects in `args`. Classes that put non-`Basic` objects in their `args` will now raise errors.
 
@@ -1902,7 +1902,7 @@ Author: `oscarbenjamin`
 
 * tensor
   * Fixed `TensorHead` with `comm=None` so that it stores the commutation value as a SymPy `Integer` (`2`) instead of `None`.
-```
+````
 
 AI's reasoning: The diff removes user-visible tolerance for non-Basic args in core Basic methods (a behavior change), and fixes two buggy classes (`reshape` nested lists in codegen, `TensorHead` with comm=None in tensor). Entries are based on the diff.
 
@@ -1930,16 +1930,16 @@ Author: `oscarbenjamin`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * core
   * Fixed `nan` and `-oo` having the same sort key, so that `default_sort_key` and `ordered` now give a consistent, deterministic order for expressions containing both.
-```
+````
 
 AI's reasoning: The diff changes `nan.sort_key` so `nan` and `-oo` no longer tie, making ordering deterministic. This is a small but user-visible bug fix in `default_sort_key` and `ordered` results, so I gave it a short entry under core.
 
@@ -1961,17 +1961,17 @@ Author: `Swayam-27`
 
 **Human**
 
-```markdown
+````markdown
 * printing
   * Fixed rcode output for For loops, which was missing a closing parenthesis and produced invalid R code.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * printing
   * Fixed `rcode` printing of `For` loops, which was missing the closing parenthesis after `seq(...)` and produced invalid R code.
-```
+````
 
 AI's reasoning: The diff fixes a user-visible bug in the public `rcode` printer: `For` loops were printed with a missing closing parenthesis, which gave invalid R code. The entry is based on the one-line change in `RCodePrinter._print_For`.
 
@@ -1992,17 +1992,17 @@ Author: `hunterhogan`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * Added type annotations for `xreplace`.
   * Removed the unused `hack2` keyword argument from `Atom.xreplace`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The pull request adds type annotations and type-checking-only overloads to `xreplace`, plus a few typo fixes. The only runtime change is that `Atom.xreplace` became an `_xreplace` override, and results are the same, so it has no user-visible effect.
 
@@ -2028,21 +2028,21 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * sets
   * Improved evaluation of `sin` and `cos` on `SetExpr` intervals.
   * Corrected endpoint inclusion in interval image calculations.
   * Prevented enumeration of infinite singularity sets in `imageset`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * sets
   * `imageset` of `sin` and `cos` over an interval with concrete endpoints now returns an evaluated interval, for example `imageset(sin, Interval(-2, 1))` gives `Interval(-1, sin(1))`. `sin` and `cos` applied to a `SetExpr` interval are evaluated the same way.
   * Fixed `imageset` over an interval giving wrong endpoint openness. A bound is now open only if the extremal value is not attained within the interval.
   * Fixed `imageset` trying to enumerate infinitely many singularities, for example for `tan` over the reals. Such images are now left unevaluated.
-```
+````
 
 AI's reasoning: The diff changes `imageset` behavior in sympy.sets. It restricts critical-point solving to the interval, so sin and cos now evaluate. It fixes endpoint openness. It avoids enumerating infinite singularity sets. These are user-visible, so I wrote an entry for each, based on the diff and its tests.
 
@@ -2069,16 +2069,16 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * Restricted nonpolynomial sign inference to affine transformations of `exp`, `log`, and `sqrt` with univariate affine arguments and appropriate domain restrictions, while preserving existing polynomial inference. This prevents incorrect sign assumptions for discontinuous expressions over integer domains.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: This PR fixes a regression from #30882, a PR numbered only about 100 below this one and merged shortly before it. That makes it very likely the regression was never in a release, so users never saw the bug. I couldn't confirm that from the repo. Moving `linear_coeffs` to `exprtools` keeps the `solveset` import working, and the rest is tests and internal `_monotonic_sign` logic.
 
@@ -2102,16 +2102,16 @@ Author: `hunterhogan`
 
 **Human**
 
-```markdown
+````markdown
 * other
   * Fix typo
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only corrects a directory path in the LICENSES_BUNDLED.txt text file and removes a trailing space. It changes no code or behavior, so SymPy users don't need an entry.
 
@@ -2135,17 +2135,17 @@ Author: `ish1416`
 
 **Human**
 
-```markdown
+````markdown
 * matrices
   * Fixed `MatrixSlice.shape` to use `ceiling` instead of `floor` for slices with step > 1.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * matrices
   * Fixed the shape of `MatrixSlice` for slices with a step greater than 1, which previously dropped the last row or column when the length was not divisible by the step. For example, `MatrixSymbol('X', 5, 5)[::2, ::2].shape` is now `(3, 3)` instead of `(2, 2)`.
-```
+````
 
 AI's reasoning: The diff changes `MatrixSlice.shape` from floor to ceiling, fixing wrong shapes (and dropped rows/columns in `as_explicit()`) for stepped slices of matrix symbols, which is a user-visible bug fix. The entry is based on the diff and its tests.
 
@@ -2170,17 +2170,17 @@ Author: `ish1416`
 
 **Human**
 
-```markdown
+````markdown
 * matrices
   * Restricted `MatPow._eval_adjoint` and `MatPow._eval_conjugate` to non-negative integer exponents, avoiding invalid evaluation for non-integers on branch cuts and undefined powers of singular matrices.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * matrices
   * Fixed a bug where `adjoint` and `conjugate` of a matrix power `X**p` were incorrectly distributed over the base for negative or non-integer exponents; this is now done only for nonnegative integer exponents.
-```
+````
 
 AI's reasoning: The diff changes MatPow's adjoint and conjugate to evaluate only for nonnegative integer exponents, fixing mathematically incorrect results for negative or complex exponents. This is a user-visible bug fix, so it gets one matrices entry.
 
@@ -2208,17 +2208,17 @@ Author: `knowprasad`
 
 **Human**
 
-```markdown
+````markdown
 * printing
   * Parenthesize `Relational` and `Contains` arguments of `Not` in LaTeX, Pretty, and MathML printers.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * printing
   * Fixed the LaTeX, pretty, and MathML printers to parenthesize relationals and `Contains` inside `Not`, so `Not(x > y, evaluate=False)` now prints as `\neg \left(x > y\right)` in LaTeX instead of `\neg x > y`.
-```
+````
 
 AI's reasoning: The diff changes `_print_Not` in the LaTeX, pretty, and MathML printers. Unevaluated `Not` of a relational or `Contains` now gets parentheses, which is a user-visible output fix. The entry is based on the diff and its tests.
 
@@ -2245,17 +2245,17 @@ Author: `raman118`
 
 **Human**
 
-```markdown
+````markdown
 * printing
   * Fixed LaTeX rendering of bounded indices in notebook renderers that do not support `\nobreak`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * printing
   * Removed the `\nobreak` command from the LaTeX output of bounded `Idx` objects, so it no longer appears visibly in some Jupyter notebook math renderers.
-```
+````
 
 AI's reasoning: The diff changes the LaTeX output of bounded `Idx` objects in the printer, which is user-visible. The entry is based on that diff and on the described rendering problem in Jupyter notebooks.
 
@@ -2276,15 +2276,15 @@ Author: `zorgonk`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The PR only fixes typos and grammar in a contributor-guide doc page and adds a .mailmap line. Neither affects SymPy users, so it needs no entry.
 
@@ -2300,17 +2300,17 @@ Author: `Roshanraj2580`
 
 **Human**
 
-```markdown
+````markdown
 * tensor
   * Support `array_derive` for `OneArray`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * tensor
   * Fixed `array_derive` raising a `ValueError` when differentiating an `ArrayTensorProduct` that contains a `OneArray`, and made it return a zero array of the correct shape for `OneArray` and for other expressions that do not depend on the variable.
-```
+````
 
 AI's reasoning: The diff fixes a user-visible crash in `array_derive` for `OneArray` and corrects the shape of the zero array returned by the generic fallback. The `.mailmap` and test changes are not user-facing.
 
@@ -2337,17 +2337,17 @@ Author: `raman118`
 
 **Human**
 
-```markdown
+````markdown
 * printing
   * Fixed pretty-printing sequences with symbolic bounds by displaying their constructor notation instead of raising `NotImplementedError`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * printing
   * Fixed pretty printing of sequences with symbolic bounds, such as `sequence(n, (n, 0, k))`, which previously raised `NotImplementedError`. They are now printed in constructor notation, for example `SeqFormula(n, (n, 0, k))`.
-```
+````
 
 AI's reasoning: The diff replaces a NotImplementedError in the pretty printer for sequences with symbolic bounds with constructor-style output, which is a user-visible bug fix. The entry is based on the one-line change in pretty.py and its tests.
 
@@ -2372,19 +2372,19 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * sets
   * SetExpr operations (addition, multiplication) with scalar and infinite values have been improved
   * SetExpr now sympifies a passed set
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * sets
   * Fixed several inconsistencies in `SetExpr` arithmetic with scalars and infinite values. Multiplying a `SetExpr` of an `Interval` by `oo` or `-oo` now gives a finite set of the possible results, including `nan` if the interval contains 0, and operations on a `FiniteSet` with a scalar no longer fail.
   * `SetExpr` now converts Python sets to `FiniteSet`, for example `SetExpr({1, 2})`, and raises a `TypeError` if the argument is not a set.
-```
+````
 
 AI's reasoning: The diff changes user-visible SetExpr behavior: interval times infinity, FiniteSet-scalar operations, and the constructor's sympification and type check. Entries are based on the diff and the tests.
 
@@ -2413,17 +2413,17 @@ Author: `ish1416`
 
 **Human**
 
-```markdown
+````markdown
 * matrices
   * Fixed an issue where differentiating a `Transpose` expression with respect to a scalar or matrix element dropped the transpose operation.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * matrices
   * Fixed the derivative of `Transpose` matrix expressions, which now returns the transposed derivative. Previously, differentiating `Transpose(x*A)` with respect to a scalar `x` returned `A` with the wrong shape instead of `A.T`.
-```
+````
 
 AI's reasoning: This fixes a user-visible bug: differentiating a Transpose matrix expression gave results of the wrong shape. The entry is based on the one-line change in `Transpose._eval_derivative` in the diff, and the tests confirm the behavior. The .mailmap change doesn't need an entry.
 
@@ -2445,17 +2445,17 @@ Author: `raman118`
 
 **Human**
 
-```markdown
+````markdown
 * codegen
   * Fixed numerical evaluation of `log2`, `logaddexp`, `logaddexp2`, `cosm1`, and `powm1` treating binary precision as decimal digits and computing at unnecessarily high precision.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * codegen
   * Fixed numerical evaluation of `log2`, `logaddexp`, `logaddexp2`, `cosm1`, and `powm1` so that the requested binary precision is no longer misinterpreted as a number of decimal digits, which gave results with far more precision than requested.
-```
+````
 
 AI's reasoning: The diff changes the `_eval_evalf` methods of five public codegen functions so they correctly convert binary precision to decimal digits, a user-visible bug fix in numerical evaluation. The entry is based on the diff and the PR description.
 
@@ -2481,17 +2481,17 @@ Author: `raman118`
 
 **Human**
 
-```markdown
+````markdown
 * sets
   * Fixed interval addition with positive or negative infinity producing nested singleton sets in `SetExpr`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * sets
   * Fixed adding infinity to an `Interval` (for example `SetExpr(Interval(2, oo)) + oo`), which returned a set nested inside a `FiniteSet` instead of `{oo}`.
-```
+````
 
 AI's reasoning: The diff fixes a user-visible bug in the interval addition handlers in sympy/sets/handlers/add.py. Those handlers returned `FiniteSet({oo})`, a set nested inside a set, instead of `FiniteSet(oo)`. The entry is based on that diff.
 
@@ -2518,15 +2518,15 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff changes only a test tolerance in sympy/codegen/tests/test_algorithms.py, so it has no effect on SymPy users.
 
@@ -2542,17 +2542,17 @@ Author: `raman118`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * Fixed `.copy()` on symbols and other atoms to return the immutable atom itself instead of failing when reconstructing it from empty arguments.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * core
   * Fixed `Symbol('s').copy()` and `copy()` on other atoms such as numbers, `Dummy` and `Wild`, which previously raised `TypeError`. Copying an atom now returns the atom itself.
-```
+````
 
 AI's reasoning: The diff adds `Atom.copy()` returning self, fixing a user-visible TypeError when copying symbols and other atoms, so it needs a core entry. The entry is based on the diff and the PR description.
 
@@ -2579,17 +2579,17 @@ Author: `raman118`
 
 **Human**
 
-```markdown
+````markdown
 * combinatorics
   * Fixed `get_symmetric_group_sgs(0)` returning empty generators, allowing zero-rank tensor symmetry groups to be used in direct products and `TensorSymmetry` construction.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * combinatorics
   * Fixed `get_symmetric_group_sgs(0)` returning no generators, which caused `bsgs_direct_product` to raise `IndexError`. It now returns the identity permutation, consistent with `TensorSymmetry.fully_symmetric(0)`.
-```
+````
 
 AI's reasoning: The diff fixes a user-visible bug in the public function `get_symmetric_group_sgs` in `sympy/combinatorics/tensor_can.py`, where rank 0 led to an IndexError in `bsgs_direct_product`. The entry is based on that one-line source change. The other two changed files are tests.
 
@@ -2615,15 +2615,15 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only changes job dependencies in the GitHub Actions workflow file `.github/workflows/runtests.yml`. That is a CI change to a developer file, so it doesn't affect SymPy users.
 
@@ -2639,17 +2639,17 @@ Author: `raman118`
 
 **Human**
 
-```markdown
+````markdown
 * combinatorics
   * Fixed `FpSubgroup.to_FpGroup()` raising `TypeError` when converting subgroups of finitely presented groups, with or without a cached coset table.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * combinatorics
   * Fixed `FpSubgroup.to_FpGroup()` raising a `TypeError` when converting a subgroup of a finitely presented group.
-```
+````
 
 AI's reasoning: The diff fixes a user-facing bug: `FpSubgroup.to_FpGroup()` omitted the generators argument and raised `TypeError`. The other changes are tests and a .mailmap update.
 
@@ -2670,17 +2670,17 @@ Author: `raman118`
 
 **Human**
 
-```markdown
+````markdown
 * vector
   * Direct construction of `Vector` now raises a helpful `TypeError` instead of creating an invalid object that can cause infinite recursion during scalar multiplication.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * vector
   * Constructing `Vector` directly, such as `Vector(a, b, c)`, now raises a `TypeError` that suggests using `CoordSys3D` basis vectors. Previously this created an invalid object that raised `RecursionError` on scalar multiplication.
-```
+````
 
 AI's reasoning: The merged diff makes `Vector.__new__` raise `TypeError` when called directly on `Vector`, which changes user-visible behavior from a broken object to a clear error. The entry is based on the diff in `sympy/vector/vector.py`. The `.mailmap` change and the new test don't need entries.
 
@@ -2706,17 +2706,17 @@ Author: `raman118`
 
 **Human**
 
-```markdown
+````markdown
 * utilities
   * Fixed `reshape` to reject negative counts and nonpositive total template sizes with `ValueError`, while supporting nested zero-size groups in templates with a positive total size.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * utilities
   * Fixed `reshape` so that templates with nested zero-size groups, such as `reshape([1, 2, 3, 4], ([0], 4))`, now work, and so that templates with negative counts or a zero total size raise `ValueError`.
-```
+````
 
 AI's reasoning: The diff changes the behavior of the public function `sympy.utilities.iterables.reshape`. It now handles nested zero-size groups correctly, and it raises `ValueError` for negative counts and for templates whose total is zero. The entry is based on the diff and the new tests.
 
@@ -2741,17 +2741,17 @@ Author: `raman118`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * Fixed recursion when numerically evaluating a complex absolute value with evaluation disabled.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * core
   * Fixed infinite recursion when numerically evaluating an unevaluated `Abs` of a complex number inside `evaluate(False)`, e.g. `Abs(1 + I, evaluate=False).evalf()`.
-```
+````
 
 AI's reasoning: The diff changes `get_abs` in `sympy/core/evalf.py` so that `evalf` of an unevaluated `Abs` of a complex number under `evaluate(False)` no longer recurses indefinitely. This is a user-visible bug fix, so it gets an entry. The `.mailmap` change and the test change are developer-only.
 
@@ -2777,16 +2777,16 @@ Author: `hunterhogan`
 
 **Human**
 
-```markdown
+````markdown
 * matrices
   * Annotate `MatrixBase.LUsolve` and declare `MatrixBase.__iter__` for type checkers.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only adds type annotations (including a TYPE_CHECKING-only __iter__ declaration) and a .mailmap entry. It has no runtime effect, so users see no change.
 
@@ -2809,20 +2809,20 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * `count_ops` should be faster since it now relies on structural information and avoids inference
 
 * simplify
   * `fraction` with the `exact=True` setting interprets an expression structurally, without inference
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * simplify
   * Fixed `fraction(expr, exact=True)` and `count_ops` so that they no longer rely on assumptions inference about exponents. As a result, `fraction` with `exact=True` splits negative numeric exponents structurally, and some outputs (for example from `hankel_transform`) may now be arranged differently.
-```
+````
 
 AI's reasoning: The diff changes the behavior of public functions `fraction(..., exact=True)` and `count_ops`, and `exptrigsimp` now only rewrites trig functions. These changes can alter the form of results from other functions, such as `hankel_transform`, so they are user-visible. The entry is based on the changes to `radsimp.py` and `function.py`.
 
@@ -2851,17 +2851,17 @@ Author: `oscarbenjamin`
 
 **Human**
 
-```markdown
+````markdown
 * other
   * SymPy no longer uses setup.py and now uses pyproject.toml per PEP 517.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * other
   * Removed `setup.py`; SymPy's packaging metadata now lives entirely in `pyproject.toml`, so commands such as `python setup.py install` or `python setup.py test` no longer work and SymPy should be built and installed with standard tools such as `pip`.
-```
+````
 
 AI's reasoning: The PR deletes setup.py and moves all packaging metadata to pyproject.toml, which affects anyone building or installing SymPy from source or using `setup.py test`/`setup.py antlr`; the entry is based on the diff. The sdist also no longer includes AGENTS.md and CLAUDE.md, which I left out as too minor.
 
@@ -2888,15 +2888,15 @@ Author: `oscarbenjamin`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only adds AGENTS.md and CLAUDE.md to the MANIFEST.in exclusions, so these developer files stay out of the source distribution. Users of SymPy see no change in behavior, so no entry is needed.
 
@@ -2912,15 +2912,15 @@ Author: `oscarbenjamin`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The PR only simplifies the GitHub pull request template and moves contributor guidance into the developer docs. That is a workflow and developer-documentation change that doesn't affect people who use SymPy, so it needs no entry.
 
@@ -2936,15 +2936,15 @@ Author: `tqa236`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 AI's reasoning: The diff only changes test files, removing stale XFAIL markers and moving one test. No library code changed, so end users are not affected.
 
@@ -2960,16 +2960,16 @@ Author: `oscarbenjamin`
 
 **Human**
 
-```markdown
+````markdown
 NO ENTRY
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * matrices
   * Fixed a regression where `Matrix.norm()` with no argument returned the spectral (2-)norm for matrices instead of the Frobenius norm.
-```
+````
 
 AI's reasoning: The diff changes the default `ord` of `Matrix.norm` from 2 to None, which restores the Frobenius norm for 2D matrices, so this is a user-visible bug fix. I couldn't verify whether the regression shipped in an earlier release, and wrote the entry on the assumption that it did.
 
@@ -2989,17 +2989,17 @@ Author: `Dengzi555`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * Fixed `Dummy` equality when `dummy_index` is a SymPy `Integer`, so that `sympify(srepr(expr))` keeps `Dummy` symbols intact.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * core
   * Fixed `Dummy` so that a `dummy_index` given as a SymPy `Integer` is stored as a Python `int`, so that `sympify(srepr(expr))` now round-trips expressions containing a `Dummy` with an explicit `dummy_index`, including `CRootOf`.
-```
+````
 
 AI's reasoning: The one-line change in `Dummy.__new__` fixes a user-visible bug: `srepr`/`sympify` round-trips of expressions containing a `Dummy` with an explicit `dummy_index`, including `CRootOf`, previously failed. The entry is based on the diff and the description. The other changes are tests and a `.mailmap` line.
 
@@ -3025,18 +3025,18 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * improved accuracy of the evaluation (evalf) of products
   * eliminated condition that caused recursion error when printing an evaluated expression in an evaluate(False) environment
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * core
   * Fixed infinite recursion in `evalf` of a `Mul` when evaluated inside an `evaluate(False)` context, e.g. `Mul(-1, I).evalf()`, and improved the accuracy of numerical evaluation of unevaluated products of complex numbers.
-```
+````
 
 AI's reasoning: The diff changes evalf_mul in sympy/core/evalf.py to avoid symbolic Mul, fixing infinite recursion under evaluate(False) and improving accuracy for unevaluated complex products. These are user-visible bug fixes, so the PR gets an entry.
 
@@ -3062,23 +3062,23 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * as_terms no longer uses evaluation to order terms by their numerical coefficients
 
 * printing
   * rules for printing 2-term expressions have been improved to favor z - x over -x + z
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * core
   * Ordering of the terms of a sum (`as_ordered_terms()`) no longer uses numerical evaluation of coefficients, which made it faster, including for very large unevaluated expressions built with `evaluate(False)`. Terms with symbolic numerical constants, such as `pi`, `sqrt(2)` or `cos(5)`, may now be ordered differently than before.
 
 * printing
   * Printed ordering of sum terms changed because it no longer relies on numerical evaluation. For example, `-x + z` now prints as `z - x`, `1 + 2*pi` as `2*pi + 1`, and `e + exp(2)` as `exp(2) + e`.
-```
+````
 
 AI's reasoning: The PR changes how terms are ordered and printed, which makes it faster and changes the printed form of many expressions, so users will notice. This is based on the description and the discussion. I did not read the full diff, which was too large to open.
 
@@ -3107,17 +3107,17 @@ Author: `Nabhag2507`
 
 **Human**
 
-```markdown
+````markdown
 * series
   * Added `bound_symbols` property to `Limit`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * series
   * Added the `bound_symbols` property to `Limit`, so that `Limit(x + y, x, 0).bound_symbols` gives `(x,)`. This also fixes `Limit.as_dummy()`, `Limit.dummy_eq()` and `Limit.canonical_variables`, which did not handle the limit variable before.
-```
+````
 
 AI's reasoning: The diff adds a public `bound_symbols` property to `Limit`. Before this, accessing it raised an `AttributeError`, and the PR description says `as_dummy`, `dummy_eq` and `canonical_variables` now work with it. That is a user-visible change. The diff adds the property and a test, but it doesn't touch those other methods, so the second sentence of the entry rests on the description.
 
@@ -3141,17 +3141,17 @@ Author: `tqa236`
 
 **Human**
 
-```markdown
+````markdown
 * core
   * `Lambda.subs` no longer replaces an expression that contains a bound variable. Formerly, `Lambda(x, x**2).subs(x**2, z)` incorrectly gave `Lambda(x, z)`; now it gives the unchanged `Lambda(x, x**2)`
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * core
   * Fixed `Lambda.subs` so that it no longer replaces expressions that contain the lambda's bound variables, e.g. `Lambda(x, x**2).subs(x**2, z)` now returns `Lambda(x, x**2)` instead of `Lambda(x, z)`.
-```
+````
 
 AI's reasoning: This is a user-visible bug fix in `Lambda._subs` in sympy/core/function.py. `subs` previously replaced expressions containing a bound variable, which gave wrong results. I based the entry on the diff and the description.
 
@@ -3173,17 +3173,17 @@ Author: `Aryapatel-007`
 
 **Human**
 
-```markdown
+````markdown
 * printing
   * Fixed `pycode` and `lambdify` with the `math` module giving wrong results for expressions containing `frac`, such as `2*frac(x)`, which was printed as `2*x % 1`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * printing
   * Fixed `PythonCodePrinter` printing `frac` without parentheses, which made `pycode(2*frac(x))` give `2*x % 1` and `lambdify(x, 2*frac(x), "math")` return wrong values. It now prints `2*(x % 1)`.
-```
+````
 
 AI's reasoning: The PR fixes a user-visible bug where Python code printed for expressions containing `frac` gave wrong results, including through lambdify with the math module. I based the entry on the diff to `pycode.py`, where `_print_frac` now wraps its output in parentheses. The NumPy printer's output is unchanged.
 
@@ -3204,20 +3204,20 @@ Author: `aarav570`
 
 **Human**
 
-```markdown
+````markdown
 * solvers
   * Fixed `IndexError` in `_solve_system` when solving constant systems with empty `symbols`.
 
 * integrals
   * Fixed crash when calling `integrate` on products of exponentials with transcendental bases.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * solvers
   * Fixed an `IndexError` raised by `solve` for systems with no symbols to solve for and constant transcendental terms such as `log(2)`. This also fixed `integrate(2**(2 + 3*x)*3**(5 + 7*x), x)`, which previously failed.
-```
+````
 
 AI's reasoning: The diff fixes a user-visible crash (IndexError) in the solver for systems with no symbols, which also made an `integrate` call fail, so it needs an entry. The entry is based on the change to `_solve_system` and the regression tests in the diff.
 
@@ -3245,17 +3245,17 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * polys
   * evaluating a PurePoly at one of its roots, expressed as RootOf, yields 0
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * polys
   * Evaluating a univariate `PurePoly` at a `CRootOf` of a polynomial that divides it now returns zero directly, without expanding powers of the root.
-```
+````
 
 AI's reasoning: The diff adds a fast path in `PurePoly.__call__` so evaluating at a root of a divisor polynomial returns 0 directly, which is a user-visible improvement. The entry is based on the diff in `polytools.py`.
 
@@ -3282,17 +3282,17 @@ Author: `smichr`
 
 **Human**
 
-```markdown
+````markdown
 * polys
   * domains `frac_field` and `poly_ring` are made explicit when necessary to allow copy-paste of string
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * printing
   * Fixed the string printing of `Poly` and `PurePoly` so that composite domains such as `ZZ[beta]` or domains with symbol assumptions or a non-default monomial order are printed using explicit constructors like `ZZ.poly_ring(beta)`, so that the output can be copied and evaluated to recreate the same polynomial.
-```
+````
 
 AI's reasoning: The diff changes `StrPrinter._print_Poly` so that composite domains (polynomial ring, fraction field, algebraic field) that would not round-trip through an abbreviated string are printed with explicit constructors, which changes user-visible output. The entry is based on the diff, not the description.
 
@@ -3320,17 +3320,17 @@ Author: `DroneBetter`
 
 **Human**
 
-```markdown
+````markdown
 * functions
   * Compute `stirling(n,k)` by performing the recurrence in a parallelogram instead of a trapezoid; this is about twice as fast at generating full rows, and saves about a linear factor for small/fixed `n-k`.
-```
+````
 
 **AI**
 
-```markdown
+````markdown
 * functions
   * Improved the performance of `stirling` for the first and second kinds, which now take roughly half as long to compute large values.
-```
+````
 
 AI's reasoning: The diff changes the algorithm behind `stirling` (kinds 1 and 2) so it does about half the operations. The description's timings show roughly a 2x speedup, which is a user-visible performance improvement and so needs an entry.
 

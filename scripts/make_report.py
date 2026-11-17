@@ -83,14 +83,26 @@ def sign_test(wins, losses):
     return min(1.0, 2 * tail)
 
 
+def sentence_count(text):
+    """Count sentences, ignoring code spans and abbreviations such as "e.g."."""
+    text = re.sub(r"```.*?```|`[^`]*`", "CODE", text, flags=re.DOTALL)
+    text = re.sub(r"\b(e\.g|i\.e|etc|vs)\.", r"\1", text)
+    parts = re.split(r"(?<=[.!?])\s+(?=[A-Z])", text.strip())
+    return len([part for part in parts if part.strip()])
+
+
 def mechanical(entries):
     checks = Counter()
     for entry in entries:
         text = entry["text"].strip()
         checks["entries"] += 1
-        checks["ends_with_period"] += text.endswith((".", ".`", "```"))
+        period = text.endswith((".", ".`", "```"))
         first = text.lstrip("`*_")[:1]
-        checks["starts_capitalized"] += first.isupper() or text[:1] == "`"
+        capitalized = first.isupper() or text[:1] == "`"
+        checks["ends_with_period"] += period
+        checks["starts_capitalized"] += capitalized
+        checks["capitalized_and_ends_with_period"] += period and capitalized
+        checks["more_than_one_sentence"] += sentence_count(text) > 1
         checks["mentions_issue_number"] += bool(re.search(r"#\d{3,}", text))
         checks["multi_line"] += "\n" in text
     return checks
@@ -120,28 +132,31 @@ def token_summary(runs):
     return out
 
 
-def audit(rows):
-    """Check that no generation run touched anything outside its sandbox."""
-    allowed = ("<repo>/work/runs", "<repo>/work/sympy")
+def audit(runs, sandbox):
+    """Check that no run touched anything outside its sandbox."""
+    allowed = (f"<repo>/work/{sandbox}", "<repo>/work/sympy")
     outside = []
     denials = 0
-    for row in rows:
-        gen = row["gen"]
+    for gen in runs:
         denials += len(gen["permission_denials"] or [])
         for call in gen["tool_calls"]:
             if call["name"] == "StructuredOutput":
                 continue
             target = call["input"].get("file_path") or call["input"].get("path")
             if target and target.startswith(("/", "~", "<")) and not target.startswith(allowed):
-                outside.append((row["number"], call["name"], target))
+                outside.append((gen["number"], call["name"], target))
     return {
         "tool_calls_outside_sandbox": outside,
         "permission_denials": denials,
-        "tools_available": sorted({t for row in rows for t in row["gen"]["tools_available"]}),
-        "mcp_servers": sorted({str(s) for row in rows for s in row["gen"]["mcp_servers"]}),
+        "tools_available": sorted({t for gen in runs for t in gen["tools_available"]}),
+        "mcp_servers": sorted({str(s) for gen in runs for s in gen["mcp_servers"]}),
         "reads_of_sympy_checkout": sum(
-            any("<repo>/work/sympy" in str(call["input"]) for call in row["gen"]["tool_calls"])
-            for row in rows
+            any("<repo>/work/sympy" in str(call["input"]) for call in gen["tool_calls"])
+            for gen in runs
+        ),
+        "reads_of_linked_issues": sum(
+            any("linked.md" in str(call["input"]) for call in gen["tool_calls"])
+            for gen in runs
         ),
     }
 
@@ -234,7 +249,9 @@ def compute(rows):
         "cost_usd": RELEASE_CYCLE_PRS * mean_cost,
         "tokens": RELEASE_CYCLE_PRS * mean_tokens,
     }
-    stats["audit"] = audit(rows)
+    stats["audit"] = {"generation": audit([r["gen"] for r in rows], "runs")}
+    if judged:
+        stats["audit"]["judge"] = audit([r["judge"]["run"] for r in judged], "judge-runs")
     variant = variant_stats(rows)
     if variant:
         stats["release_context_variant"] = variant
@@ -270,6 +287,7 @@ def variant_stats(rows):
         return None
     out["n"] = len(runs)
     out["tokens"] = token_summary(runs)
+    out["audit"] = audit(runs, "runs")
     return out
 
 
@@ -428,8 +446,9 @@ def tables(stats):
         "| | Human | AI |",
         "|---|---|---|",
     ]
-    for key in ("entries", "ends_with_period", "starts_capitalized", "mentions_issue_number",
-                "multi_line", "invalid_header"):
+    for key in ("entries", "ends_with_period", "starts_capitalized",
+                "capitalized_and_ends_with_period", "more_than_one_sentence",
+                "mentions_issue_number", "invalid_header"):
         lines.append(f"| {key.replace('_', ' ')} | {mech['human'].get(key, 0)} | {mech['ai'].get(key, 0)} |")
     lines.append(f"| median words per entry | {stats['words']['human_median']} | {stats['words']['ai_median']} |")
     lines.append("")
@@ -460,7 +479,7 @@ def tables(stats):
 
 
 def block(text):
-    return "```markdown\n" + text.strip() + "\n```"
+    return "````markdown\n" + text.strip() + "\n````"
 
 
 def comparisons(rows):

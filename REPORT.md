@@ -12,16 +12,16 @@ On this sample, the notes Sonnet wrote were at least as good as the hand-written
 | Mean judge score, 1 to 5 | 3.35 | 4.44 |
 | Entries judged accurate | 54 of 79 | 62 of 72 |
 | Entries judged wrong | 2 | 1 |
-| Entries that are a capitalized sentence ending in a period | 67 of 91 | 85 of 85 |
+| Entries that start with a capital and end with a period | 63 of 91 | 85 of 85 |
 | Median words per entry | 13 | 27 |
 
-Three things temper that result, and they are covered in detail below: the judge is another Claude model, the AI's entries are twice as long as the guide asks for, and about half of the "human" notes in this sample appear to have been written by AI already.
+Three things temper that result, and they are covered in detail below: the judge is another Claude model, the AI's entries are about twice as long as the hand-written ones, and many of the "human" notes in this sample were themselves written with AI (20 of the 79 pull requests with entries say so in their disclosure, and a classifier put the number of AI-looking entries at about 40).
 
 ## What was tested
 
 The sample is the 100 most recently merged pull requests to master that have a release notes block, merged between 2026-11-02 and 2026-11-17. Contributors wrote an entry for 79 of them and `NO ENTRY` for 21. There are 31 authors, but five of them account for 66 of the pull requests (`smichr` 22, `raman118` 15, `oscarbenjamin` 11, `hunterhogan` 10, `ish1416` 8), so the "human" side is mostly those five people's habits.
 
-For each pull request, one isolated Sonnet session (`claude-sonnet-5-5`) got the wiki's Writing Release Notes guide, the bot's list of allowed headers, a sample of 1.14 entries, and a bundle with the title, description, commits, discussion, reviews, the diff, and the referenced issues. The release notes section was cut from the description, bot comments were dropped, and any comment that discussed the release notes was dropped (7 pull requests needed that). The session could read the bundle and a sympy checkout and had no shell, network, or other tools. A canary run with the same flags, told to read the answers by any route, was refused every time, and no generation run touched a path outside its sandbox.
+For each pull request, one isolated Sonnet session (`claude-sonnet-5-5`) got the wiki's Writing Release Notes guide, the bot's list of allowed headers, a sample of 1.14 entries, and a bundle with the title, description, commits, discussion, reviews, the diff, and the referenced issues. The release notes section was cut from the description, bot comments were dropped, and any comment that discussed the release notes was dropped (7 pull requests needed that). The session could read the bundle and a sympy checkout and had no shell, network, or other tools. A canary run with the same flags, told to read the answers by any route, was refused every time, and the recorded tool calls show that no generation or judge run touched a path outside its sandbox.
 
 A second model (`claude-opus-5-5`) then compared the two notes for each pull request against the diff. It saw them as A and B in a random order and was told that two people had written them.
 
@@ -34,7 +34,7 @@ A second model (`claude-opus-5-5`) then compared the two notes for each pull req
 
 The two sides agreed on 83 of 100. The 17 disagreements fall into clear groups.
 
-**Human entry, Sonnet `NO ENTRY` (12).** Eight are pull requests that only add type annotations, where the contributor wrote entries like "Annotations for `Basic.has`." The others are a typo fix in `LICENSES_BUNDLED.txt` (entry: "Fix typo"), an internal refactoring, a change to SymPy's own doctest checker, and a fix for a regression from a pull request merged a few days earlier. The judge sided with Sonnet on all 12. Whether annotation-only changes belong in the release notes is a policy question the guide does not answer. Sonnet was not consistent about it either: it wrote an entry for one annotation pull request ([31027](https://github.com/sympy/sympy/pull/31027)) in the main run and `NO ENTRY` for the same one in a later run. If this goes further, the guide or the prompt should say which it is.
+**Human entry, Sonnet `NO ENTRY` (12).** Seven are pull requests that only add type annotations, where the contributor wrote entries like "Annotations for `Basic.has`." An eighth ([30990](https://github.com/sympy/sympy/pull/30990)) is mostly annotations but also removes an unused, undocumented `hack2` keyword from `Atom.xreplace`; the hand-written entry mentions that and Sonnet's reasoning does not. The others are a typo fix in `LICENSES_BUNDLED.txt` (entry: "Fix typo"), an internal refactoring, a change to SymPy's own doctest checker, and a fix for a regression from a pull request merged a few days earlier. The judge preferred Sonnet's `NO ENTRY` on all 12, clearly on 9 and slightly on 3 (30990 among the slight ones). Whether annotation-only changes belong in the release notes is a policy question the guide does not answer. Sonnet was not consistent about it either: it wrote an entry for one annotation pull request ([31027](https://github.com/sympy/sympy/pull/31027)) in the main run and `NO ENTRY` for the same one in a later run. If this goes further, the guide or the prompt should say which it is.
 
 **Human `NO ENTRY`, Sonnet entry (5).** I checked these by hand, since they are the cases where a maintainer and the model disagree.
 
@@ -80,7 +80,7 @@ Sonnet's main advantage is that it reads the diff. In [31075](https://github.com
 
 Where Sonnet did worse:
 
-- **Length.** Its entries have a median of 27 words against 13 for the hand-written ones, 30 of its 85 entries run to more than one sentence, and it was longer than the human on 58 of the 67 shared pull requests. The guide asks for entries that are "very short", typically one sentence. About half of the 7 cases where the judge preferred the human were about this, for example [31063](https://github.com/sympy/sympy/pull/31063), where Sonnet put a full line of LaTeX output in the entry. The judge did not penalize length much; a maintainer reading 500 of these might. This should respond to a prompt change, but I did not test one.
+- **Length.** Its entries have a median of 27 words against 13 for the hand-written ones, 24 of its 85 entries run to more than one sentence (4 of 91 for the hand-written ones), and it was longer than the human on 58 of the 67 shared pull requests. The guide asks for entries that are "very short", typically one sentence. About half of the 7 cases where the judge preferred the human were about this, for example [31063](https://github.com/sympy/sympy/pull/31063), where Sonnet put a full line of LaTeX output in the entry. The judge did not penalize length much; a maintainer reading 500 of these might. This should respond to a prompt change, but I did not test one.
 - **Overreaching examples.** Its one entry judged wrong ([31135](https://github.com/sympy/sympy/pull/31135)) said the bug needed a generator argument, which it inferred from the diff and got wrong. In [30950](https://github.com/sympy/sympy/pull/30950) it gave an example that did not trigger the bug. Both come from adding specifics that the hand-written entry left out.
 - **Extra entries.** In [30994](https://github.com/sympy/sympy/pull/30994) it added bullets for incidental changes that users would not notice.
 
@@ -102,9 +102,9 @@ SymPy's pull request template has a required AI disclosure section, so there is 
 | Cannot tell | 19 | 3.32 | 18 / 1 / 0 |
 | Unlikely | 20 | 2.35 | 19 / 1 / 0 |
 
-So only 8 of 79 pull requests declare no AI use, and about half of the hand-written entries are probably AI-written already. That changes what the comparison means: for much of this sample it is Sonnet with the diff and the guide against another model with whatever context the contributor gave it, not against a person.
+What is certain is the disclosure: only 8 of 79 pull requests declare no AI use, and 20 say outright that AI wrote the description, which is where the release notes live. The classifier's estimate is that about 40 of the 79 entries read as AI-written. That changes what the comparison means: for a good part of this sample it is Sonnet with the diff and the guide against another model with whatever context the contributor gave it, not against a person.
 
-The "looks AI-written" label is weak evidence, since an entry is one sentence. In practice the classifier leaned on the surrounding description and on form: 39 of the 40 "likely" entries end with a period, against 6 of the 20 "unlikely" ones. The entries that read as typed by a person scored lowest with the judge, mostly on form (lowercase fragments, no period, terse wording) and somewhat on accuracy. Per-entry labels and the evidence for each are in `report/comparisons.md`; treat individual labels as guesses.
+The "looks AI-written" label is a guess from a single sentence and should be read as an estimate for the sample, not a finding about any one pull request or contributor. In practice the classifier leaned on the surrounding description and on form: 39 of the 40 "likely" entries end with a period, against 6 of the 20 "unlikely" ones. The entries that read as typed by a person scored lowest with the judge, mostly on form (lowercase fragments, no period, terse wording) and somewhat on accuracy. Per-entry labels and the classifier's stated evidence are in `report/comparisons.md`, next to the authors' logins, which is something to keep in mind before sharing that file.
 
 ## Tokens and cost
 
@@ -121,7 +121,7 @@ For generation, a typical pull request took 4 turns (read `pr.md`, read `diff.pa
 
 Of the roughly 12,000-token prefix that every run shares, about 5,200 tokens are Claude Code's own system prompt and tool definitions, and the rest is the guide, the header list, and the examples. Because that prefix is identical across runs it is cached, which is why the per-PR cost is low. The first four pilot runs, before the cache was warm, cost $0.065 to $0.10 each.
 
-**For a whole release.** 835 pull requests were merged to master between the 1.14.0 release and 2026-11-17, and 494 of them have entries on the 1.15 release notes page. Running all 835 would take about 25 to 27 million tokens, nearly all of them cache reads, and cost about $25 with the main prompt or $31 with the release-context prompt. Without any cache benefit the upper bound is around $55. At 6 to 8 sessions in parallel, 100 pull requests took a few minutes, so a full release is well under an hour. The judge and the authorship check are costs of this experiment, not of producing notes.
+**For a whole release.** 835 pull requests were merged to master between the 1.14.0 release and 2026-11-17, and 494 of them have entries on the 1.15 release notes page. Running all 835 would take about 25 to 27 million tokens, nearly all of them cache reads, and cost about $25 with the main prompt or $31 with the release-context prompt. If the shared prefix were not reused across runs (the rate the first pilot runs paid), it would be around $55. At 6 to 8 sessions in parallel, 100 pull requests took a few minutes, so a full release is well under an hour. The judge and the authorship check are costs of this experiment, not of producing notes.
 
 ## Caveats
 
@@ -129,7 +129,7 @@ Of the roughly 12,000-token prefix that every run shares, about 5,200 tokens are
 - **The sample is two weeks and five dominant authors.** It also comes from a release-candidate period with an unusual share of AI-assisted pull requests. A sample from a year ago could look different.
 - **Hand-written notes were written without a prompt telling the author to read the guide.** Part of the gap is that Sonnet was shown the guide every time and contributors mostly do not reread it.
 - **Each pull request was handled in isolation.** A release-time process sees the whole set and could merge related entries, drop entries for features that were later reverted, and write the highlights and deprecations sections. None of that was tested.
-- **The main run did not use the linked issues**, as described above. The entries it wrote are based on the pull request page and the diff only.
+- **The judged run did not use the linked issues**, as described above. The entries it wrote are based on the pull request page and the diff only. The release-context prompt, which is the one I would use, was not judged, so its entry quality is untested beyond the decision table.
 
 ## What I would do next
 

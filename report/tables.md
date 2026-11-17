@@ -57,8 +57,9 @@ Pull requests where the decision changed from the main run:
 | entries | 91 | 85 |
 | ends with period | 67 | 85 |
 | starts capitalized | 73 | 85 |
+| capitalized and ends with period | 63 | 85 |
+| more than one sentence | 4 | 24 |
 | mentions issue number | 1 | 0 |
-| multi line | 0 | 0 |
 | invalid header | 0 | 0 |
 | median words per entry | 13 | 27 |
 
