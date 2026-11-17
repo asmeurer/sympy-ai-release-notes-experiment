@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 5241,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 11725,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 11725,
+      "cacheReadInputTokens": 24201,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0559381,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 661,
+      "provider": "firstParty",
+      "thinkingTokens": 52,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 31147,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"assumptions\",\"text\":\"Fixed an `AttributeError` raised by `ask` for `Q.real`, `Q.imaginary`, `Q.positive`, `Q.negative` and `Q.nonzero` on some numeric expressions, such as radical roots of quartic polynomials. These queries now return `None` when the result cannot be determined.\"}],\"reasoning\":\"The diff fixes a crash in the assumption handlers that users could hit in 1.14.0 (the linked issue says behavior is the same in 1.14.0 unless marked as a regression). It now returns None instead of raising. The helper consolidation, tests and .mailmap changes are internal and not user-visible.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "assumptions",
+        "text": "Fixed an `AttributeError` raised by `ask` for `Q.real`, `Q.imaginary`, `Q.positive`, `Q.negative` and `Q.nonzero` on some numeric expressions, such as radical roots of quartic polynomials. These queries now return `None` when the result cannot be determined."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The diff fixes a crash in the assumption handlers that users could hit in 1.14.0 (the linked issue says behavior is the same in 1.14.0 unless marked as a regression). It now returns None instead of raising. The helper consolidation, tests and .mailmap changes are internal and not user-visible."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31147/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31147/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31147/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "assumptions",
+            "text": "Fixed an `AttributeError` raised by `ask` for `Q.real`, `Q.imaginary`, `Q.positive`, `Q.negative` and `Q.nonzero` on some numeric expressions, such as radical roots of quartic polynomials. These queries now return `None` when the result cannot be determined."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The diff fixes a crash in the assumption handlers that users could hit in 1.14.0 (the linked issue says behavior is the same in 1.14.0 unless marked as a regression). It now returns None instead of raising. The helper consolidation, tests and .mailmap changes are internal and not user-visible."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0559381,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 11725,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 11725,
+    "cache_read_input_tokens": 24201,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 11284,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 11284,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 372,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 661,
+    "output_tokens_details": {
+      "thinking_tokens": 52
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

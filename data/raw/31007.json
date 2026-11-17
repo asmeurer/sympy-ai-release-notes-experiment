@@ -1,0 +1,32 @@
+{
+  "additions": 9,
+  "author": "smichr",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\nLocal source: doc/src/contributing/pull-request-guidelines.rst\nKeep all section headings below. -->\n\n#### References to other Issues or PRs\n\n#### Brief description of what is fixed or changed\n\nminor fix to rebuilding of expression to avoid the appearance of `r*1` where r is a Rational. See added test.\n\n#### Other comments\n\n\n#### AI Generation Disclosure\n\nSolution checked with ChatGPT and modification of proposed solution accepted.\n\n#### Release Notes\n\n\n<!-- BEGIN RELEASE NOTES -->\n* core\n  * fixed a condition that allowed a hollow multiplication by 1 to remain in a final expression\n<!-- END RELEASE NOTES -->\n",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "Christopher Smith",
+      "message": "factor_terms: watch for unwanted hollow mul",
+      "sha": "06b1c67a6170a8f317935864cdc486bad9bcce8f"
+    }
+  ],
+  "created_at": "2026-11-09T08:30:51Z",
+  "deletions": 2,
+  "diff": "diff --git a/sympy/core/mul.py b/sympy/core/mul.py\nindex 2c9f47cd009e..6b0bccc86f0e 100644\n--- a/sympy/core/mul.py\n+++ b/sympy/core/mul.py\n@@ -2187,8 +2187,11 @@ def _keep_coeff(coeff, factors, clear=True, sign=False):\n             args = [i.as_coeff_Mul() for i in factors.args]\n             args = [(_keep_coeff(c, coeff), m) for c, m in args]\n             if any(c.is_Integer for c, _ in args):\n-                return Add._from_args([Mul._from_args(\n-                    i[1:] if i[0] == 1 else i) for i in args])\n+                return Add._from_args([\n+                    c if m is S.One else Mul._from_args(\n+                        (m,) if c is S.One else (c, m))\n+                    for c, m in args\n+                ])\n         return Mul(coeff, factors, evaluate=False)\n     elif factors.is_Mul:\n         margs = list(factors.args)\ndiff --git a/sympy/core/tests/test_exprtools.py b/sympy/core/tests/test_exprtools.py\nindex ec1786d985cd..bbe890fae750 100644\n--- a/sympy/core/tests/test_exprtools.py\n+++ b/sympy/core/tests/test_exprtools.py\n@@ -339,6 +339,10 @@ def test_factor_terms():\n     assert factor_terms(0**(x + 2) - 1) == 0**(x + 2) - 1\n     assert factor_terms((0**(x + 2) - 1).subs(x,-2)) == 0\n \n+    # no unwanted hollow mul\n+    eq = (-2*y*x - y)/(2*y)/-1\n+    assert factor_terms(eq) == x + S.Half  # not x + (1/2)*1\n+\n \n def test_xreplace():\n     e = Mul(2, 1 + x, evaluate=False)\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* core\n  * fixed a condition that allowed a hollow multiplication by 1 to remain in a final expression ([#31007](https://github.com/sympy/sympy/pull/31007) by [@smichr](https://github.com/smichr))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\n    Local source: doc/src/contributing/pull-request-guidelines.rst\n    Keep all section headings below. -->\n\n    #### References to other Issues or PRs\n\n    #### Brief description of what is fixed or changed\n\n    minor fix to rebuilding of expression to avoid the appearance of `r*1` where r is a Rational. See added test.\n\n    #### Other comments\n\n\n    #### AI Generation Disclosure\n\n    Solution checked with ChatGPT and modification of proposed solution accepted.\n\n    #### Release Notes\n\n\n    <!-- BEGIN RELEASE NOTES -->\n    * core\n      * fixed a condition that allowed a hollow multiplication by 1 to remain in a final expression\n    <!-- END RELEASE NOTES -->\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-09T08:30:55Z"
+    }
+  ],
+  "labels": [],
+  "linked": [],
+  "merge_commit_sha": "cca60aa383104536465f57dce37a2c6da370cf30",
+  "merged_at": "2026-11-09T18:33:57Z",
+  "number": 31007,
+  "review_comments": [],
+  "reviews": [],
+  "title": "factor_terms: watch for unwanted hollow mul"
+}

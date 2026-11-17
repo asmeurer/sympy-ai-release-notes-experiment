@@ -1,0 +1,137 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 12060,
+  "human_is": "B",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 7196,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 7196,
+      "cacheReadInputTokens": 15190,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.08510200000000001,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1224,
+      "provider": "firstParty",
+      "thinkingTokens": 444,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30961,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"Only names positive infinity in prose, although the negative infinity case was also fixed (\\\"infinity\\\" can loosely cover both)\",\"Says \\\"adding infinity to an `Interval`\\\" generally, although the bug only appears through `SetExpr` (the example makes this clear)\",\"Somewhat long for a release note\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"Has no concrete example, and \\\"nested singleton sets\\\" is a little abstract for users\",\"Gives no correct result to compare against\"]},\"same_substance\":true,\"preferred\":\"A\",\"strength\":\"slight\",\"rationale\":\"The diff changes the `Interval + oo` and `Interval + -oo` handlers used by `SetExpr`. They now return `FiniteSet(oo)` instead of `FiniteSet({oo})`, which sympified to a nested `FiniteSet(FiniteSet(oo))`. This is a user-visible bug fix, so it deserves an entry. Both candidates describe it correctly under `sets`. A is slightly better because it gives a concrete example and the correct result `{oo}`. B is more complete in naming the negative infinity case, but it is more abstract.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "Only names positive infinity in prose, although the negative infinity case was also fixed (\"infinity\" can loosely cover both)",
+        "Says \"adding infinity to an `Interval`\" generally, although the bug only appears through `SetExpr` (the example makes this clear)",
+        "Somewhat long for a release note"
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "Has no concrete example, and \"nested singleton sets\" is a little abstract for users",
+        "Gives no correct result to compare against"
+      ]
+    },
+    "preferred": "A",
+    "rationale": "The diff changes the `Interval + oo` and `Interval + -oo` handlers used by `SetExpr`. They now return `FiniteSet(oo)` instead of `FiniteSet({oo})`, which sympified to a nested `FiniteSet(FiniteSet(oo))`. This is a user-visible bug fix, so it deserves an entry. Both candidates describe it correctly under `sets`. A is slightly better because it gives a concrete example and the correct result `{oo}`. B is more complete in naming the negative infinity case, but it is more abstract.",
+    "same_substance": true,
+    "should_have_entry": "yes",
+    "strength": "slight"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30961/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30961/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "Only names positive infinity in prose, although the negative infinity case was also fixed (\"infinity\" can loosely cover both)",
+            "Says \"adding infinity to an `Interval`\" generally, although the bug only appears through `SetExpr` (the example makes this clear)",
+            "Somewhat long for a release note"
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "Has no concrete example, and \"nested singleton sets\" is a little abstract for users",
+            "Gives no correct result to compare against"
+          ]
+        },
+        "preferred": "A",
+        "rationale": "The diff changes the `Interval + oo` and `Interval + -oo` handlers used by `SetExpr`. They now return `FiniteSet(oo)` instead of `FiniteSet({oo})`, which sympified to a nested `FiniteSet(FiniteSet(oo))`. This is a user-visible bug fix, so it deserves an entry. Both candidates describe it correctly under `sets`. A is slightly better because it gives a concrete example and the correct result `{oo}`. B is more complete in naming the negative infinity case, but it is more abstract.",
+        "same_substance": true,
+        "should_have_entry": "yes",
+        "strength": "slight"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.08510200000000001,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 7196,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 7196,
+    "cache_read_input_tokens": 15190,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 1740,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 1740,
+        "cache_read_input_tokens": 10323,
+        "input_tokens": 2,
+        "output_tokens": 1024,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1224,
+    "output_tokens_details": {
+      "thinking_tokens": 444
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

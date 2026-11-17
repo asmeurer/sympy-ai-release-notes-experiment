@@ -1,0 +1,67 @@
+diff --git a/sympy/core/expr.py b/sympy/core/expr.py
+index 901a960659bb..76969157642b 100644
+--- a/sympy/core/expr.py
++++ b/sympy/core/expr.py
+@@ -22,7 +22,7 @@
+ 
+ 
+ if TYPE_CHECKING:
+-    from typing import Any, Hashable, TypeVar
++    from typing import Any, Hashable, TypeVar, SupportsIndex
+     from typing_extensions import Self
+     from .numbers import Number
+     from sympy.core.basic import Tbasic
+@@ -1404,7 +1404,7 @@ def args_cnc(self, cset=False, warn=True, split_1=True):
+                                  [ci for ci in c if list(self.args).count(ci) > 1])
+         return [c, nc]
+ 
+-    def coeff(self, x: Expr | complex, n=1, right=False, _first=True):
++    def coeff(self, x: Expr | complex, n: SupportsIndex = 1, right: bool = False, _first: bool = True) -> Expr:
+         """
+         Returns the coefficient from the term(s) containing ``x**n``. If ``n``
+         is zero then all terms independent of ``x`` will be returned.
+@@ -1608,7 +1608,7 @@ def find(l, sub, first=True):
+             d = Add(*[i for i in Add.make_args(self.as_independent(xe)[1])
+                 if all(xi in Mul.make_args(i) for xi in xargs)])
+             rv = d.coeff(xe, right=right, _first=False)
+-            if not rv.is_Add or not right:
++            if not isinstance(rv, Add) or not right:
+                 return rv
+             c_part, nc_part = zip(*[i.args_cnc() for i in rv.args])
+             if has_variety(c_part):
+@@ -1633,7 +1633,7 @@ def find(l, sub, first=True):
+         if one_c:
+             if co2 == []:
+                 return S.Zero
+-            elif co2:
++            else:
+                 return Add(*co2)
+         else:  # both nc
+             # now check the non-comm parts
+@@ -1671,20 +1671,20 @@ def find(l, sub, first=True):
+                         return Mul(*end[ii + len(nx):])
+             # look for single match
+             hit = None
+-            for i, (r, n) in enumerate(co):
+-                ii = find(n, nx, right)
++            for i, (r, nc) in enumerate(co):
++                ii = find(nc, nx, right)
+                 if ii is not None:
+                     if not hit:
+-                        hit = ii, r, n
++                        hit = ii, r, nc
+                     else:
+                         break
+             else:
+                 if hit:
+-                    ii, r, n = hit
++                    ii, r, nc = hit
+                     if not right:
+-                        return Mul(*(list(r) + n[:ii]))
++                        return Mul(*(list(r) + nc[:ii]))
+                     else:
+-                        return Mul(*n[ii + len(nx):])
++                        return Mul(*nc[ii + len(nx):])
+ 
+             return S.Zero
+ 

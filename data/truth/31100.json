@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "None.",
+  "author": "wermos",
+  "entries": [
+    {
+      "submodule": "parsing",
+      "text": "The Lark-based LaTeX parser now parses expressions with `\\leqq` and `\\geqq`."
+    }
+  ],
+  "merged_at": "2026-11-14T16:31:19Z",
+  "number": 31100,
+  "overlap": {
+    "title_similarity": 0.35772357723577236,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* parsing\n    - The Lark-based LaTeX parser now parses expressions with `\\leqq` and `\\geqq`.",
+  "status": "entry",
+  "title": "Add support for `\\leqq` and  `\\geqq` in the Lark LaTeX parser"
+}

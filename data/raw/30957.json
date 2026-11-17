@@ -1,0 +1,46 @@
+{
+  "additions": 17,
+  "author": "raman118",
+  "base": "master",
+  "body": "#### References to other Issues or PRs\r\n\r\nFixes #17123.\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\n`get_symmetric_group_sgs(0)` returned no generators, causing `bsgs_direct_product` to raise `IndexError`. It now returns the identity permutation on the two sign slots, matching `TensorSymmetry.fully_symmetric(0)`.\r\n\r\n#### Other comments\r\n\r\nRegression tests failed before the fix. Coverage includes symmetric and antisymmetric rank-zero groups, direct products in both orders, and `TensorSymmetry` construction. The tensor canonicalization and tensor suites passed (83 passed, 1 skipped, 1 xfailed), as did code-quality tests (6 passed), Ruff, and `bin/mailmap_check.py`.\r\n\r\n#### AI Generation Disclosure\r\n\r\nOpenAI Codex (GPT-6 Astra) generated all changes in `sympy/combinatorics/tensor_can.py`, `sympy/combinatorics/tests/test_tensor_can.py`, and `sympy/tensor/tests/test_tensor.py`. This PR description was also written by the AI agent at the account owner's request.\r\n\r\n#### Release Notes\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\n* combinatorics\r\n  * Fixed `get_symmetric_group_sgs(0)` returning empty generators, allowing zero-rank tensor symmetry groups to be used in direct products and `TensorSymmetry` construction.\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 3,
+  "commits": [
+    {
+      "author": "raman118",
+      "message": "Handle rank-zero symmetric tensor groups\n\nReturn the degree-two identity generator for rank zero so signed direct products and TensorSymmetry construction work consistently.\n\nAI-generated code and tests by OpenAI Codex (GPT-6 Astra).",
+      "sha": "ddcda23f3eb648db6ef2585adbb18c6438c7e692"
+    }
+  ],
+  "created_at": "2026-11-05T17:20:11Z",
+  "deletions": 3,
+  "diff": "diff --git a/sympy/combinatorics/tensor_can.py b/sympy/combinatorics/tensor_can.py\nindex c03c6e1edbcd..e4cb74af4e55 100644\n--- a/sympy/combinatorics/tensor_can.py\n+++ b/sympy/combinatorics/tensor_can.py\n@@ -950,8 +950,8 @@ def get_symmetric_group_sgs(n, antisym=False):\n     >>> get_symmetric_group_sgs(3)\n     ([0, 1], [(4)(0 1), (4)(1 2)])\n     \"\"\"\n-    if n == 1:\n-        return [], [Permutation(list(range(3)))]\n+    if n in (0, 1):\n+        return [], [Permutation(list(range(n + 2)))]\n     gens = [Permutation(n - 1)(i, i + 1)._array_form for i in range(n - 1)]\n     if antisym == 0:\n         gens = [x + [n, n + 1] for x in gens]\ndiff --git a/sympy/combinatorics/tests/test_tensor_can.py b/sympy/combinatorics/tests/test_tensor_can.py\nindex 40dbc846eaa8..4dabf522ad05 100644\n--- a/sympy/combinatorics/tests/test_tensor_can.py\n+++ b/sympy/combinatorics/tests/test_tensor_can.py\n@@ -25,6 +25,10 @@ def test_dummy_sgs():\n         Perm(9)(2,4)(3,5)]]\n \n def test_get_symmetric_group_sgs():\n+    assert get_symmetric_group_sgs(0) == ([], [Permutation(1)])\n+    assert get_symmetric_group_sgs(0, 1) == ([], [Permutation(1)])\n+    assert get_symmetric_group_sgs(1) == ([], [Permutation(2)])\n+    assert get_symmetric_group_sgs(1, 1) == ([], [Permutation(2)])\n     assert get_symmetric_group_sgs(2) == ([0], [Permutation(3)(0,1)])\n     assert get_symmetric_group_sgs(2, 1) == ([0], [Permutation(0,1)(2,3)])\n     assert get_symmetric_group_sgs(3) == ([0,1], [Permutation(4)(0,1), Permutation(4)(1,2)])\n@@ -33,6 +37,15 @@ def test_get_symmetric_group_sgs():\n     assert get_symmetric_group_sgs(4, 1) == ([0,1,2], [Permutation(0,1)(4,5), Permutation(1,2)(4,5), Permutation(2,3)(4,5)])\n \n \n+def test_bsgs_direct_product_zero_rank():\n+    zero = get_symmetric_group_sgs(0)\n+    assert bsgs_direct_product(*zero, *zero) == zero\n+    for antisym in (False, True):\n+        group = get_symmetric_group_sgs(2, antisym)\n+        assert bsgs_direct_product(*zero, *group) == group\n+        assert bsgs_direct_product(*group, *zero) == group\n+\n+\n def test_canonicalize_no_slot_sym():\n     # cases in which there is no slot symmetry after fixing the\n     # free indices; here and in the following if the symmetry of the\ndiff --git a/sympy/tensor/tests/test_tensor.py b/sympy/tensor/tests/test_tensor.py\nindex 68ff918adff2..4080eed25f6e 100644\n--- a/sympy/tensor/tests/test_tensor.py\n+++ b/sympy/tensor/tests/test_tensor.py\n@@ -496,7 +496,8 @@ def test_TensorSymmetry():\n         TensorSymmetry.no_symmetry(3)\n     assert TensorSymmetry(get_symmetric_group_sgs(2)) == \\\n         TensorSymmetry(*get_symmetric_group_sgs(2))\n-    # TODO: add check for *get_symmetric_group_sgs(0)\n+    assert TensorSymmetry.fully_symmetric(0) == \\\n+        TensorSymmetry(*get_symmetric_group_sgs(0))\n     sym = TensorSymmetry.fully_symmetric(-3)\n     assert sym.rank == 3\n     assert sym.base == Tuple(0, 1)\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* combinatorics\n  * Fixed `get_symmetric_group_sgs(0)` returning empty generators, allowing zero-rank tensor symmetry groups to be used in direct products and `TensorSymmetry` construction. ([#30957](https://github.com/sympy/sympy/pull/30957) by [@raman118](https://github.com/raman118))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    #### References to other Issues or PRs\r\n\r\n    Fixes #17123.\r\n\r\n    #### Brief description of what is fixed or changed\r\n\r\n    `get_symmetric_group_sgs(0)` returned no generators, causing `bsgs_direct_product` to raise `IndexError`. It now returns the identity permutation on the two sign slots, matching `TensorSymmetry.fully_symmetric(0)`.\r\n\r\n    #### Other comments\r\n\r\n    Regression tests failed before the fix. Coverage includes symmetric and antisymmetric rank-zero groups, direct products in both orders, and `TensorSymmetry` construction. The tensor canonicalization and tensor suites passed (83 passed, 1 skipped, 1 xfailed), as did code-quality tests (6 passed), Ruff, and `bin/mailmap_check.py`.\r\n\r\n    #### AI Generation Disclosure\r\n\r\n    OpenAI Codex (GPT-6 Astra) generated all changes in `sympy/combinatorics/tensor_can.py`, `sympy/combinatorics/tests/test_tensor_can.py`, and `sympy/tensor/tests/test_tensor.py`. This PR description was also written by the AI agent at the account owner's request.\r\n\r\n    #### Release Notes\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    * combinatorics\r\n      * Fixed `get_symmetric_group_sgs(0)` returning empty generators, allowing zero-rank tensor symmetry groups to be used in direct products and `TensorSymmetry` construction.\r\n    <!-- END RELEASE NOTES -->\r\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-05T17:20:17Z"
+    },
+    {
+      "author": "smichr",
+      "body": "It's nice to see things that @jksuom recommended be handled. Thanks. If you are interested, Oscar wrote a rememberance [here](https://www.mail-archive.com/sympy%40googlegroups.com/msg38409.html?utm_source=chatgpt.com).",
+      "created_at": "2026-11-05T19:08:26Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "drybalka",
+      "body": "This is a boundary case, but important for other modules nonetheless. Define \r\n```\r\ng1 = get_symmetric_group_sgs(0)\r\ng2 = ([], Permutation(1))\r\ng3 = get_symmetric_group_sgs(2)\r\n``` \r\nCurrently, `g1 = ([], [])`. However, if it then used in the direct product an error is raised:\r\n```\r\n>>> bsgs_direct_product(*g1,*g3)\r\nIndexError: list index out of range\r\n```\r\nOn the other hand `g2` in the direct product behaves exactly as expected:\r\n```\r\n>>> bsgs_direct_product(*g2,*g3) == g3\r\nTrue\r\n```\r\nWhich of `g1` and `g2` is the true (or simply better candidate for) zero group bsgs?",
+      "is_pull_request": false,
+      "number": 17123,
+      "state": "closed",
+      "title": "Combinatoric group with zero elements"
+    }
+  ],
+  "merge_commit_sha": "39200a78d381bd7dd6e5ffc1663fc543296ff4a4",
+  "merged_at": "2026-11-05T19:08:36Z",
+  "number": 30957,
+  "review_comments": [],
+  "reviews": [],
+  "title": "Handle zero-rank tensor symmetry groups"
+}

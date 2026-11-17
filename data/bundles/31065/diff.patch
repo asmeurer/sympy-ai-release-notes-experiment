@@ -1,0 +1,60 @@
+diff --git a/.mailmap b/.mailmap
+index e637044e2ebd..e7819347e2a5 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -1264,6 +1264,8 @@ Nikos Karagiannakis <nikoskaragiannakis@gmail.com>
+ Nilabja Bhattacharya <nilabja10201992@gmail.com>
+ Nils Schulte <47043622+Schnilz@users.noreply.github.com>
+ Nimish Telang <ntelang@gmail.com>
++NingLin Liu <x07514475479@gmail.com>
++NingLin Liu <x07514475479@gmail.com> ninglinLiu <x07514475479@gmail.com>
+ Nirasha Jayalath <64356062+jayalath-jknr@users.noreply.github.com>
+ Nirmal Sarswat <nirmalsarswat400@gmail.com>
+ Nisarg Chaudhari <54911392+Nisarg-Chaudhari@users.noreply.github.com>
+diff --git a/doc/src/contributing/dependencies.md b/doc/src/contributing/dependencies.md
+index 4dfed64e200d..7abc2f8b955a 100644
+--- a/doc/src/contributing/dependencies.md
++++ b/doc/src/contributing/dependencies.md
+@@ -65,26 +65,9 @@ are working on a part of SymPy that uses them.
+ 
+ ### Recommended Optional Dependencies
+ 
+-These dependencies are not required for SymPy to function, but it is
+-recommended that all users install them if they can, as they will improve the
+-general performance of SymPy.
+-
+-- **gmpy2**: [gmpy2](https://gmpy2.readthedocs.io/en/latest/) is a
+-  Python wrapper for the [GMP multiple-precision
+-  library](https://gmplib.org/). It provides large integers that are faster
+-  than the built-in Python `int`. When gmpy2 is installed, it is used
+-  automatically by certain core functions that operate on integers, such as
+-  the [polys](polys-docs). See {ref}`polys-domainsref` for more details. SymPy
+-  uses `gmpy2` automatically when it is installed. No further action is
+-  required to enable it.
+-
+-  The polys themselves are used by many parts of SymPy, such as the
+-  integration algorithms, simplification algorithms like `collect()` and
+-  `factor()`, the matrices, and some parts of the core. Thus, installing
+-  `gmpy2` can speed up many parts of SymPy. It is not a required dependency of
+-  SymPy because it makes use of a non-Python library (GMP), which is also
+-  non-BSD licensed. However, we recommended all users who are able to to
+-  install `gmpy2` to get a better SymPy experience.
++These optional dependencies are recommended for improved SymPy performance.
++
++- **gmpy2**: [gmpy2](https://gmpy2.readthedocs.io/en/latest/) provides faster large-integer arithmetic using the [GMP library](https://gmplib.org/). SymPy uses it automatically when installed, particularly in its [polynomial routines](polys-docs), which support integration, simplification, matrices, and other operations. See {ref}`polys-domainsref` for details. It remains optional because GMP is a non-Python library with a non-BSD license. We encourage all users who can install `gmpy2` to do so for a better SymPy experience.
+ 
+ ### Interactive Use
+ 
+diff --git a/sympy/polys/agca/homomorphisms.py b/sympy/polys/agca/homomorphisms.py
+index 40ed11202f37..72124eef18cf 100644
+--- a/sympy/polys/agca/homomorphisms.py
++++ b/sympy/polys/agca/homomorphisms.py
+@@ -177,7 +177,7 @@ def restrict_domain(self, sm):
+ 
+     def restrict_codomain(self, sm):
+         """
+-        Return ``self``, with codomain restricted to to ``sm``.
++        Return ``self``, with codomain restricted to ``sm``.
+ 
+         Here ``sm`` has to be a submodule of ``self.codomain`` containing the
+         image.

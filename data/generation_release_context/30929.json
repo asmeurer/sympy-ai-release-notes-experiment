@@ -1,0 +1,108 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4210,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 10976,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 10976,
+      "cacheReadInputTokens": 17107,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0503527,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 473,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30929,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"core\",\"text\":\"Fixed `Dummy` with an explicit `dummy_index` so that `sympify(srepr(expr))` now recreates an equal expression, which also fixes round-tripping `CRootOf` through `srepr`.\"}],\"reasoning\":\"The change fixes a user-visible bug where a Dummy with a dummy_index did not compare equal after an srepr/sympify round-trip (and CRootOf round-trip raised an error). Nothing indicates this was introduced after 1.14.0, so it merits an entry based on the diff and description.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "core",
+        "text": "Fixed `Dummy` with an explicit `dummy_index` so that `sympify(srepr(expr))` now recreates an equal expression, which also fixes round-tripping `CRootOf` through `srepr`."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The change fixes a user-visible bug where a Dummy with a dummy_index did not compare equal after an srepr/sympify round-trip (and CRootOf round-trip raised an error). Nothing indicates this was introduced after 1.14.0, so it merits an entry based on the diff and description."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30929/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30929/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "core",
+            "text": "Fixed `Dummy` with an explicit `dummy_index` so that `sympify(srepr(expr))` now recreates an equal expression, which also fixes round-tripping `CRootOf` through `srepr`."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The change fixes a user-visible bug where a Dummy with a dummy_index did not compare equal after an srepr/sympify round-trip (and CRootOf round-trip raised an error). Nothing indicates this was introduced after 1.14.0, so it merits an entry based on the diff and description."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0503527,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 10976,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 10976,
+    "cache_read_input_tokens": 17107,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 3455,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 3455,
+        "cache_read_input_tokens": 12314,
+        "input_tokens": 2,
+        "output_tokens": 279,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 473,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

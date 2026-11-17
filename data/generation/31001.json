@@ -1,0 +1,108 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 3787,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 1946,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 1946,
+      "cacheReadInputTokens": 23397,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.014711700000000001,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 458,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31001,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"simplify\",\"text\":\"Fixed a bug in `cse` where unevaluated expressions such as `Pow(x, 1, evaluate=False)` were needlessly rebuilt, causing a bare symbol to be wrongly extracted as a common subexpression.\"}],\"reasoning\":\"The diff fixes a user-visible bug in `cse`: a tuple-vs-list comparison caused needless rebuilds, so a symbol could be captured as a replacement. The entry is based on the diff and the test added with it.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "simplify",
+        "text": "Fixed a bug in `cse` where unevaluated expressions such as `Pow(x, 1, evaluate=False)` were needlessly rebuilt, causing a bare symbol to be wrongly extracted as a common subexpression."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The diff fixes a user-visible bug in `cse`: a tuple-vs-list comparison caused needless rebuilds, so a symbol could be captured as a replacement. The entry is based on the diff and the test added with it."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31001/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31001/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "simplify",
+            "text": "Fixed a bug in `cse` where unevaluated expressions such as `Pow(x, 1, evaluate=False)` were needlessly rebuilt, causing a bare symbol to be wrongly extracted as a common subexpression."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The diff fixes a user-visible bug in `cse`: a tuple-vs-list comparison caused needless rebuilds, so a symbol could be captured as a replacement. The entry is based on the diff and the test added with it."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.014711700000000001,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 1946,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 1946,
+    "cache_read_input_tokens": 23397,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 1505,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 1505,
+        "cache_read_input_tokens": 11919,
+        "input_tokens": 2,
+        "output_tokens": 264,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 458,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

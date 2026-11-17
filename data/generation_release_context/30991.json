@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4397,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 5614,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 5614,
+      "cacheReadInputTokens": 24201,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0301641,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 528,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 30991,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"printing\",\"text\":\"Fixed `rcode` of a `For` loop printing invalid R code with a missing closing parenthesis after the `seq(...)` call.\"}],\"reasoning\":\"The R code printer produced a syntax error for For loops, a user-visible bug fix in the public `rcode` function. The bug exists in 1.14 (the printer code is old, the issue only lists it as a finding), so it gets an entry based on the diff.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "printing",
+        "text": "Fixed `rcode` of a `For` loop printing invalid R code with a missing closing parenthesis after the `seq(...)` call."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The R code printer produced a syntax error for For loops, a user-visible bug fix in the public `rcode` function. The bug exists in 1.14 (the printer code is old, the issue only lists it as a finding), so it gets an entry based on the diff."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30991/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30991/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30991/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "printing",
+            "text": "Fixed `rcode` of a `For` loop printing invalid R code with a missing closing parenthesis after the `seq(...)` call."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The R code printer produced a syntax error for For loops, a user-visible bug fix in the public `rcode` function. The bug exists in 1.14 (the printer code is old, the issue only lists it as a finding), so it gets an entry based on the diff."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0301641,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 5614,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 5614,
+    "cache_read_input_tokens": 24201,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 5173,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 5173,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 239,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 528,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "Used codex for the tensor/codegen fixes.",
+  "author": "oscarbenjamin",
+  "entries": [
+    {
+      "submodule": "core",
+      "text": "Removed workarounds in Basic.xreplace, Basic.subs, Basic.replace, Basic.sort_key, and Basic.doit that allowed non-Basic objects in the args of a Basic instance. Downstream Basic subclasses that have non-Basic args may now raise errors in these methods (they should be fixed so that all args are Basic)."
+    }
+  ],
+  "merged_at": "2026-11-08T21:04:01Z",
+  "number": 30994,
+  "overlap": {
+    "title_similarity": 0.05357142857142857,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* core\n   * Removed workarounds in Basic.xreplace, Basic.subs, Basic.replace, Basic.sort_key, and Basic.doit that allowed non-Basic objects in the args of a Basic instance. Downstream Basic subclasses that have non-Basic args may now raise errors in these methods (they should be fixed so that all args are Basic).",
+  "status": "entry",
+  "title": "fix(core): remove non-Basic args workarounds"
+}

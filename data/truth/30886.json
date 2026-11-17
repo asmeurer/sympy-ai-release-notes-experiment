@@ -1,0 +1,25 @@
+{
+  "ai_disclosure": "Assisted by Google Antigravity / Gemini coding assistant to diagnose the IndexError in `_solve_system` and draft the empty symbols check in `sympy/solvers/solvers.py`. Verified and tested locally using pytest.",
+  "author": "aarav570",
+  "entries": [
+    {
+      "submodule": "solvers",
+      "text": "Fixed `IndexError` in `_solve_system` when solving constant systems with empty `symbols`."
+    },
+    {
+      "submodule": "integrals",
+      "text": "Fixed crash when calling `integrate` on products of exponentials with transcendental bases."
+    }
+  ],
+  "merged_at": "2026-11-05T18:44:29Z",
+  "number": 30886,
+  "overlap": {
+    "title_similarity": 0.4224137931034483,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* solvers\n  * Fixed `IndexError` in `_solve_system` when solving constant systems with empty `symbols`.\n* integrals\n  * Fixed crash when calling `integrate` on products of exponentials with transcendental bases.",
+  "status": "entry",
+  "title": "solvers: avoid IndexError in _solve_system when symbols is empty"
+}

@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "I used an AI assistant to help investigate the issue and draft the initial patch. I reviewed, refined, and tested all changes locally.",
+  "author": "pranjal9091",
+  "entries": [
+    {
+      "submodule": "assumptions",
+      "text": "Fixed `AttributeError` when evaluating predicates on radical roots whose symbolic components evaluate to complex expressions."
+    }
+  ],
+  "merged_at": "2026-11-17T18:25:43Z",
+  "number": 31147,
+  "overlap": {
+    "title_similarity": 0.28421052631578947,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* assumptions\n  * Fixed `AttributeError` when evaluating predicates on radical roots whose symbolic components evaluate to complex expressions.",
+  "status": "entry",
+  "title": "assumptions: handle non-Float evalf results when inspecting precision"
+}

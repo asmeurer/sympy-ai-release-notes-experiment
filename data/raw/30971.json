@@ -1,0 +1,78 @@
+{
+  "additions": 116,
+  "author": "smichr",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\r\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\nLocal source: doc/src/contributing/pull-request-guidelines.rst\r\nKeep all section headings below. -->\r\n\r\n#### References to other Issues or PRs\r\n\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\nThis fixes several issues with consistency related to SetExpr operations (add, multiply) when working with scalars and infinite values.\r\n\r\nThe biggest change might be that intervals containing 0 when multiplied by and infinite value will generate a nan entry in the set.\r\n\r\n#### Other comments\r\n\r\n\r\n#### AI Generation Disclosure\r\n\r\nChatGPT collaboration.\r\n\r\n#### Release Notes\r\n\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\n* sets\r\n  * SetExpr operations (addition, multiplication) with scalar and infinite values have been improved\r\n  * SetExpr now sympifies a passed set\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 5,
+  "commits": [
+    {
+      "author": "Christopher Smith",
+      "message": "handle scalar results in set operations",
+      "sha": "07aa2346162da36fb93b3d1c891d28f8da6d922f"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "handle SetExpr(Interval)*oo",
+      "sha": "6becb1d7db1c028bb3092305ce38e1d182ccee4e"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "sympify set in SetExpr to FiniteSet",
+      "sha": "0428b779dce5fa73d2c86fa9133b511690758f95"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "check SetExpr({..nan})*Number handling",
+      "sha": "6adfb83b60180d01acf29cdbc73a06cb4b330fef"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Handle interval multiplication by infinity pointwise",
+      "sha": "020489d34bea52296d8952dafc22ca7d47ac65e1"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "test ImageSet collapsing to infinite singleton",
+      "sha": "f17396c5c9907278aabc3e7db2c68fd02dd0ec19"
+    }
+  ],
+  "created_at": "2026-11-06T16:40:47Z",
+  "deletions": 8,
+  "diff": "diff --git a/sympy/sets/handlers/functions.py b/sympy/sets/handlers/functions.py\nindex 7f5f6087fc18..29fce93ce862 100644\n--- a/sympy/sets/handlers/functions.py\n+++ b/sympy/sets/handlers/functions.py\n@@ -115,6 +115,13 @@ def _(f, x):\n             if end == _start and end not in solns:\n                 right_open = x.left_open\n \n+        if start == end and start in (S.Infinity, S.NegativeInfinity):\n+            return FiniteSet(start)\n+\n+        if (start is S.NegativeInfinity and end is S.Infinity\n+                and expr.has(S.Infinity, S.NegativeInfinity)):\n+            return None\n+\n         return Interval(start, end, left_open, right_open)\n     else:\n         return imageset(f, Interval(x.start, sing[0],\ndiff --git a/sympy/sets/handlers/mul.py b/sympy/sets/handlers/mul.py\nindex 97d3ee046d3a..2c45126b96c6 100644\n--- a/sympy/sets/handlers/mul.py\n+++ b/sympy/sets/handlers/mul.py\n@@ -1,10 +1,11 @@\n from __future__ import annotations\n from sympy.core import Basic, Expr\n-from sympy.core.numbers import oo\n+from sympy.core.numbers import oo, Infinity, NegativeInfinity\n+from sympy.core.singleton import S\n from sympy.core.symbol import symbols\n from sympy.multipledispatch import Dispatcher\n from sympy.sets.setexpr import set_mul\n-from sympy.sets.sets import Interval, Set\n+from sympy.sets.sets import Interval, Set, FiniteSet\n \n \n _x, _y = symbols(\"x y\")\n@@ -78,3 +79,23 @@ def _(x, y):\n     else:\n         s1 = 1/y.end\n     return set_mul(x, Interval(s1, s2, y.right_open, y.left_open))\n+\n+\n+@_set_mul.register(Interval, Infinity)\n+@_set_mul.register(Interval, NegativeInfinity)\n+def _(x, y):\n+    negative = x.start.is_extended_negative\n+    positive = x.end.is_extended_positive\n+    zero = x.contains(0)\n+    if (negative is None or positive is None or\n+            zero not in (S.true, S.false)):\n+        return None\n+\n+    values = []\n+    if negative:\n+        values.append(-y)\n+    if zero is S.true:\n+        values.append(S.NaN)\n+    if positive:\n+        values.append(y)\n+    return FiniteSet(*values)\ndiff --git a/sympy/sets/setexpr.py b/sympy/sets/setexpr.py\nindex ce8d8bcd5c00..19cb4b1c2133 100644\n--- a/sympy/sets/setexpr.py\n+++ b/sympy/sets/setexpr.py\n@@ -1,6 +1,8 @@\n from __future__ import annotations\n from sympy.core import Expr\n from sympy.core.decorators import call_highest_priority, _sympifyit\n+from sympy.core.sympify import sympify\n+from sympy.sets.sets import Set\n from .fancysets import ImageSet\n from .sets import set_add, set_sub, set_mul, set_div, set_pow, set_function\n \n@@ -11,19 +13,24 @@ class SetExpr(Expr):\n     Examples\n     ========\n \n-    >>> from sympy import Interval, FiniteSet\n+    >>> from sympy import Interval, FiniteSet, oo\n     >>> from sympy.sets.setexpr import SetExpr\n \n     >>> a = SetExpr(Interval(0, 5))\n-    >>> b = SetExpr(FiniteSet(1, 10))\n+    >>> b = SetExpr({1, 10})\n     >>> (a + b).set\n     Union(Interval(1, 6), Interval(10, 15))\n     >>> (2*a + b).set\n     Interval(1, 20)\n+    >>> SetExpr({0, 1})*oo\n+    SetExpr({nan, oo})\n     \"\"\"\n     _op_priority = 11.0\n \n     def __new__(cls, setarg):\n+        setarg = sympify(setarg)\n+        if not isinstance(setarg, Set):\n+            raise TypeError(\"SetExpr requires a Set\")\n         return Expr.__new__(cls, setarg)\n \n     set = property(lambda self: self.args[0])\ndiff --git a/sympy/sets/sets.py b/sympy/sets/sets.py\nindex d29d32079750..d5c974e87dab 100644\n--- a/sympy/sets/sets.py\n+++ b/sympy/sets/sets.py\n@@ -2725,8 +2725,10 @@ def _handle_finite_sets(op, x, y, commutative):\n     if len(fs_args) == 2:\n         return FiniteSet(*[op(i, j) for i in fs_args[0] for j in fs_args[1]])\n     elif len(fs_args) == 1:\n-        sets = [_apply_operation(op, other[0], i, commutative) for i in fs_args[0]]\n-        return Union(*sets)\n+        sets = [_apply_operation(op, other[0], i, commutative)\n+            for i in fs_args[0]]\n+        return Union(*(i if isinstance(i, Set) else FiniteSet(i)\n+            for i in sets))\n     else:\n         return None\n \ndiff --git a/sympy/sets/tests/test_setexpr.py b/sympy/sets/tests/test_setexpr.py\nindex 4bb726cba2f0..9d48a5193a9b 100644\n--- a/sympy/sets/tests/test_setexpr.py\n+++ b/sympy/sets/tests/test_setexpr.py\n@@ -4,13 +4,13 @@\n \n from sympy.core.expr import Expr\n from sympy.core.function import Lambda\n-from sympy.core.numbers import (I, Rational, oo)\n+from sympy.core.numbers import (I, Rational, oo, nan)\n from sympy.core.singleton import S\n from sympy.core.symbol import (Dummy, Symbol, symbols)\n from sympy.functions.elementary.exponential import (exp, log)\n from sympy.functions.elementary.miscellaneous import (Max, Min, sqrt)\n from sympy.functions.elementary.trigonometric import cos\n-from sympy.sets.sets import Set\n+from sympy.sets.sets import Set, imageset\n \n \n a, x = symbols(\"a, x\")\n@@ -21,6 +21,10 @@ def test_setexpr():\n     se = SetExpr(Interval(0, 1))\n     assert isinstance(se.set, Set)\n     assert isinstance(se, Expr)\n+    se = SetExpr({-1, 2})\n+    assert isinstance(se.set, FiniteSet)\n+    assert se == SetExpr(FiniteSet(-1, 2))\n+    assert SetExpr(set()) == SetExpr(S.EmptySet)\n \n \n def test_scalar_funcs():\n@@ -40,6 +44,29 @@ def test_Add_Mul():\n     assert (SetExpr(Interval(0, 1))*2).set == Interval(0, 2)\n \n \n+def test_imageset_mul_infinity():\n+    x = Symbol('x')\n+    assert imageset(Lambda(x, oo*x), Interval(1, 2)).doit() == \\\n+        FiniteSet(oo)\n+    assert imageset(Lambda(x, oo*x), Interval(-2, -1)).doit() == \\\n+        FiniteSet(-oo)\n+    assert imageset(Lambda(x, -oo*x), Interval(1, 2)).doit() == \\\n+        FiniteSet(-oo)\n+\n+\n+def test_finiteset_mul_nan():\n+    for b, expected in (\n+        (2, {-2, nan, 2}),\n+        (oo, {-oo, nan, oo}),\n+        (-oo, {-oo, nan, oo}),\n+    ):\n+        a = SetExpr({-1, nan, 1})\n+        assert a*b == SetExpr(expected)\n+        assert b*a == SetExpr(expected)\n+        assert a*SetExpr({b}) == SetExpr(expected)\n+    assert SetExpr({-1, 0, 1})*oo == SetExpr({-oo, nan, oo})\n+\n+\n def test_interval_add_infinity():\n     cases = [(Interval(2, oo), oo), (Interval(-oo, 2), -oo),\n              (Interval(1, 2), oo), (Interval(1, 2), -oo)]\n@@ -49,6 +76,31 @@ def test_interval_add_infinity():\n         assert (infinity + expr).set == FiniteSet(infinity)\n \n \n+def test_interval_mul_infinity():\n+    for interval, expected in (\n+        (Interval(-2, -1), FiniteSet(-oo)),\n+        (Interval.Ropen(-1, 0), FiniteSet(-oo)),\n+        (Interval(-1, 0), FiniteSet(-oo, nan)),\n+        (Interval(-1, 1), FiniteSet(-oo, nan, oo)),\n+        (Interval.open(-1, 1), FiniteSet(-oo, nan, oo)),\n+        (Interval(0, 1), FiniteSet(nan, oo)),\n+        (Interval.Lopen(0, 1), FiniteSet(oo)),\n+        (Interval(1, 2), FiniteSet(oo)),\n+        (Interval(-oo, -1), FiniteSet(-oo)),\n+        (Interval(1, oo), FiniteSet(oo)),\n+        (Interval(-oo, oo), FiniteSet(-oo, nan, oo)),\n+    ):\n+        a = SetExpr(interval)\n+        for b, result in ((oo, expected),\n+                (-oo, FiniteSet(*(-i for i in expected)))):\n+            result = SetExpr(result)\n+            bset = SetExpr(FiniteSet(b))\n+            assert a*b == result\n+            assert b*a == result\n+            assert a*bset == result\n+            assert bset*a == result\n+\n+\n def test_Pow():\n     assert (SetExpr(Interval(0, 2))**2).set == Interval(0, 4)\n \n@@ -72,6 +124,25 @@ def test_FiniteSet_FiniteSet():\n            FiniteSet(1, 2, 3, 4, 6)\n \n \n+def test_FiniteSet_scalar():\n+    for values in (FiniteSet(1), FiniteSet(1, 2)):\n+        A = SetExpr(values)\n+        for b in (1, -1, oo, -oo):\n+            expected = SetExpr(FiniteSet(*(a + b for a in values)))\n+            assert A + b == expected\n+            assert b + A == expected\n+            assert A + SetExpr(FiniteSet(b)) == expected\n+            assert SetExpr(FiniteSet(b)) + A == expected\n+\n+\n+def test_Interval_scalar_consistency():\n+    for values in (Interval(1, 2), Interval(2, oo)):\n+        A = SetExpr(values)\n+        for b in (1, -1):\n+            assert A + b == A + SetExpr(FiniteSet(b))\n+            assert b + A == SetExpr(FiniteSet(b)) + A\n+\n+\n def test_Interval_FiniteSet():\n     assert (SetExpr(FiniteSet(1, 2)) + SetExpr(Interval(0, 10))).set == \\\n            Interval(1, 12)\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* sets\n  * SetExpr operations (addition, multiplication) with scalar and infinite values have been improved ([#30971](https://github.com/sympy/sympy/pull/30971) by [@smichr](https://github.com/smichr))\n\n  * SetExpr now sympifies a passed set ([#30971](https://github.com/sympy/sympy/pull/30971) by [@smichr](https://github.com/smichr))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\r\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\n    Local source: doc/src/contributing/pull-request-guidelines.rst\r\n    Keep all section headings below. -->\r\n\r\n    #### References to other Issues or PRs\r\n\r\n\r\n    #### Brief description of what is fixed or changed\r\n\r\n    This fixes several issues with consistency related to SetExpr operations (add, multiply) when working with scalars and infinite values.\r\n\r\n    The biggest change might be that intervals containing 0 when multiplied by and infinite value will generate a nan entry in the set.\r\n\r\n    #### Other comments\r\n\r\n\r\n    #### AI Generation Disclosure\r\n\r\n    ChatGPT collaboration.\r\n\r\n    #### Release Notes\r\n\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    * sets\r\n      * SetExpr operations (addition, multiplication) with scalar and infinite values have been improved\r\n      * SetExpr now sympifies a passed set\r\n    <!-- END RELEASE NOTES -->\r\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-06T16:40:51Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "It looks like SetExpr tests are failing in CI now:\r\nhttps://github.com/sympy/sympy/pull/30985",
+      "created_at": "2026-11-08T12:25:19Z"
+    }
+  ],
+  "labels": [
+    "sets"
+  ],
+  "linked": [],
+  "merge_commit_sha": "ae4eae1f272c9d732d9c2ad1fc4d9bf684b465b8",
+  "merged_at": "2026-11-08T03:15:16Z",
+  "number": 30971,
+  "review_comments": [
+    {
+      "author": "oscarbenjamin",
+      "body": "This test fails intermittently because `-oo` and nan do not have a consistent sort order.",
+      "created_at": "2026-11-08T15:00:30Z",
+      "path": "sympy/sets/tests/test_setexpr.py"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-08T15:00:30Z"
+    }
+  ],
+  "title": "SetExpr maintenance"
+}

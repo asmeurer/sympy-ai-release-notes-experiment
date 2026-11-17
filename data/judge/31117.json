@@ -1,0 +1,142 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 12374,
+  "human_is": "B",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 24296,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 24296,
+      "cacheReadInputTokens": 32499,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.2265318,
+      "inputTokens": 6,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1282,
+      "provider": "firstParty",
+      "thinkingTokens": 265,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 31117,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"The flint bullet could say more plainly that python-flint 0.6\u20130.8 are no longer picked up automatically, which is the change most likely to surprise users.\",\"The mpmath cap could arguably go under the same header instead of `other`. This is minor.\"]},\"candidate_b\":{\"accuracy\":\"not_applicable\",\"overall\":2,\"problems\":[\"It leaves out two user-visible dependency changes: the supported python-flint versions changed (0.6\u20130.8 dropped, 0.10\u20130.12 added), and the install requirement now caps mpmath below 1.5.\"]},\"same_substance\":false,\"preferred\":\"A\",\"strength\":\"clear\",\"rationale\":\"Most of this PR is CI and release-workflow work that users don't see, which is probably why Candidate B wrote NO ENTRY. But the PR also changes two things that do affect users. In sympy/external/gmpy.py, the python-flint versions SymPy uses automatically changed from 0.6\u20130.9 to 0.9\u20130.12. Any other version is used only when SYMPY_GROUND_TYPES=flint is set, and then with a warning. In pyproject.toml, mpmath is now capped at <1.5. Candidate A describes both changes accurately and briefly, so it is clearly better than leaving them out.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "The flint bullet could say more plainly that python-flint 0.6\u20130.8 are no longer picked up automatically, which is the change most likely to surprise users.",
+        "The mpmath cap could arguably go under the same header instead of `other`. This is minor."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "not_applicable",
+      "overall": 2,
+      "problems": [
+        "It leaves out two user-visible dependency changes: the supported python-flint versions changed (0.6\u20130.8 dropped, 0.10\u20130.12 added), and the install requirement now caps mpmath below 1.5."
+      ]
+    },
+    "preferred": "A",
+    "rationale": "Most of this PR is CI and release-workflow work that users don't see, which is probably why Candidate B wrote NO ENTRY. But the PR also changes two things that do affect users. In sympy/external/gmpy.py, the python-flint versions SymPy uses automatically changed from 0.6\u20130.9 to 0.9\u20130.12. Any other version is used only when SYMPY_GROUND_TYPES=flint is set, and then with a warning. In pyproject.toml, mpmath is now capped at <1.5. Candidate A describes both changes accurately and briefly, so it is clearly better than leaving them out.",
+    "same_substance": false,
+    "should_have_entry": "yes",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31117/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31117/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "-A": 12,
+        "output_mode": "content",
+        "path": "<repo>/work/sympy/sympy/external/gmpy.py",
+        "pattern": "_flint_version_okay|SYMPY_GROUND_TYPES.*flint|_PYTHON_FLINT"
+      },
+      "name": "Grep"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "The flint bullet could say more plainly that python-flint 0.6\u20130.8 are no longer picked up automatically, which is the change most likely to surprise users.",
+            "The mpmath cap could arguably go under the same header instead of `other`. This is minor."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "not_applicable",
+          "overall": 2,
+          "problems": [
+            "It leaves out two user-visible dependency changes: the supported python-flint versions changed (0.6\u20130.8 dropped, 0.10\u20130.12 added), and the install requirement now caps mpmath below 1.5."
+          ]
+        },
+        "preferred": "A",
+        "rationale": "Most of this PR is CI and release-workflow work that users don't see, which is probably why Candidate B wrote NO ENTRY. But the PR also changes two things that do affect users. In sympy/external/gmpy.py, the python-flint versions SymPy uses automatically changed from 0.6\u20130.9 to 0.9\u20130.12. Any other version is used only when SYMPY_GROUND_TYPES=flint is set, and then with a warning. In pyproject.toml, mpmath is now capped at <1.5. Candidate A describes both changes accurately and briefly, so it is clearly better than leaving them out.",
+        "same_substance": false,
+        "should_have_entry": "yes",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.2265318,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 24296,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 24296,
+    "cache_read_input_tokens": 32499,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 6,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 2156,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 2156,
+        "cache_read_input_tokens": 22140,
+        "input_tokens": 2,
+        "output_tokens": 737,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1282,
+    "output_tokens_details": {
+      "thinking_tokens": 265
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

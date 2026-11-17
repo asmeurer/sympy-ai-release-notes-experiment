@@ -1,0 +1,108 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4745,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 4721,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 4721,
+      "cacheReadInputTokens": 23397,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.026361700000000002,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 513,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30805,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"printing\",\"text\":\"Fixed the string printing of `Poly` and `PurePoly` so that composite domains such as `ZZ[beta]` or domains with symbol assumptions or a non-default monomial order are printed using explicit constructors like `ZZ.poly_ring(beta)`, so that the output can be copied and evaluated to recreate the same polynomial.\"}],\"reasoning\":\"The diff changes `StrPrinter._print_Poly` so that composite domains (polynomial ring, fraction field, algebraic field) that would not round-trip through an abbreviated string are printed with explicit constructors, which changes user-visible output. The entry is based on the diff, not the description.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "printing",
+        "text": "Fixed the string printing of `Poly` and `PurePoly` so that composite domains such as `ZZ[beta]` or domains with symbol assumptions or a non-default monomial order are printed using explicit constructors like `ZZ.poly_ring(beta)`, so that the output can be copied and evaluated to recreate the same polynomial."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The diff changes `StrPrinter._print_Poly` so that composite domains (polynomial ring, fraction field, algebraic field) that would not round-trip through an abbreviated string are printed with explicit constructors, which changes user-visible output. The entry is based on the diff, not the description."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30805/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30805/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "printing",
+            "text": "Fixed the string printing of `Poly` and `PurePoly` so that composite domains such as `ZZ[beta]` or domains with symbol assumptions or a non-default monomial order are printed using explicit constructors like `ZZ.poly_ring(beta)`, so that the output can be copied and evaluated to recreate the same polynomial."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The diff changes `StrPrinter._print_Poly` so that composite domains (polynomial ring, fraction field, algebraic field) that would not round-trip through an abbreviated string are printed with explicit constructors, which changes user-visible output. The entry is based on the diff, not the description."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.026361700000000002,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 4721,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 4721,
+    "cache_read_input_tokens": 23397,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 4280,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 4280,
+        "cache_read_input_tokens": 11919,
+        "input_tokens": 2,
+        "output_tokens": 319,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 513,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

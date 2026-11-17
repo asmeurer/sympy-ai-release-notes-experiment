@@ -1,0 +1,122 @@
+diff --git a/.mailmap b/.mailmap
+index 892be90192df..80c59d6e0319 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -556,6 +556,7 @@ Costor <pcs2009@web.de>
+ Craig A. Stoudt <craig.stoudt@gmail.com>
+ Cristian Di Pietrantonio <cristiandipietrantonio@gmail.com>
+ Cristóvão Sousa <crisjss@gmail.com>
++Cypher-Monarch <monarchcypher@gmail.com>
+ Cédric Travelletti <cedrictravelletti@gmail.com> Cedric <cedric@localhost.localdomain>
+ Daan Koning (he/him) <daanolivierkoning@gmail.com>
+ Daiki Takahashi <haru.td@gmail.com> haru-44 <36563693+haru-44@users.noreply.github.com>
+diff --git a/sympy/core/function.py b/sympy/core/function.py
+index b803001bd87c..cd81f38883b0 100644
+--- a/sympy/core/function.py
++++ b/sympy/core/function.py
+@@ -2333,6 +2333,10 @@ class Subs(Expr):
+     >>> s, ss
+     (Subs(x, x, 0), Subs(y, y, 0))
+     """
++
++    # Ensure generated substitution symbols do not collide with existing free symbols in the expression.
++
++
+     def __new__(cls, expr, variables, point, **assumptions):
+         if not is_sequence(variables, Tuple):
+             variables = [variables]
+@@ -2383,9 +2387,9 @@ def mystr(expr, **settings):
+             # because the new symbol that would be created is _1 but _1
+             # is already mapped to 0 so __0 and __1 are used for the new
+             # symbols
+-            if any(r in expr.free_symbols and
+-                   r in variables and
+-                   Symbol(pre + mystr(point[variables.index(r)])) != r
++            if any(r in expr.free_symbols and (
++                   r not in variables or
++                   s_pts[point[variables.index(r)]] != r)
+                    for _, r in reps):
+                 pre += "_"
+                 continue
+@@ -2510,8 +2514,13 @@ def __hash__(self):
+         return super().__hash__()
+ 
+     def _hashable_content(self):
+-        return (self._expr.xreplace(self.canonical_variables),
+-            ) + tuple(ordered([(v, p) for v, p in
++        # Include substitution metadata to distinguish Subs objects that may otherwise have identical canonicalized expressions.
++
++        return (
++            self._expr.xreplace(self.canonical_variables),
++            len(self.variables),
++            tuple(sorted(self.point, key=default_sort_key)),
++        ) + tuple(ordered([(v, p) for v, p in
+             zip(self.variables, self.point) if not self.expr.has(v)]))
+ 
+     def _eval_subs(self, old, new):
+diff --git a/sympy/core/tests/test_function.py b/sympy/core/tests/test_function.py
+index 6c84dc7bdfd5..146310a51c07 100644
+--- a/sympy/core/tests/test_function.py
++++ b/sympy/core/tests/test_function.py
+@@ -505,6 +505,8 @@ def test_Subs():
+     assert len(Subs(f(x, y), (x, y), (0, 1)).variables) == 2
+     assert Subs(f(x, y), (x, y), (0, 1)).point == Tuple(0, 1)
+ 
++    assert Subs(x + Symbol('_0'), x, 0) != Subs(2*x, x, 0)
++
+     assert Subs(f(x), x, 0) == Subs(f(y), y, 0)
+     assert Subs(f(x, y), (x, y), (0, 1)) == Subs(f(x, y), (y, x), (1, 0))
+     assert Subs(f(x)*y, (x, y), (0, 1)) == Subs(f(y)*x, (y, x), (0, 1))
+@@ -550,6 +552,52 @@ def test_Subs():
+         f(x, g(x)), g(x))*Derivative(g(x), x) + Subs(Derivative(
+         f(y, g(x)), y), y, x)
+ 
++
++
++def test_Subs_composite_arguments_derivative():
++    x, y, z = symbols('x y z')
++    f = Function('f')
++
++    # Regression test: differentiating a function with multiple
++    # composite arguments must not introduce spurious free symbols.
++    result = f(x + y, x*y).diff(y).diff(x)
++    assert result.free_symbols == {x, y}
++
++    # Check that repeated differentiation with different composite
++    # arguments and differentiation orders does not introduce
++    # unexpected free symbols.
++    cases = [
++        # Different differentiation order.
++        (f(x + y, x*y), (x, y), {x, y}),
++
++        # Composite arguments involving powers and constants.
++        (f(x**2 + y, x*y + 1), (y, x), {x, y}),
++
++        # Multiple arguments containing the same composite expression.
++        (f(x + y, x + y), (y, x), {x, y}),
++
++        # Three composite arguments with overlapping free symbols.
++        (f(x + y, x*y, x*z + y), (y, x), {x, y, z}),
++
++        # Nested composite expressions.
++        (f((x + y)**2, x*y + x), (y, x), {x, y}),
++
++        # Repeated differentiation of the same expression.
++        (f(x + y, x*y), (y, x, y), {x, y}),
++
++        # Different powers and a different differentiation order.
++        (f(x**2 + y**2, x*y + y**3), (x, y, x), {x, y}),
++    ]
++
++    for expr, variables, allowed_symbols in cases:
++        result = expr
++        for variable in variables:
++            result = result.diff(variable)
++
++        assert result.free_symbols <= allowed_symbols
++
++
++
+ def test_doitdoit():
+     done = Derivative(f(x, g(x)), x, g(x)).doit()
+     assert done == done.doit()

@@ -1,0 +1,67 @@
+diff --git a/.mailmap b/.mailmap
+index b8927fedebb0..ee6abbe630c4 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -617,6 +617,8 @@ Dmitry Batkovich <batya239@gmail.com>
+ Dmitry Savransky <dsavransky@gmail.com>
+ Dominik Stańczak <stanczakdominik@gmail.com>
+ Donald Wilson <donwilson1029@gmail.com> wilds-23 <wilds-23@rhodes.edu>
++Doremon <113814705+raman118@users.noreply.github.com>
++Doremon <rcho38706@gmail.com>
+ Duane Nykamp <nykamp@umn.edu>
+ Duc-Minh Phan <alephvn@gmail.com>
+ Dustin Gadal <Dustin.Gadal@gmail.com> <dustin.gadal@gmail.com>
+@@ -1949,9 +1951,6 @@ prsdx <prsdx.dev@gmail.com>
+ prshnt19 <prashant.rawat216@gmail.com>
+ rahil-amin <rahilamin201@gmail.com>
+ rahuldan <rahul02013@gmail.com>
+-raman118 <rcho38706@gmail.com>
+-raman118 <rcho38706@gmail.com> Doremon <113814705+raman118@users.noreply.github.com>
+-raman118 <rcho38706@gmail.com> Doremon <rcho38706@gmail.com>
+ ramvenkat98 <ramvenkat98@gmail.com>
+ rathmann <rathmann.os@gmail.com> <peter@ubuntu.ubuntu-domain>
+ rationa-kunal <kunalgk1999@gmail.com> kunal <kunalgk1999@gmail.com>
+diff --git a/sympy/core/evalf.py b/sympy/core/evalf.py
+index 08d8043c5156..7c513bd163a9 100644
+--- a/sympy/core/evalf.py
++++ b/sympy/core/evalf.py
+@@ -269,8 +269,8 @@ def get_abs(expr: Expr, prec: int, options: OPT_DICT) -> TMP_RES:
+         re, re_acc, im, im_acc = im, im_acc, re, re_acc
+     if im:
+         if expr.is_number:
+-            abs_expr, _, acc, _ = evalf(abs(N(expr, prec + 2)),
+-                                        prec + 2, options)
++            abs_expr = mpc_abs((mpf_abs(re), mpf_abs(im)), prec, rnd)
++            acc = min(prec, complex_accuracy(result))
+             return abs_expr, None, acc, None
+         else:
+             if 'subs' in options:
+diff --git a/sympy/core/tests/test_evalf.py b/sympy/core/tests/test_evalf.py
+index daa0ac667a01..2e531cb7acb0 100644
+--- a/sympy/core/tests/test_evalf.py
++++ b/sympy/core/tests/test_evalf.py
+@@ -10,6 +10,7 @@
+ from sympy.core import (GoldenRatio)
+ from sympy.core.numbers import (AlgebraicNumber, E, Float, I, Rational,
+                                 oo, zoo, nan, pi)
++from sympy.core.parameters import evaluate
+ from sympy.core.power import Pow
+ from sympy.core.relational import Eq
+ from sympy.core.singleton import S
+@@ -93,6 +94,16 @@ def test_evalf_complex():
+     assert NS('I*(2+I)', 15) == '-1.00000000000000 + 2.00000000000000*I'
+ 
+ 
++def test_evalf_abs_evaluate_false():
++    for z, expected in (
++        (1 + I, sqrt(2)),
++        (10**20 + I, sqrt(10**40 + 1)),
++    ):
++        with evaluate(False):
++            result = Abs(z, evaluate=False).evalf(50)
++        assert result == expected.evalf(50)
++
++
+ @XFAIL
+ def test_evalf_complex_bug():
+     assert NS('(pi+E*I)*(E+pi*I)', 15) in ('0.e-15 + 17.25866050002*I',

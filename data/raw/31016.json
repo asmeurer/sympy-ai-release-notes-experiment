@@ -1,0 +1,98 @@
+{
+  "additions": 19,
+  "author": "adityaanikam",
+  "base": "master",
+  "body": "#### References to other Issues or PRs\r\nFixes #30996\r\n\r\n#### Brief description of what is fixed or changed\r\n`solveset` gave wrong answers for `Mod(b**x, m) = r` when `b` shares a factor with `m`, for example `Mod(2**x, 42)`. `_invert_modular` assumed the powers of `b` are periodic from the start, which is false in that case. Following the review, it now returns the expression unevaluated unless the modulus, rhs and base are integers and the base and rhs are coprime to the modulus. It also returns early when the term is not a `Mod`, which covers `Mod(2*2**x - 1, 42)` (it raised `TypeError`).\r\n\r\n#### Other comments\r\n`Mod(12**x, 21) - 18` is now unevaluated, so I changed that existing test to expect a `ConditionSet`. The issue's cases are added to `test_solve_modular`.\r\n\r\n#### AI Generation Disclosure\r\nI used Claude Code (Claude Sonnet 5.5) to help find the cause and to write the change and tests. I reviewed it and ran the tests myself.\r\n\r\n#### Release Notes\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\n* solvers\r\n  * Fixed wrong results from `solveset` for `Mod(b**x, m) = r` when `b` shares a factor with `m`; these are now left unevaluated.\r\n<!-- END RELEASE NOTES -->",
+  "changed_files": 3,
+  "commits": [
+    {
+      "author": "adityaanikam",
+      "message": "Fix modular solveset for powers whose base shares a factor with the modulus\n\nFixes #30996\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>",
+      "sha": "44fd6a6f739d705e655e6fa9cc70443edfe97de8"
+    },
+    {
+      "author": "adityaanikam",
+      "message": "Limit the modular power solver to integer bases and integer exponents\n\nAdd .mailmap entry\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>",
+      "sha": "51112d016c82fd60e775383a626024d6da2ed18d"
+    },
+    {
+      "author": "adityaanikam",
+      "message": "Leave modular powers with a non-coprime base unevaluated\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>",
+      "sha": "776c03d6876bc4d8b04451a436ca7ace5572328c"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "update doctest for restricted solving",
+      "sha": "3d2b407bda0616abb96d233eeac8d6b56f7c976c"
+    }
+  ],
+  "created_at": "2026-11-09T17:30:16Z",
+  "deletions": 4,
+  "diff": "diff --git a/.mailmap b/.mailmap\nindex 8cf66f814074..d29591c3c8a0 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -238,6 +238,8 @@ Addison Cugini <ajcugini@gmail.com> <addisonc@pcp065368pcs.dhcp.calpoly.edu>\n Aditya Jindal <jaditya8889@gmail.com>\n Aditya Kapoor <aditya.kapoor.apm12@itbhu.ac.in>\n Aditya Kumar Sinha <adityakumar113141@gmail.com> aditya113141 <adityakumar113141@gmail.com>\n+Aditya Nikam <118399608+adityaanikam@users.noreply.github.com>\n+Aditya Nikam <118399608+adityaanikam@users.noreply.github.com> adityaanikam <adityanikam9502@gmail.com>\n Aditya Prakash <prakashaditya2709@gmail.com>\n Aditya Ravuri <infprobscix@gmail.com> InfProbSciX <infprobscix@gmail.com>\n Aditya Rohan <riyuzakiiitk@gmail.com>\ndiff --git a/sympy/solvers/solveset.py b/sympy/solvers/solveset.py\nindex ff0395aaad28..1a279e273d6f 100644\n--- a/sympy/solvers/solveset.py\n+++ b/sympy/solvers/solveset.py\n@@ -1538,6 +1538,8 @@ def _invert_modular(modterm, rhs, n, symbol):\n     (x**2 + x + 1, ImageSet(Lambda(_n, 3*_n + 1), Naturals0))\n \n     \"\"\"\n+    if not isinstance(modterm, Mod):\n+        return modterm, rhs\n     a, m = modterm.args\n \n     if rhs.is_integer is False:\n@@ -1575,7 +1577,9 @@ def _invert_modular(modterm, rhs, n, symbol):\n         if expo.has(symbol) and not base.has(symbol):\n             # remainder -> solution independent of n of equation.\n             # m, rhs are made coprime by dividing number_gcd(m, rhs)\n-            if not m.is_Integer and rhs.is_Integer and a.base.is_Integer:\n+            if not (m.is_Integer and rhs.is_Integer and base.is_Integer):\n+                return modterm, rhs\n+            if number_gcd(m.p, base.p) != 1 or number_gcd(m.p, rhs.p) != 1:\n                 return modterm, rhs\n \n             mdiv = m.p // number_gcd(m.p, rhs.p)\n@@ -1653,7 +1657,7 @@ def _solve_modular(f, symbol, domain):\n     >>> solve_modulo(-7 + Mod(x, 5), x, S.Integers)\n     EmptySet\n     >>> solve_modulo(Mod(12**x, 21) - 18, x, S.Integers)\n-    ImageSet(Lambda(_n, 6*_n + 2), Naturals0)\n+    ConditionSet(x, Eq(Mod(12**x, 21) - 18, 0), Integers)\n     >>> solve_modulo(Mod(sin(x), 7) - 3, x, S.Integers) # not solvable\n     ConditionSet(x, Eq(Mod(sin(x), 7) - 3, 0), Integers)\n     >>> solve_modulo(3 - Mod(x, 5), x, Intersection(S.Integers, Interval(0, 100)))\ndiff --git a/sympy/solvers/tests/test_solveset.py b/sympy/solvers/tests/test_solveset.py\nindex 9fc50bc7b0ee..8bc1c0bad523 100644\n--- a/sympy/solvers/tests/test_solveset.py\n+++ b/sympy/solvers/tests/test_solveset.py\n@@ -3387,12 +3387,21 @@ def test_solve_modular():\n     # a.is_Pow tests\n     assert dumeq(solveset(Mod(7**x, 41) - 15, x, S.Integers),\n             ImageSet(Lambda(n, 40*n + 3), S.Naturals0))\n-    assert dumeq(solveset(Mod(12**x, 21) - 18, x, S.Integers),\n-            ImageSet(Lambda(n, 6*n + 2), S.Naturals0))\n+    # 12 and 21 share a factor so this is left unevaluated\n+    assert solveset(Mod(12**x, 21) - 18, x, S.Integers).dummy_eq(\n+        ConditionSet(x, Eq(Mod(12**x, 21) - 18, 0), S.Integers))\n     assert dumeq(solveset(Mod(3**x, 4) - 3, x, S.Integers),\n             ImageSet(Lambda(n, 2*n + 1), S.Naturals0))\n     assert dumeq(solveset(Mod(2**x, 7) - 2 , x, S.Integers),\n             ImageSet(Lambda(n, 3*n + 1), S.Naturals0))\n+    # base and modulus share a factor, issue 30996: the result is left\n+    # unevaluated rather than being wrong\n+    for expr in [Mod(2**x, 42), Mod(2**x - 1, 42), Mod(2**x - 22, 42),\n+            Mod(2*2**x - 1, 42), Mod(2**x, 12) - 8, Mod(6**x, 12)]:\n+        assert solveset(expr, x, S.Integers).dummy_eq(\n+            ConditionSet(x, Eq(expr, 0), S.Integers))\n+    assert dumeq(solveset(Mod(2*2**x - 2, 42), x, S.Integers),\n+            ImageSet(Lambda(n, 6*n), S.Naturals0))\n     assert dumeq(solveset(Mod(3**(3**x), 4) - 3, x, S.Integers),\n             Intersection(ImageSet(Lambda(n, Intersection({log(2*n + 1)/log(3)},\n             S.Integers)), S.Naturals0), S.Integers))\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* solvers\n  * Fixed wrong results from `solveset` for `Mod(b**x, m) = r` when `b` shares a factor with `m`; these are now left unevaluated. ([#31016](https://github.com/sympy/sympy/pull/31016) by [@adityaanikam](https://github.com/adityaanikam) and [@smichr](https://github.com/smichr))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    #### References to other Issues or PRs\r\n    Fixes #30996\r\n\r\n    #### Brief description of what is fixed or changed\r\n    `solveset` gave wrong answers for `Mod(b**x, m) = r` when `b` shares a factor with `m`, for example `Mod(2**x, 42)`. `_invert_modular` assumed the powers of `b` are periodic from the start, which is false in that case. Following the review, it now returns the expression unevaluated unless the modulus, rhs and base are integers and the base and rhs are coprime to the modulus. It also returns early when the term is not a `Mod`, which covers `Mod(2*2**x - 1, 42)` (it raised `TypeError`).\r\n\r\n    #### Other comments\r\n    `Mod(12**x, 21) - 18` is now unevaluated, so I changed that existing test to expect a `ConditionSet`. The issue's cases are added to `test_solve_modular`.\r\n\r\n    #### AI Generation Disclosure\r\n    I used Claude Code (Claude Sonnet 5.5) to help find the cause and to write the change and tests. I reviewed it and ran the tests myself.\r\n\r\n    #### Release Notes\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    * solvers\r\n      * Fixed wrong results from `solveset` for `Mod(b**x, m) = r` when `b` shares a factor with `m`; these are now left unevaluated.\r\n    <!-- END RELEASE NOTES -->\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-09T17:30:20Z"
+    },
+    {
+      "author": "smichr",
+      "body": "The .mailmap file needs to be updated because there are commits with\r\nunrecognised author/email metadata.\r\n\r\n        For instructions on updating the .mailmap file see:\r\nhttps://docs.sympy.org/dev/contributing/new-contributors-guide/workflow-process.html#mailmap-instructions",
+      "created_at": "2026-11-09T19:33:55Z"
+    },
+    {
+      "author": "smichr",
+      "body": "Consider the following as identified by ChatGPT:\r\n\r\n```python\r\nx = symbols('x')\r\n\r\nexpr = Mod(4**(x/2), 12) - 2\r\nassert expr.subs(x, 1) == 0\r\n\r\nsolveset(expr, x, S.Integers)\r\n# PR: EmptySet\r\n\r\nexpr = Mod((S.Half)**x, 4) - 2\r\nassert expr.subs(x, -1) == 0\r\n\r\nsolveset(expr, x, S.Integers)\r\n# PR: EmptySet\r\n\r\nexpr = Mod(4**(x/2), 8)\r\nassert expr.subs(x, 3) == 0\r\n\r\nsolveset(expr, x, S.Integers)\r\n# PR: Intersection(ImageSet(Lambda(n, 2*n + 4),\r\n#                           S.Naturals0), S.Integers)\r\n```\r\n\r\nRestrict the new number-theoretic logic to cases where:\r\n- The base is an integer.\r\n- The exponent is guaranteed to be an integer for integer values of the solving symbol.\r\nCases outside those conditions should retain the existing fallback behavior until they can be handled correctly.\r\n",
+      "created_at": "2026-11-09T19:45:04Z"
+    },
+    {
+      "author": "adityaanikam",
+      "body": "Thanks both. Following oscarbenjamin's suggestion I replaced the change with the smaller one: _invert_modular now leaves the expression unevaluated unless the base and rhs are coprime to the modulus, so the cases from the issue and from smichr's comment fall back to the ConditionSet instead of giving wrong sets. I also fixed the .mailmap entry. Mod(12**x, 21) - 18 is now unevaluated too, so I changed that existing test to expect it.",
+      "created_at": "2026-11-10T12:10:35Z"
+    },
+    {
+      "author": "henryksobon300-code",
+      "body": "I opened #31048 to follow up on one of the cases that returns a `ConditionSet`. In that example, the only integer solution is `x = -1`.",
+      "created_at": "2026-11-11T21:54:59Z"
+    }
+  ],
+  "labels": [
+    "solvers.solveset"
+  ],
+  "linked": [
+    {
+      "author": "joprodrigues",
+      "body": "I was trying to solve some modular equations of the form `Mod( n * (2**x) -  m, 42)`, for n and m varying from 0 to 42, and sympy can't handle this (mostly because of the missing handling of composite numbers for discrete_log (#27612)).\n\nWith that fixed (locally), it still does not work for some cases. Some of the examples I have tried and return wrong results.\n\n`solveset(Mod( 2**x, 42), x, S.Integers)`, expected: `S.EmptySet`\n\n`solveset(Mod( 2**x -  1, 42), x, S.Integers)`, expected: `FiniteSet(0)`\n\n`solveset(Mod( 2**x - 22, 42), x, S.Integers)`, expected: `ImageSet(Lambda(n, 6*n + 6), S.Naturals0))`\n\n`solveset(Mod( (2 * (2**x)) - 1, 42), x, S.Integers)`, expected: `S.EmptySet`\n\n`solveset(Mod( (2 * (2**x)) - 2, 42), x, S.Integers)`, expected: `ImageSet(Lambda(n, 6*n), S.Naturals0))`",
+      "is_pull_request": false,
+      "number": 30996,
+      "state": "closed",
+      "title": "Wrong / missing results with modular solveset"
+    }
+  ],
+  "merge_commit_sha": "89ca05a32822d0c320aa3e01fcb3e65446453250",
+  "merged_at": "2026-11-11T08:01:14Z",
+  "number": 31016,
+  "review_comments": [
+    {
+      "author": "oscarbenjamin",
+      "body": "I think it is a mistake to overcomplicate things by trying to make solveset's ill-conceived handling of Mod more complete.\n\nA more minimal fix is better:\n```diff\ndiff --git a/sympy/solvers/solveset.py b/sympy/solvers/solveset.py\nindex ff0395aaad..6108066894 100644\n--- a/sympy/solvers/solveset.py\n+++ b/sympy/solvers/solveset.py\n@@ -1538,6 +1538,8 @@ def _invert_modular(modterm, rhs, n, symbol):\n     (x**2 + x + 1, ImageSet(Lambda(_n, 3*_n + 1), Naturals0))\n \n     \"\"\"\n+    if not isinstance(modterm, Mod):\n+        return modterm, rhs\n     a, m = modterm.args\n \n     if rhs.is_integer is False:\n@@ -1575,7 +1577,9 @@ def _invert_modular(modterm, rhs, n, symbol):\n         if expo.has(symbol) and not base.has(symbol):\n             # remainder -> solution independent of n of equation.\n             # m, rhs are made coprime by dividing number_gcd(m, rhs)\n-            if not m.is_Integer and rhs.is_Integer and a.base.is_Integer:\n+            if not (m.is_Integer and rhs.is_Integer and base.is_Integer):\n+                return modterm, rhs\n+            if number_gcd(m.p, base.p) != 1 or number_gcd(m.p, rhs.p) != 1:\n                 return modterm, rhs\n \n             mdiv = m.p // number_gcd(m.p, rhs.p)\n```",
+      "created_at": "2026-11-10T11:57:49Z",
+      "path": "sympy/solvers/solveset.py"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "copilot-pull-request-reviewer[bot]",
+      "body": "Copilot was unable to review this pull request because the user who requested the review has insufficient remaining quota. Try requesting a review at a lower effort level.\n\nAn organization owner can choose the repository organization as the billing source for reviews requested by members with a paid Copilot license. [Learn about Copilot code review billing](https://docs.github.com/en/copilot/concepts/agents/code-review#code-review-usage).",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-09T17:30:25Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T11:57:49Z"
+    }
+  ],
+  "title": "\ud83e\udd16 Fix wrong solveset results for modular powers with a non-coprime base"
+}

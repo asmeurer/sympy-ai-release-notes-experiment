@@ -1,0 +1,170 @@
+diff --git a/sympy/assumptions/handlers/matrices.py b/sympy/assumptions/handlers/matrices.py
+index c0305adad880..3ee6eaab2675 100644
+--- a/sympy/assumptions/handlers/matrices.py
++++ b/sympy/assumptions/handlers/matrices.py
+@@ -9,10 +9,10 @@
+ from sympy.assumptions.ask import _ask_recursive
+ from sympy.assumptions.handlers import test_closed_group
+ from sympy.matrices import MatrixBase
+-from sympy.matrices.expressions import (BlockMatrix, BlockDiagMatrix, Determinant,
+-    DiagMatrix, DiagonalMatrix, HadamardProduct, Identity, Inverse, MatAdd, MatMul,
+-    MatPow, MatrixExpr, MatrixSlice, MatrixSymbol, OneMatrix, Trace, Transpose,
+-    ZeroMatrix)
++from sympy.matrices.expressions import (Adjoint, BlockMatrix, BlockDiagMatrix, Conjugate,
++    Determinant, DiagMatrix, DiagonalMatrix, HadamardProduct, Identity, Inverse,
++    MatAdd, MatMul, MatPow, MatrixExpr, MatrixSlice, MatrixSymbol, OneMatrix,
++    Trace, Transpose, ZeroMatrix)
+ from sympy.matrices.expressions.blockmatrix import reblock_2x2
+ from sympy.matrices.expressions.factorizations import Factorization
+ from sympy.matrices.expressions.fourier import DFT
+@@ -152,7 +152,7 @@ def _(expr, assumptions):
+ def _(expr, assumptions):
+     return expr.shape[0] == 1 and expr.shape[1] == 1
+ 
+-@InvertiblePredicate.register(Transpose)
++@InvertiblePredicate.register_many(Transpose, Adjoint, Conjugate)
+ def _(expr, assumptions):
+     return _ask_recursive(Q.invertible(expr.arg), assumptions)
+ 
+@@ -297,7 +297,7 @@ def _(expr, assumptions):
+     if Q.unitary(expr) in conjuncts(assumptions):
+         return True
+ 
+-@UnitaryPredicate.register_many(Inverse, Transpose)
++@UnitaryPredicate.register_many(Inverse, Transpose, Adjoint, Conjugate)
+ def _(expr, assumptions):
+     return _ask_recursive(Q.unitary(expr.arg), assumptions)
+ 
+@@ -349,7 +349,7 @@ def _(expr, assumptions):
+ def _(expr, assumptions):
+     return expr.shape[0] == 1 and expr.shape[1] == 1
+ 
+-@FullRankPredicate.register_many(Inverse, Transpose)
++@FullRankPredicate.register_many(Inverse, Transpose, Adjoint, Conjugate)
+ def _(expr, assumptions):
+     return _ask_recursive(Q.fullrank(expr.arg), assumptions)
+ 
+@@ -575,7 +575,7 @@ def _(expr, assumptions):
+ def _(expr, assumptions):
+     return expr.shape[0] == 1 and expr.shape[1] == 1
+ 
+-@DiagonalPredicate.register_many(Inverse, Transpose)
++@DiagonalPredicate.register_many(Inverse, Transpose, Adjoint, Conjugate)
+ def _(expr, assumptions):
+     return _ask_recursive(Q.diagonal(expr.arg), assumptions)
+ 
+diff --git a/sympy/assumptions/tests/test_matrices.py b/sympy/assumptions/tests/test_matrices.py
+index 45c634776727..80f079b0bcee 100644
+--- a/sympy/assumptions/tests/test_matrices.py
++++ b/sympy/assumptions/tests/test_matrices.py
+@@ -30,6 +30,8 @@ def test_invertible():
+     assert _ask_recursive(Q.invertible(X*Z), Q.invertible(X) & Q.invertible(Z)) is True
+     assert _ask_recursive(Q.invertible(X.T)) is None
+     assert _ask_recursive(Q.invertible(X.T), Q.invertible(X)) is True
++    assert _ask_recursive(Q.invertible(X.adjoint()), Q.invertible(X)) is True
++    assert _ask_recursive(Q.invertible(X.conjugate()), Q.invertible(X)) is True
+     assert _ask_recursive(Q.invertible(X.I)) is True
+     assert _ask_recursive(Q.invertible(Identity(3))) is True
+     assert _ask_recursive(Q.invertible(ZeroMatrix(3, 3))) is False
+@@ -122,11 +124,15 @@ def test_orthogonal():
+ def test_unitary():
+     _test_orthogonal_unitary(Q.unitary)
+     assert _ask_recursive(Q.unitary(X), Q.orthogonal(X)) is True
++    assert _ask_recursive(Q.unitary(X.adjoint()), Q.unitary(X)) is True
++    assert _ask_recursive(Q.unitary(X.conjugate()), Q.unitary(X)) is True
+ 
+ def test_fullrank():
+     assert _ask_recursive(Q.fullrank(X), Q.fullrank(X)) is True
+     assert _ask_recursive(Q.fullrank(X**2), Q.fullrank(X)) is True
+     assert _ask_recursive(Q.fullrank(X.T), Q.fullrank(X)) is True
++    assert _ask_recursive(Q.fullrank(X.adjoint()), Q.fullrank(X)) is True
++    assert _ask_recursive(Q.fullrank(X.conjugate()), Q.fullrank(X)) is True
+     assert _ask_recursive(Q.fullrank(X)) is None
+     assert _ask_recursive(Q.fullrank(Y)) is None
+     assert _ask_recursive(Q.fullrank(X*Z), Q.fullrank(X) & Q.fullrank(Z)) is True
+diff --git a/sympy/matrices/expressions/inverse.py b/sympy/matrices/expressions/inverse.py
+index 35794c3d43b4..536ca1f96f57 100644
+--- a/sympy/matrices/expressions/inverse.py
++++ b/sympy/matrices/expressions/inverse.py
+@@ -95,11 +95,14 @@ def refine_Inverse(expr, assumptions):
+     >>> with assuming(Q.orthogonal(X)):
+     ...     print(refine(X.I))
+     X.T
++    >>> with assuming(Q.unitary(X)):
++    ...     print(refine(X.I))
++    Adjoint(X)
+     """
+     if ask(Q.orthogonal(expr), assumptions):
+         return expr.arg.T
+     elif ask(Q.unitary(expr), assumptions):
+-        return expr.arg.conjugate()
++        return expr.arg.adjoint()
+     elif ask(Q.singular(expr), assumptions):
+         raise ValueError("Inverse of singular matrix %s" % expr.arg)
+ 
+diff --git a/sympy/matrices/expressions/matmul.py b/sympy/matrices/expressions/matmul.py
+index 7ce0c351ca05..61d37686edb3 100644
+--- a/sympy/matrices/expressions/matmul.py
++++ b/sympy/matrices/expressions/matmul.py
+@@ -494,6 +494,9 @@ def refine_MatMul(expr, assumptions):
+     >>> with assuming(Q.orthogonal(X)):
+     ...     print(refine(expr))
+     I
++    >>> with assuming(Q.unitary(X)):
++    ...     print(refine(X * X.adjoint()))
++    I
+     """
+     newargs = []
+     exprargs = []
+@@ -506,10 +509,10 @@ def refine_MatMul(expr, assumptions):
+ 
+     last = exprargs[0]
+     for arg in exprargs[1:]:
+-        if arg == last.T and ask(Q.orthogonal(arg), assumptions):
+-            last = Identity(arg.shape[0])
+-        elif arg == last.conjugate() and ask(Q.unitary(arg), assumptions):
+-            last = Identity(arg.shape[0])
++        if arg == last.T and ask(Q.orthogonal(arg) | Q.orthogonal(last), assumptions):
++            last = Identity(last.shape[0])
++        elif arg == last.adjoint() and ask(Q.unitary(arg) | Q.unitary(last), assumptions):
++            last = Identity(last.shape[0])
+         else:
+             newargs.append(last)
+             last = arg
+diff --git a/sympy/matrices/expressions/tests/test_inverse.py b/sympy/matrices/expressions/tests/test_inverse.py
+index a0e29933ba73..4b442337e244 100644
+--- a/sympy/matrices/expressions/tests/test_inverse.py
++++ b/sympy/matrices/expressions/tests/test_inverse.py
+@@ -51,6 +51,7 @@ def test_inverse_non_invertible():
+ 
+ def test_refine():
+     assert refine(C.I, Q.orthogonal(C)) == C.T
++    assert refine(C.I, Q.unitary(C)) == C.adjoint()
+ 
+ 
+ def test_inverse_matpow_canonicalization():
+diff --git a/sympy/matrices/expressions/tests/test_matmul.py b/sympy/matrices/expressions/tests/test_matmul.py
+index 2fce4543fa17..d7aabeaf9411 100644
+--- a/sympy/matrices/expressions/tests/test_matmul.py
++++ b/sympy/matrices/expressions/tests/test_matmul.py
+@@ -133,10 +133,20 @@ def test_collapse_MatrixBase():
+ 
+ def test_refine():
+     assert refine(C*C.T*D, Q.orthogonal(C)).doit() == D
++    assert refine(C.T*C*D, Q.orthogonal(C)).doit() == D
++    assert refine(C*C.adjoint()*D, Q.unitary(C)).doit() == D
++    assert refine(C.adjoint()*C*D, Q.unitary(C)).doit() == D
+ 
+     kC = k*C
+     assert refine(kC*C.T, Q.orthogonal(C)).doit() == k*Identity(n)
+     assert refine(kC* kC.T, Q.orthogonal(C)).doit() == (k**2)*Identity(n)
++    assert refine(kC*C.adjoint(), Q.unitary(C)).doit() == k*Identity(n)
++    assert refine(kC* kC.adjoint(), Q.unitary(C)).doit() == (k**2)*Identity(n)
++
++    # Rectangular orthogonal matrix (E2-4 from #30900)
++    An = MatrixSymbol('An', 2, 3)
++    assert refine(An*An.T, Q.orthogonal(An)).doit() == Identity(2)
++    assert refine(An.T*An, Q.orthogonal(An)).doit() == Identity(3)
+ 
+ def test_matmul_no_matrices():
+     assert MatMul(1) == 1

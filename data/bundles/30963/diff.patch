@@ -1,0 +1,174 @@
+diff --git a/sympy/codegen/cfunctions.py b/sympy/codegen/cfunctions.py
+index 2d37b1264889..86bedd864e41 100644
+--- a/sympy/codegen/cfunctions.py
++++ b/sympy/codegen/cfunctions.py
+@@ -7,6 +7,7 @@
+ 
+ """
+ from __future__ import annotations
++from mpmath.libmp import prec_to_dps
+ from sympy.core.function import ArgumentIndexError, Function
+ from sympy.core.numbers import Rational
+ from sympy.core.power import Pow
+@@ -270,8 +271,8 @@ def eval(cls, arg):
+         elif arg.is_Pow and arg.base == _Two:
+             return arg.exp
+ 
+-    def _eval_evalf(self, *args, **kwargs):
+-        return self.rewrite(log).evalf(*args, **kwargs)
++    def _eval_evalf(self, prec):
++        return self.rewrite(log).evalf(prec_to_dps(prec))
+ 
+     def _eval_expand_func(self, **hints):
+         return _log2(*self.args)
+diff --git a/sympy/codegen/numpy_nodes.py b/sympy/codegen/numpy_nodes.py
+index db8308a8f463..b0621098eaa2 100644
+--- a/sympy/codegen/numpy_nodes.py
++++ b/sympy/codegen/numpy_nodes.py
+@@ -1,4 +1,5 @@
+ from __future__ import annotations
++from mpmath.libmp import prec_to_dps
+ from sympy.core.function import Add, ArgumentIndexError, Function
+ from sympy.core.power import Pow
+ from sympy.core.singleton import S
+@@ -60,8 +61,8 @@ def fdiff(self, argindex=1):
+     def _eval_rewrite_as_log(self, x1, x2, **kwargs):
+         return _logaddexp(x1, x2)
+ 
+-    def _eval_evalf(self, *args, **kwargs):
+-        return self.rewrite(log).evalf(*args, **kwargs)
++    def _eval_evalf(self, prec):
++        return self.rewrite(log).evalf(prec_to_dps(prec))
+ 
+     def _eval_simplify(self, *args, **kwargs):
+         a, b = (x.simplify(**kwargs) for x in self.args)
+@@ -102,8 +103,8 @@ def fdiff(self, argindex=1):
+     def _eval_rewrite_as_log(self, x1, x2, **kwargs):
+         return _logaddexp2(x1, x2)
+ 
+-    def _eval_evalf(self, *args, **kwargs):
+-        return self.rewrite(log).evalf(*args, **kwargs)
++    def _eval_evalf(self, prec):
++        return self.rewrite(log).evalf(prec_to_dps(prec))
+ 
+     def _eval_simplify(self, *args, **kwargs):
+         a, b = (x.simplify(**kwargs).factor() for x in self.args)
+diff --git a/sympy/codegen/scipy_nodes.py b/sympy/codegen/scipy_nodes.py
+index 8a324743481a..8ad8e2fcf1fa 100644
+--- a/sympy/codegen/scipy_nodes.py
++++ b/sympy/codegen/scipy_nodes.py
+@@ -1,4 +1,5 @@
+ from __future__ import annotations
++from mpmath.libmp import prec_to_dps
+ from sympy.core.function import Add, ArgumentIndexError, Function
+ from sympy.core.power import Pow
+ from sympy.core.singleton import S
+@@ -30,8 +31,8 @@ def fdiff(self, argindex=1):
+     def _eval_rewrite_as_cos(self, x, **kwargs):
+         return _cosm1(x)
+ 
+-    def _eval_evalf(self, *args, **kwargs):
+-        return self.rewrite(cos).evalf(*args, **kwargs)
++    def _eval_evalf(self, prec):
++        return self.rewrite(cos).evalf(prec_to_dps(prec))
+ 
+     def _eval_simplify(self, **kwargs):
+         x, = self.args
+@@ -68,8 +69,8 @@ def fdiff(self, argindex=1):
+     def _eval_rewrite_as_Pow(self, x, y, **kwargs):
+         return _powm1(x, y)
+ 
+-    def _eval_evalf(self, *args, **kwargs):
+-        return self.rewrite(Pow).evalf(*args, **kwargs)
++    def _eval_evalf(self, prec):
++        return self.rewrite(Pow).evalf(prec_to_dps(prec))
+ 
+     def _eval_simplify(self, **kwargs):
+         x, y = self.args
+diff --git a/sympy/codegen/tests/test_cfunctions.py b/sympy/codegen/tests/test_cfunctions.py
+index 4f4e7b1efc2a..0d51fb16b9c5 100644
+--- a/sympy/codegen/tests/test_cfunctions.py
++++ b/sympy/codegen/tests/test_cfunctions.py
+@@ -1,4 +1,5 @@
+ from __future__ import annotations
++from mpmath.libmp import dps_to_prec, prec_to_dps
+ from sympy.core.numbers import (Rational, pi)
+ from sympy.core.singleton import S
+ from sympy.core.symbol import (Symbol, symbols)
+@@ -185,3 +186,10 @@ def test_isnan_isinf():
+     assert isnanx not in (False, True)
+     assert isnanx.func is isnan
+     assert isnanx.args == (x,)
++
++
++def test_log2_evalf_precision():
++    for prec in (53, 113):
++        result = log2(3)._eval_evalf(prec)
++        assert result._prec == dps_to_prec(prec_to_dps(prec))
++        assert abs(result - (log(3)/log(2)).evalf(50)) < S(2)**(2 - prec)
+diff --git a/sympy/codegen/tests/test_numpy_nodes.py b/sympy/codegen/tests/test_numpy_nodes.py
+index bb3f5c7f6ff8..e20ec1b5e1fb 100644
+--- a/sympy/codegen/tests/test_numpy_nodes.py
++++ b/sympy/codegen/tests/test_numpy_nodes.py
+@@ -1,4 +1,5 @@
+ from __future__ import annotations
++from mpmath.libmp import dps_to_prec, prec_to_dps
+ from itertools import product
+ from sympy.core.singleton import S
+ from sympy.core.symbol import symbols
+@@ -68,3 +69,14 @@ def test_amin_amax():
+         assert am(x, axis=3).axis == 3
+         with raises(ValueError):
+             am(x, y, z)
++
++
++def test_logaddexp_evalf_precision():
++    assert logaddexp(x, y).evalf() == log(exp(x) + exp(y))
++    cases = [(logaddexp(2, 3), log(exp(2) + exp(3))),
++             (logaddexp2(2, 3), log(12)/log(2))]
++    for expr, expected in cases:
++        for prec in (53, 113):
++            result = expr._eval_evalf(prec)
++            assert result._prec == dps_to_prec(prec_to_dps(prec))
++            assert abs(result - expected.evalf(50)) < S(2)**(2 - prec)
+diff --git a/sympy/codegen/tests/test_scipy_nodes.py b/sympy/codegen/tests/test_scipy_nodes.py
+index d6e0c5a45c21..6b88514905be 100644
+--- a/sympy/codegen/tests/test_scipy_nodes.py
++++ b/sympy/codegen/tests/test_scipy_nodes.py
+@@ -1,10 +1,11 @@
+ from __future__ import annotations
++from mpmath.libmp import dps_to_prec, prec_to_dps
+ from itertools import product
+ from sympy.core.power import Pow
+ from sympy.core.symbol import symbols
+ from sympy.functions.elementary.exponential import exp, log
+ from sympy.functions.elementary.trigonometric import cos
+-from sympy.core.numbers import pi
++from sympy.core.numbers import pi, Rational
+ from sympy.codegen.scipy_nodes import cosm1, powm1
+ 
+ x, y, z = symbols('x y z')
+@@ -43,3 +44,23 @@ def test_powm1():
+     eulers_constant_m1 = powm1(x, 1/log(x))
+     assert eulers_constant_m1.rewrite(Pow) == exp(1) - 1
+     assert eulers_constant_m1.simplify() == exp(1) - 1
++
++
++def test_scipy_nodes_evalf_precision():
++    cases = [(cosm1(1), cos(1) - 1), (powm1(2, pi), 2**pi - 1)]
++    for expr, expected in cases:
++        for prec in (53, 113):
++            result = expr._eval_evalf(prec)
++            assert result._prec == dps_to_prec(prec_to_dps(prec))
++            assert abs(result - expected.evalf(50)) < 2**(4 - prec)
++
++
++def test_scipy_nodes_evalf_cancellation():
++    small = Rational(1, 10**20)
++    cases = [(cosm1(small), cos(small) - 1),
++             (powm1(1 + small, small), (1 + small)**small - 1)]
++    for expr, expected in cases:
++        reference = expected.evalf(80)
++        for digits in (15, 30, 50):
++            result = expr.evalf(digits)
++            assert abs((result - reference)/reference) < 10**(1 - digits)

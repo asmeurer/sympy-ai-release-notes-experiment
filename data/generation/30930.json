@@ -1,0 +1,116 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 7512,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 10337,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 10337,
+      "cacheReadInputTokens": 29633,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0520333,
+      "inputTokens": 6,
+      "maxOutputTokens": 128000,
+      "outputTokens": 771,
+      "provider": "firstParty",
+      "thinkingTokens": 143,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 30930,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"matrices\",\"text\":\"Fixed a regression where `Matrix.norm()` with no argument returned the spectral (2-)norm for matrices instead of the Frobenius norm.\"}],\"reasoning\":\"The diff changes the default `ord` of `Matrix.norm` from 2 to None, which restores the Frobenius norm for 2D matrices, so this is a user-visible bug fix. I couldn't verify whether the regression shipped in an earlier release, and wrote the entry on the assumption that it did.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "matrices",
+        "text": "Fixed a regression where `Matrix.norm()` with no argument returned the spectral (2-)norm for matrices instead of the Frobenius norm."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The diff changes the default `ord` of `Matrix.norm` from 2 to None, which restores the Frobenius norm for 2D matrices, so this is a user-visible bug fix. I couldn't verify whether the regression shipped in an earlier release, and wrote the entry on the assumption that it did."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30930/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30930/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "output_mode": "content",
+        "path": "<repo>/work/sympy/sympy/matrices",
+        "pattern": "ord: int \\| str \\| None = 2|def norm\\(self, ord=2"
+      },
+      "name": "Grep"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "matrices",
+            "text": "Fixed a regression where `Matrix.norm()` with no argument returned the spectral (2-)norm for matrices instead of the Frobenius norm."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The diff changes the default `ord` of `Matrix.norm` from 2 to None, which restores the Frobenius norm for 2D matrices, so this is a user-visible bug fix. I couldn't verify whether the regression shipped in an earlier release, and wrote the entry on the assumption that it did."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0520333,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 10337,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 10337,
+    "cache_read_input_tokens": 29633,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 6,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 296,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 296,
+        "cache_read_input_tokens": 13848,
+        "input_tokens": 2,
+        "output_tokens": 317,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 771,
+    "output_tokens_details": {
+      "thinking_tokens": 143
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

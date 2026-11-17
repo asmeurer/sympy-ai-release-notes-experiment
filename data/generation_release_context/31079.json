@@ -1,0 +1,104 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 5685,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 4579,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 4579,
+      "cacheReadInputTokens": 24201,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0276141,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 687,
+      "provider": "firstParty",
+      "thinkingTokens": 185,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 31079,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":true,\"entries\":[],\"reasoning\":\"The diff only reorders type-annotation overloads for Integer.__pow__ (plus a .mailmap line), so runtime behavior is unchanged. The issue refers to the typing overloads as part of recent development work (the Integer update in #29422), so it is not clearly a problem that users of 1.14 saw. I judged it too minor for an entry.\"}",
+  "structured_output": {
+    "entries": [],
+    "no_entry": true,
+    "reasoning": "The diff only reorders type-annotation overloads for Integer.__pow__ (plus a .mailmap line), so runtime behavior is unchanged. The issue refers to the typing overloads as part of recent development work (the Integer update in #29422), so it is not clearly a problem that users of 1.14 saw. I judged it too minor for an entry."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31079/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31079/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31079/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [],
+        "no_entry": true,
+        "reasoning": "The diff only reorders type-annotation overloads for Integer.__pow__ (plus a .mailmap line), so runtime behavior is unchanged. The issue refers to the typing overloads as part of recent development work (the Integer update in #29422), so it is not clearly a problem that users of 1.14 saw. I judged it too minor for an entry."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0276141,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 4579,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 4579,
+    "cache_read_input_tokens": 24201,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 4138,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 4138,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 398,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 687,
+    "output_tokens_details": {
+      "thinking_tokens": 185
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

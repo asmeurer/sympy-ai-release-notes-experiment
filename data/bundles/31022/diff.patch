@@ -1,0 +1,86 @@
+diff --git a/.mailmap b/.mailmap
+index 8cf66f814074..1d365c67b534 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -1978,6 +1978,7 @@ shubhayu09 <guptashubhayu601@gmail.com> shubhayu09 <87441886+shubhayu09@users.no
+ sirnicolaf <43586954+sirnicolaf@users.noreply.github.com>
+ slacker404 <pchantza@gmail.com>
+ soumi7 <soumibardhan10@gmail.com>
++suchishah2807 <suchikeyurshah@gmail.com>
+ symbolique <symbolique@users.noreply.github.com>
+ tanush <tanushtakkarr44@gmail.com> tanush7 <tanushtakkarr44@gmail.com>
+ tanush <tanushtakkarr44@gmail.com> tanush78 <tanushtakkar44@gmail.com>
+diff --git a/sympy/discrete/convolutions.py b/sympy/discrete/convolutions.py
+index 5e50a70dbf39..daffcc840a7e 100644
+--- a/sympy/discrete/convolutions.py
++++ b/sympy/discrete/convolutions.py
+@@ -111,7 +111,8 @@ def loop(a):
+                 (ia, ma), (ib, mb) = da, db
+                 den = ma*mb
+                 ls = convolution_int(ia, ib)
+-                ls.extend([0]*(len(a) + len(b) - 1 - len(ls)))
++                if a and b:
++                    ls.extend([0]*(len(a) + len(b) - 1 - len(ls)))
+                 if den != 1:
+                     ls = [Rational(i, den) for i in ls]
+         if ls is None:
+@@ -159,6 +160,9 @@ def convolution_fft(a, b, dps=None):
+ 
+     """
+ 
++    if not a or not b:
++        return []
++
+     a, b = a[:], b[:]
+     n = m = len(a) + len(b) - 1 # convolution size
+ 
+@@ -214,6 +218,8 @@ def convolution_ntt(a, b, prime):
+ 
+     """
+ 
++    if not a or not b:
++        return []
+     a, b, p = a[:], b[:], as_int(prime)
+     n = m = len(a) + len(b) - 1 # convolution size
+ 
+@@ -568,6 +574,9 @@ def convolution_int(a, b):
+            University of California, Berkeley, California (2004).
+            https://people.eecs.berkeley.edu/~fateman/papers/polysbyGMP.pdf
+     """
++    if not a or not b:
++        return []
++
+     # An upper bound on the largest coefficient in p(x)q(x) is given by (1 + min(dp, dq))N(p)N(q)
+     # where dp = deg(p), dq = deg(q), N(f) denotes the coefficient of largest modulus in f [1]
+     B = max(abs(c) for c in a)*max(abs(c) for c in b)*(1 + min(len(a) - 1, len(b) - 1))
+diff --git a/sympy/discrete/tests/test_convolutions.py b/sympy/discrete/tests/test_convolutions.py
+index 6bef164b0400..26ef960a3210 100644
+--- a/sympy/discrete/tests/test_convolutions.py
++++ b/sympy/discrete/tests/test_convolutions.py
+@@ -176,6 +176,26 @@ def test_cyclic_convolution():
+     raises(ValueError, lambda: convolution([1, 2, 3], [4, 5, 6], cycle=-1))
+ 
+ 
++def test_convolution_empty_input():
++    # the convolution of an empty sequence with anything is empty
++    p = 19*2**10 + 1
++    for kwargs in ({}, {'prime': p}):
++        funcs = ((convolution, convolution_fft, convolution_int)
++                 if not kwargs else (convolution, convolution_ntt))
++        for func in funcs:
++            for seq in ([], [1], [1, 2], [1, 2, 3]):
++                assert func([], seq, **kwargs) == []
++                assert func(seq, [], **kwargs) == []
++    assert convolution([], [1, 2], cycle=3) == [0, 0, 0]
++    assert convolution([], [Rational(1, 2), 3]) == []
++    assert convolution([], [1, 2], dyadic=True) == []
++    assert convolution([], [1, 2], subset=True) == []
++    # a nonempty input is unaffected
++    assert convolution([1], [1, 2]) == [1, 2]
++    assert convolution_fft([1], [1, 2]) == [1, 2]
++    assert convolution_ntt([1], [1, 2], prime=p) == [1, 2]
++
++
+ def test_convolution_fft():
+     assert all(convolution_fft([], x, dps=y) == [] for x in ([], [1]) for y in (None, 3))
+     assert convolution_fft([1, 2, 3], [4, 5, 6]) == [4, 13, 28, 27, 18]

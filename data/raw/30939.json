@@ -1,0 +1,49 @@
+{
+  "additions": 2,
+  "author": "oscarbenjamin",
+  "base": "master",
+  "body": "#### References to other Issues or PRs\r\n\r\nFollow up from gh-30362.\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\nAdd claude.md and agents.md to the manifest so they do not get included in the sdist. When the previous PR was created those files didn't exist yet.\r\n\r\n#### Other comments\r\n\r\n\r\n#### AI Generation Disclosure\r\n\r\nNO AI USE\r\n\r\n#### Release Notes\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\nNO ENTRY\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 1,
+  "commits": [
+    {
+      "author": "Oscar Benjamin",
+      "message": "pkg: exclude AGENTS.md from sdist",
+      "sha": "c2272b331569db2f720fc16429f7c6ede8025c82"
+    }
+  ],
+  "created_at": "2026-11-03T19:52:34Z",
+  "deletions": 0,
+  "diff": "diff --git a/MANIFEST.in b/MANIFEST.in\nindex 0f86a60960a0..5f918858cc35 100644\n--- a/MANIFEST.in\n+++ b/MANIFEST.in\n@@ -10,7 +10,9 @@ exclude .flake8\n exclude .gitattributes\n exclude .gitignore\n exclude .mailmap\n+exclude AGENTS.md\n exclude CITATION.cff\n+exclude CLAUDE.md\n exclude CODE_OF_CONDUCT.md\n exclude CONTRIBUTING.md\n exclude MANIFEST.in\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\n* No release notes entry will be added for this pull request.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    #### References to other Issues or PRs\r\n\r\n    Follow up from gh-30362.\r\n\r\n    #### Brief description of what is fixed or changed\r\n\r\n    Add claude.md and agents.md to the manifest so they do not get included in the sdist. When the previous PR was created those files didn't exist yet.\r\n\r\n    #### Other comments\r\n\r\n\r\n    #### AI Generation Disclosure\r\n\r\n    NO AI USE\r\n\r\n    #### Release Notes\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    NO ENTRY\r\n    <!-- END RELEASE NOTES -->\r\n\n\n</details><p>\n",
+      "created_at": "2026-11-03T19:52:39Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "Thanks Chris",
+      "created_at": "2026-11-04T01:04:28Z"
+    }
+  ],
+  "labels": [
+    "Uncategorised"
+  ],
+  "linked": [
+    {
+      "author": "oscarbenjamin",
+      "body": "<!-- DO NOT DELETE OR REPLACE THIS TEMPLATE or the PR will be closed.\r\n\r\nRead our Policy on AI Generated Code and Communication at\r\nhttps://docs.sympy.org/dev/contributing/ai-generated-code-policy.html.\r\n\r\nAs required in the policy do not use AI-generated text to complete the PR\r\ndescription below or the PR will be closed. Follow the instructions in the\r\ntemplate below and keep all section headings or the PR will be closed.\r\n\r\nThe PR title above should be a short description of what was changed. Do not\r\ninclude the issue number in the title. -->\r\n\r\n#### References to other Issues or PRs\r\n\r\nBuilt on top of gh-30360\r\n<!-- If there is an issue related to this PR, include a link to the issue here.\r\nIt is important not to waste reviewer's time by skipping this section.\r\n\r\nIf this pull request fixes an issue, write \"Fixes #NNNN\" in that exact format,\r\ne.g. \"Fixes #1234\" (see https://tinyurl.com/auto-closing for more information).\r\n\r\nIf this does not completely fix the issue, then write \"See #NNNN\" or \"partially\r\nfixes #NNNN\", e.g. \"See #1234\" or \"partially fixes #1234\". -->\r\n\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\nThis sets the version when installing from git e.g. after `pip install -e .`\r\n```console\r\n>>> sympy.__version__\r\n'1.15.0.dev2479+g93aa198f0'\r\n```\r\nThat means that it is a development version that is 2479 commits after 1.14 and the commit is 93aa198f0.\r\n\r\nThere is a fallback so that sympy can still be imported directly from a development checkout (without any install step) but then the version will be `0.0.dev0+uninstalled`.\r\n\r\nWhen building from a tagged commit the version gets set automatically by setuptools-scm.\r\n\r\nOne advantage of this is that it simplifies managing the version string in the release cycle (it never needs to be committed).\r\n\r\nUsing setuptools-scm also means that we don't need commit_hash.txt which makes it possible to remove setup.py in future and just use pyproject.toml (this is my actual motivation).\r\n\r\n#### Other comments\r\n\r\n\r\n#### AI Generation Disclosure\r\n\r\n<!-- If this pull request includes AI-generated code or text, please disclose\r\nthe tool used and specify which lines were generated. Disclosure is not\r\nrequired for minor assistive tasks, such as spell-checking or code reviewing,\r\nin primarily human-authored work. Otherwise, write \"NO AI USE\" in the text area\r\nbelow.\r\n\r\nDO NOT just delete this AI section of the PR template and do not leave this\r\nblank, or the PR will be closed. If you write \"NO AI USE\" and the code looks\r\nlike it was generated by AI then the PR will be closed. -->\r\n\r\nMostly written by codex.\r\n\r\n#### Release Notes\r\n\r\n<!-- Write the release notes for this release below between the BEGIN and END\r\nstatements. The basic format is a bulleted list with the name of the subpackage\r\nand the release note for this PR. For example:\r\n\r\n* solvers\r\n  * Added a new solver for logarithmic equations.\r\n\r\n* functions\r\n  * Fixed a bug with log of integers. Formerly, `log(-x)` incorrectly gave `-log(x)`.\r\n\r\n* physics.units\r\n  * Corrected a semantical error in the conversion between volt and statvolt which\r\n    reported the volt as being larger than the statvolt.\r\n\r\nor if no release note(s) should be included use:\r\n\r\nNO ENTRY\r\n\r\nSee https://github.com/sympy/sympy/wiki/Writing-Release-Notes for more\r\ninformation on how to write release notes. The bot will check your release\r\nnotes automatically to see if they are formatted correctly. -->\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\nNO ENTRY\r\n<!-- END RELEASE NOTES -->\r\n",
+      "is_pull_request": true,
+      "merged_at": "2026-11-03T18:53:37Z",
+      "number": 30362,
+      "state": "closed",
+      "title": "Use setuptools-scm for __version__ and PEP 639 license metadata"
+    }
+  ],
+  "merge_commit_sha": "a7ef8ff8de6de74bd217661994d77a8da9297b40",
+  "merged_at": "2026-11-04T00:42:25Z",
+  "number": 30939,
+  "review_comments": [],
+  "reviews": [],
+  "title": "pkg: exclude AGENTS.md from sdist"
+}

@@ -1,0 +1,81 @@
+diff --git a/.mailmap b/.mailmap
+index 240be98ab55f..9ccbc3730a6e 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -1612,6 +1612,7 @@ Shivansh Goel <singaser78@gmail.com> SHIVANSH-ux-ys <singaser78@gmail.com>
+ Shiyao Guo <mivikq@gmail.com> Mivik <54128043+Mivik@users.noreply.github.com>
+ Shiyao Guo <mivikq@gmail.com> Mivik <mivikq@gmail.com>
+ Shravas K Rao <shravas@gmail.com>
++Shree Dhar Mishra <shreeee848@gmail.com> shreeeeee-rgb <shreeee848@gmail.com>
+ Shreyash Mishra <72146041+Shreyash-cyber@users.noreply.github.com>
+ Shriyans Bharuka <shriyansbharuka@gmail.com>
+ Shruti Mangipudi <shruti2395@gmail.com>
+diff --git a/sympy/concrete/summations.py b/sympy/concrete/summations.py
+index c46a1134351f..5778b30d4615 100644
+--- a/sympy/concrete/summations.py
++++ b/sympy/concrete/summations.py
+@@ -104,6 +104,15 @@ class Sum(AddWithLimits, ExprWithIntLimits):
+ 
+     with the lower and upper limit values `f(b)` and `f(a)` excluded.
+ 
++    .. note::
++
++       The closed forms returned by ``Sum.doit()`` and ``summation()`` are
++       guaranteed to be correct only when the series converges. A
++       ``Piecewise`` guard attached to a result is a condition under which the
++       summation routine supplies that formula. It is not a convergence test,
++       and it does not necessarily describe the full convergence domain. The
++       same applies to sums of matrices, which are evaluated entry by entry.
++
+     Examples
+     ========
+ 
+@@ -124,6 +133,16 @@ class Sum(AddWithLimits, ExprWithIntLimits):
+     >>> Sum(x**k/factorial(k), (k, 0, oo)).doit()
+     exp(x)
+ 
++    An entrywise result can contain finite closed forms even when another
++    entry diverges:
++
++    >>> from sympy import Matrix, Rational
++    >>> A = Matrix([[Rational(1, 2), 0], [0, 2]])
++    >>> Sum(A**n, (n, 0, oo)).doit()
++    Matrix([
++    [2,  0],
++    [0, oo]])
++
+     Here are examples to do summation with symbolic indices.  You
+     can use either Function of IndexedBase classes:
+ 
+@@ -940,7 +959,16 @@ def summation(f, *symbols, **kwargs):
+                                   i = a
+ 
+     If it cannot compute the sum, it returns an unevaluated Sum object.
+-    Repeated sums can be computed by introducing additional symbols tuples::
++    Repeated sums can be computed by introducing additional limit tuples.
++
++    .. note::
++
++       The closed forms returned by ``Sum.doit()`` and ``summation()`` are
++       guaranteed to be correct only when the series converges. A
++       ``Piecewise`` guard attached to a result is a condition under which the
++       summation routine supplies that formula. It is not a convergence test,
++       and it does not necessarily describe the full convergence domain. The
++       same applies to sums of matrices, which are evaluated entry by entry.
+ 
+     Examples
+     ========
+@@ -957,6 +985,13 @@ def summation(f, *symbols, **kwargs):
+     >>> summation(i, (i, 0, n), (n, 0, m))
+     m**3/6 + m**2/2 + m/3
+ 
++    A condition attached to a closed form is not necessarily a complete
++    convergence condition:
++
++    >>> r = symbols('r')
++    >>> summation(r**n, (n, 0, oo))
++    Piecewise((1/(1 - r), Abs(r) < 1), (Sum(r**n, (n, 0, oo)), True))
++
+     >>> from sympy.abc import x
+     >>> from sympy import factorial
+     >>> summation(x**n/factorial(n), (n, 0, oo))

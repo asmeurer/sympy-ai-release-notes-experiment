@@ -1,0 +1,39 @@
+diff --git a/sympy/core/operations.py b/sympy/core/operations.py
+index cfc269f2dab4..d01eee9268ae 100644
+--- a/sympy/core/operations.py
++++ b/sympy/core/operations.py
+@@ -532,6 +532,7 @@ def __new__(cls, *args, evaluate=None, **options):
+             evaluate = global_parameters.evaluate
+ 
+         if not evaluate:
++            args = tuple(args)
+             obj = super().__new__(cls, *args, evaluate=False, **options)
+             obj._argset = frozenset(args)
+             return obj
+diff --git a/sympy/logic/tests/test_boolalg.py b/sympy/logic/tests/test_boolalg.py
+index b76711669288..84fdd3c3d10c 100644
+--- a/sympy/logic/tests/test_boolalg.py
++++ b/sympy/logic/tests/test_boolalg.py
+@@ -4,7 +4,7 @@
+ from sympy.core.numbers import oo
+ from sympy.core.relational import Equality, Eq, Ne
+ from sympy.core.singleton import S
+-from sympy.core.symbol import (Dummy, symbols)
++from sympy.core.symbol import (Dummy, Symbol, symbols)
+ from sympy.functions import Piecewise
+ from sympy.functions.elementary.trigonometric import cos, sin
+ from sympy.sets.sets import Interval, Union
+@@ -1368,6 +1368,13 @@ def test_issue_26985():
+     assert result == d
+ 
+ 
++def test_evaluate_false_atoms():
++    # https://github.com/sympy/sympy/issues/31133
++    for op in (And, Or):
++        expr = op(x > 1, y > 2, evaluate=False)
++        assert expr.atoms(Symbol) == {x, y}
++
++
+ def test_evaluate_false():
+     x, y = symbols('x y')
+ 

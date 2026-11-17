@@ -1,0 +1,57 @@
+{
+  "additions": 14,
+  "author": "smichr",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\nLocal source: doc/src/contributing/pull-request-guidelines.rst\nKeep all section headings below. -->\n\n#### References to other Issues or PRs\n\n\n#### Brief description of what is fixed or changed\n\nUse list operations instead of loops to create [x, x, x, x, ... x] type lists.\n\n#### Other comments\n\n\n#### AI Generation Disclosure\n\nFound one instance and used ChatGPT to find others and make the changes.\n\n#### Release Notes\n\n\n<!-- BEGIN RELEASE NOTES -->\nNO ENTRY\n<!-- END RELEASE NOTES -->\n",
+  "changed_files": 6,
+  "commits": [
+    {
+      "author": "Christopher Smith",
+      "message": "Avoid append loops when padding subresultant coefficients",
+      "sha": "3d87f692cb220f916947bd904f034f55f023e8e4"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Build matrix representations with a nested comprehension",
+      "sha": "e4794deb94103e53b0407d386e382e44080d1111"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Construct default subgroup tests without an append loop",
+      "sha": "b39b7f590a483bb30e8d30cab4de1c0688db82d9"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Use a comprehension for table column headings",
+      "sha": "7f5cffe7b79daf77edd878c2260138d537511e42"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Expand repeated quantum operators without per-item appends",
+      "sha": "f8e7f9f946aea75f9ed080212efc7b868aa7c8fb"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Preallocate flags for vector pretty printing",
+      "sha": "59f16e334e6a1268e29041c2c0fb94593a971402"
+    }
+  ],
+  "created_at": "2026-11-17T02:30:57Z",
+  "deletions": 40,
+  "diff": "diff --git a/sympy/combinatorics/perm_groups.py b/sympy/combinatorics/perm_groups.py\nindex 5ba0124b8935..73e86b874679 100644\n--- a/sympy/combinatorics/perm_groups.py\n+++ b/sympy/combinatorics/perm_groups.py\n@@ -4171,9 +4171,7 @@ def update_nu(l):\n             init_subgroup = PermutationGroup([identity])\n         if tests is None:\n             trivial_test = lambda x: True\n-            tests = []\n-            for i in range(base_len):\n-                tests.append(trivial_test)\n+            tests = [trivial_test] * base_len\n         # line 1: more initializations.\n         res = init_subgroup\n         f = base_len - 1\ndiff --git a/sympy/physics/quantum/operatorordering.py b/sympy/physics/quantum/operatorordering.py\nindex abe056f86c6b..6f813f20ff67 100644\n--- a/sympy/physics/quantum/operatorordering.py\n+++ b/sympy/physics/quantum/operatorordering.py\n@@ -29,8 +29,7 @@ def _expand_powers(factors):\n         if (isinstance(factor, Pow)\n                 and isinstance(factor.args[1], Integer)\n                 and factor.args[1] > 0):\n-            for n in range(factor.args[1]):\n-                new_factors.append(factor.args[0])\n+            new_factors.extend([factor.args[0]] * factor.args[1])\n         else:\n             new_factors.append(factor)\n \ndiff --git a/sympy/polys/subresultants_qq_zz.py b/sympy/polys/subresultants_qq_zz.py\nindex e4c2b9089745..f1be6c83e074 100644\n--- a/sympy/polys/subresultants_qq_zz.py\n+++ b/sympy/polys/subresultants_qq_zz.py\n@@ -327,15 +327,9 @@ def sylvester(f, g, x, method = 1):\n     # Sylvester's matrix of 1853 (a.k.a sylvester2)\n     else:\n         if len(fp) < len(gp):\n-            h = []\n-            for i in range(len(gp) - len(fp)):\n-                h.append(0)\n-            fp[ : 0] = h\n+            fp[:0] = [0] * (len(gp) - len(fp))\n         else:\n-            h = []\n-            for i in range(len(fp) - len(gp)):\n-                h.append(0)\n-            gp[ : 0] = h\n+            gp[:0] = [0] * (len(fp) - len(gp))\n         mx = max(m, n)\n         dim = 2*mx\n         M = zeros( dim )\n@@ -2349,14 +2343,10 @@ def subresultants_vv(p, q, x, method = 0):\n \n     # make two rows (row0, row1) of poly coefficients\n     row0 = Poly(f, x, domain = QQ).all_coeffs()\n-    leng0 = len(row0)\n-    for i in range(col_num - leng0):\n-        row0.append(0)\n+    row0.extend([0] * (col_num - len(row0)))\n     row0 = Matrix([row0])\n     row1 = Poly(g,x, domain = QQ).all_coeffs()\n-    leng1 = len(row1)\n-    for i in range(col_num - leng1):\n-        row1.append(0)\n+    row1.extend([0] * (col_num - len(row1)))\n     row1 = Matrix([row1])\n \n     # row pointer for deg_f - deg_g == 1; may be reset below\n@@ -2487,14 +2477,10 @@ def subresultants_vv_2(p, q, x):\n \n     # make two rows (row0, row1) of poly coefficients\n     row0 = Poly(f, x, domain = QQ).all_coeffs()\n-    leng0 = len(row0)\n-    for i in range(col_num - leng0):\n-        row0.append(0)\n+    row0.extend([0] * (col_num - len(row0)))\n     row0 = Matrix([row0])\n     row1 = Poly(g,x, domain = QQ).all_coeffs()\n-    leng1 = len(row1)\n-    for i in range(col_num - leng1):\n-        row1.append(0)\n+    row1.extend([0] * (col_num - len(row1)))\n     row1 = Matrix([row1])\n \n     # main loop\n@@ -2523,9 +2509,7 @@ def subresultants_vv_2(p, q, x):\n         deg_f, deg_g = deg_g, d\n         row0 = row1\n         row1 = Poly(poly, x, domain = QQ).all_coeffs()\n-        leng1 = len(row1)\n-        for i in range(col_num - leng1):\n-            row1.append(0)\n+        row1.extend([0] * (col_num - len(row1)))\n         row1 = Matrix([row1])\n \n     return sr_list\ndiff --git a/sympy/printing/pretty/pretty.py b/sympy/printing/pretty/pretty.py\nindex 26f566ba4943..8a0f5e2ab890 100644\n--- a/sympy/printing/pretty/pretty.py\n+++ b/sympy/printing/pretty/pretty.py\n@@ -1218,9 +1218,8 @@ def _print_BasisDependent(self, expr):\n         #Fixing the newlines\n         lengths = []\n         strs = ['']\n-        flag = []\n+        flag = [0] * len(o1)\n         for i, partstr in enumerate(o1):\n-            flag.append(0)\n             # XXX: What is this hack?\n             if '\\n' in partstr:\n                 tempstr = partstr\ndiff --git a/sympy/printing/repr.py b/sympy/printing/repr.py\nindex f8e7cca449eb..02946c754a20 100644\n--- a/sympy/printing/repr.py\n+++ b/sympy/printing/repr.py\n@@ -177,11 +177,8 @@ def _print_MatrixBase(self, expr):\n                                        self._print(expr.rows),\n                                        self._print(expr.cols),\n                                        self._print([]))\n-        l = []\n-        for i in range(expr.rows):\n-            l.append([])\n-            for j in range(expr.cols):\n-                l[-1].append(expr[i, j])\n+        l = [[expr[i, j] for j in range(expr.cols)]\n+             for i in range(expr.rows)]\n         return '%s(%s)' % (expr.__class__.__name__, self._print(l))\n \n     def _print_CharacterTable(self, expr):\ndiff --git a/sympy/printing/tableform.py b/sympy/printing/tableform.py\nindex 2e91e428a523..6e3ecbdf363d 100644\n--- a/sympy/printing/tableform.py\n+++ b/sympy/printing/tableform.py\n@@ -321,11 +321,8 @@ def _latex(self, printer):\n         \"\"\"\n         # Check heading:\n         if self._headings[1]:\n-            new_line = []\n-            for i in range(self._w):\n-                # Format the item somehow if needed:\n-                new_line.append(str(self._headings[1][i]))\n-            self._headings[1] = new_line\n+            self._headings[1] = [\n+                str(self._headings[1][i]) for i in range(self._w)]\n \n         alignments = []\n         if self._headings[0]:\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\n* No release notes entry will be added for this pull request.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\n    Local source: doc/src/contributing/pull-request-guidelines.rst\n    Keep all section headings below. -->\n\n    #### References to other Issues or PRs\n\n\n    #### Brief description of what is fixed or changed\n\n    Use list operations instead of loops to create [x, x, x, x, ... x] type lists.\n\n    #### Other comments\n\n\n    #### AI Generation Disclosure\n\n    Found one instance and used ChatGPT to find others and make the changes.\n\n    #### Release Notes\n\n\n    <!-- BEGIN RELEASE NOTES -->\n    NO ENTRY\n    <!-- END RELEASE NOTES -->\n\n\n</details><p>\n",
+      "created_at": "2026-11-17T02:31:01Z"
+    }
+  ],
+  "labels": [],
+  "linked": [],
+  "merge_commit_sha": "91dae81401703f891c8bd919dff31aad74ddeb4a",
+  "merged_at": "2026-11-17T16:06:50Z",
+  "number": 31144,
+  "review_comments": [],
+  "reviews": [],
+  "title": "create lists without explicit loops"
+}

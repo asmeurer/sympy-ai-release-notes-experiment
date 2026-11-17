@@ -1,0 +1,123 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 5907,
+  "human_is": "A",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 3017,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 3017,
+      "cacheReadInputTokens": 20022,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0398164,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 583,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31078,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"no\",\"candidate_a\":{\"accuracy\":\"not_applicable\",\"overall\":5,\"problems\":[]},\"candidate_b\":{\"accuracy\":\"not_applicable\",\"overall\":5,\"problems\":[]},\"same_substance\":true,\"preferred\":\"tie\",\"strength\":\"none\",\"rationale\":\"The merged diff changes only docstrings and doctests: it adds a note to the Sum and summation docstrings, plus two examples. One example is a symbolic geometric series and the other is a matrix series with a divergent entry. It also adds a .mailmap line. SymPy's behavior does not change, and the guide says small documentation changes like this do not need an entry. Both candidates answered NO ENTRY, which is the right call.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "not_applicable",
+      "overall": 5,
+      "problems": []
+    },
+    "candidate_b": {
+      "accuracy": "not_applicable",
+      "overall": 5,
+      "problems": []
+    },
+    "preferred": "tie",
+    "rationale": "The merged diff changes only docstrings and doctests: it adds a note to the Sum and summation docstrings, plus two examples. One example is a symbolic geometric series and the other is a matrix series with a divergent entry. It also adds a .mailmap line. SymPy's behavior does not change, and the guide says small documentation changes like this do not need an entry. Both candidates answered NO ENTRY, which is the right call.",
+    "same_substance": true,
+    "should_have_entry": "no",
+    "strength": "none"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31078/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31078/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "not_applicable",
+          "overall": 5,
+          "problems": []
+        },
+        "candidate_b": {
+          "accuracy": "not_applicable",
+          "overall": 5,
+          "problems": []
+        },
+        "preferred": "tie",
+        "rationale": "The merged diff changes only docstrings and doctests: it adds a note to the Sum and summation docstrings, plus two examples. One example is a symbolic geometric series and the other is a matrix series with a divergent entry. It also adds a .mailmap line. SymPy's behavior does not change, and the guide says small documentation changes like this do not need an entry. Both candidates answered NO ENTRY, which is the right call.",
+        "same_substance": true,
+        "should_have_entry": "no",
+        "strength": "none"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0398164,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 3017,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 3017,
+    "cache_read_input_tokens": 20022,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 2577,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 2577,
+        "cache_read_input_tokens": 10231,
+        "input_tokens": 2,
+        "output_tokens": 383,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 583,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

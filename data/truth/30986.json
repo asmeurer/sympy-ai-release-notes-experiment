@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "Collaborated with ChatGPT to review the changes introduced in #30882, identify the unsound derivative-based inference, develop a more conservative implementation, and add regression tests.",
+  "author": "smichr",
+  "entries": [
+    {
+      "submodule": "core",
+      "text": "Restricted nonpolynomial sign inference to affine transformations of `exp`, `log`, and `sqrt` with univariate affine arguments and appropriate domain restrictions, while preserving existing polynomial inference. This prevents incorrect sign assumptions for discontinuous expressions over integer domains."
+    }
+  ],
+  "merged_at": "2026-11-09T14:41:50Z",
+  "number": 30986,
+  "overlap": {
+    "title_similarity": 0.006153846153846154,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* core\n  * Restricted nonpolynomial sign inference to affine transformations of `exp`, `log`, and `sqrt` with univariate affine arguments and appropriate domain restrictions, while preserving existing polynomial inference. This prevents incorrect sign assumptions for discontinuous expressions over integer domains.",
+  "status": "entry",
+  "title": "fix regression in `monotonic_sign`"
+}

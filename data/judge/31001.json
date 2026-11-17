@@ -1,0 +1,133 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 10446,
+  "human_is": "A",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 6968,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 6968,
+      "cacheReadInputTokens": 15191,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0819182,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1156,
+      "provider": "firstParty",
+      "thinkingTokens": 334,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31001,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"minor_inaccuracy\",\"overall\":2,\"problems\":[\"Does not name `cse` or say what the user-visible bug was (a bare symbol being extracted as a common subexpression).\",\"Misnames the class as 'UnevaluateExpr'. The example in the PR is an unevaluated `Pow`, not an `UnevaluatedExpr`.\",\"Describes an internal detail ('rebuild') that end users would not follow.\",\"Not a complete sentence: it starts lowercase and has no final period.\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":5,\"problems\":[]},\"same_substance\":false,\"preferred\":\"B\",\"strength\":\"clear\",\"rationale\":\"The diff changes one comparison in `cse`'s `_rebuild`. It used to compare a list against the args tuple, which never matched, so expressions were always rebuilt. As a result, `cse([Pow(x, 1, evaluate=False)]*2)` returned `[(x0, x)]` and pulled out the bare symbol; it now keeps the unevaluated power. This is a user-visible bug fix, so it needs an entry. Candidate B names `cse`, gives a concrete example and states the symptom correctly in one well-formed sentence. Candidate A is vague, misnames the class, talks about internal rebuilding, and is not a properly capitalized and punctuated sentence.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "minor_inaccuracy",
+      "overall": 2,
+      "problems": [
+        "Does not name `cse` or say what the user-visible bug was (a bare symbol being extracted as a common subexpression).",
+        "Misnames the class as 'UnevaluateExpr'. The example in the PR is an unevaluated `Pow`, not an `UnevaluatedExpr`.",
+        "Describes an internal detail ('rebuild') that end users would not follow.",
+        "Not a complete sentence: it starts lowercase and has no final period."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 5,
+      "problems": []
+    },
+    "preferred": "B",
+    "rationale": "The diff changes one comparison in `cse`'s `_rebuild`. It used to compare a list against the args tuple, which never matched, so expressions were always rebuilt. As a result, `cse([Pow(x, 1, evaluate=False)]*2)` returned `[(x0, x)]` and pulled out the bare symbol; it now keeps the unevaluated power. This is a user-visible bug fix, so it needs an entry. Candidate B names `cse`, gives a concrete example and states the symptom correctly in one well-formed sentence. Candidate A is vague, misnames the class, talks about internal rebuilding, and is not a properly capitalized and punctuated sentence.",
+    "same_substance": false,
+    "should_have_entry": "yes",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31001/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31001/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "minor_inaccuracy",
+          "overall": 2,
+          "problems": [
+            "Does not name `cse` or say what the user-visible bug was (a bare symbol being extracted as a common subexpression).",
+            "Misnames the class as 'UnevaluateExpr'. The example in the PR is an unevaluated `Pow`, not an `UnevaluatedExpr`.",
+            "Describes an internal detail ('rebuild') that end users would not follow.",
+            "Not a complete sentence: it starts lowercase and has no final period."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 5,
+          "problems": []
+        },
+        "preferred": "B",
+        "rationale": "The diff changes one comparison in `cse`'s `_rebuild`. It used to compare a list against the args tuple, which never matched, so expressions were always rebuilt. As a result, `cse([Pow(x, 1, evaluate=False)]*2)` returned `[(x0, x)]` and pulled out the bare symbol; it now keeps the unevaluated power. This is a user-visible bug fix, so it needs an entry. Candidate B names `cse`, gives a concrete example and states the symptom correctly in one well-formed sentence. Candidate A is vague, misnames the class, talks about internal rebuilding, and is not a properly capitalized and punctuated sentence.",
+        "same_substance": false,
+        "should_have_entry": "yes",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0819182,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 6968,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 6968,
+    "cache_read_input_tokens": 15191,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 1511,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 1511,
+        "cache_read_input_tokens": 10324,
+        "input_tokens": 2,
+        "output_tokens": 956,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1156,
+    "output_tokens_details": {
+      "thinking_tokens": 334
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

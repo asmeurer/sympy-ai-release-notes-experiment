@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "Using codex",
+  "author": "oscarbenjamin",
+  "entries": [
+    {
+      "submodule": "other",
+      "text": "SymPy no longer uses setup.py and now uses pyproject.toml per PEP 517."
+    }
+  ],
+  "merged_at": "2026-11-10T18:59:37Z",
+  "number": 30940,
+  "overlap": {
+    "title_similarity": 0.6355140186915887,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* other\n   * SymPy no longer uses setup.py and now uses pyproject.toml per PEP 517.",
+  "status": "entry",
+  "title": "Remove setup.py and use pyproject.toml"
+}

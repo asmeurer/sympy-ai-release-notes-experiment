@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "NO AI USE",
+  "author": "MajesticSlacks",
+  "entries": [
+    {
+      "submodule": "sets",
+      "text": "ordinals: fixed a bug where `Ordinal` could produce non-canonical outputs."
+    }
+  ],
+  "merged_at": "2026-11-17T11:31:37Z",
+  "number": 31141,
+  "overlap": {
+    "title_similarity": 0.8721804511278195,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* sets\n  * ordinals: fixed a bug where `Ordinal` could produce non-canonical outputs.",
+  "status": "entry",
+  "title": "sets: Fixed a bug where `Ordinal` can produce non-canonical output."
+}

@@ -1,0 +1,25 @@
+diff --git a/sympy/sets/ordinals.py b/sympy/sets/ordinals.py
+index 23780846e26a..da8006f35958 100644
+--- a/sympy/sets/ordinals.py
++++ b/sympy/sets/ordinals.py
+@@ -87,7 +87,7 @@ def __new__(cls, *terms: OmegaPower):
+ 
+         obj = super().__new__(cls, *terms)
+         powers = [i.exp for i in obj.args]
+-        if not all(powers[i] >= powers[i+1] for i in range(len(powers) - 1)):
++        if not all(powers[i] > powers[i+1] for i in range(len(powers) - 1)):
+             raise ValueError("powers must be in decreasing order")
+         return obj
+ 
+diff --git a/sympy/sets/tests/test_ordinals.py b/sympy/sets/tests/test_ordinals.py
+index d87e3e7af824..2ebf485b8990 100644
+--- a/sympy/sets/tests/test_ordinals.py
++++ b/sympy/sets/tests/test_ordinals.py
+@@ -72,3 +72,7 @@ def test_atomic_classes():
+ 
+ def test_ordinal():
+     assert Ordinal() is ord0
++
++def test_ordinal_canonical():
++    assert raises(ValueError, lambda: Ordinal(OmegaPower(0, 3), OmegaPower(0, 2)))
++    assert raises(ValueError, lambda: Ordinal(OmegaPower(0, 1), OmegaPower(1, 1)))

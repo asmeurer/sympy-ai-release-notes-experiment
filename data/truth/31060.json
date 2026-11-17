@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "OpenAI Codex (GPT-6 Astra) has been used minimally for small tasks(e.g., wording and minor phrasing suggestions). All changes in `sympy/printing/pretty/pretty.py` and `sympy/printing/pretty/tests/test_pretty.py` were written with the AI assistance.",
+  "author": "Shakestein",
+  "entries": [
+    {
+      "submodule": "printing",
+      "text": "Fixed missing parentheses around additive modulo divisors in pretty printing."
+    }
+  ],
+  "merged_at": "2026-11-13T15:14:26Z",
+  "number": 31060,
+  "overlap": {
+    "title_similarity": 0.9219858156028369,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* printing\n  * Fixed missing parentheses around additive modulo divisors in pretty printing.",
+  "status": "entry",
+  "title": "Fix missing parentheses around modulo divisors in pretty printing"
+}

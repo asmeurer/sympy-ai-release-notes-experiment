@@ -1,0 +1,88 @@
+diff --git a/.mailmap b/.mailmap
+index 01f8cb3e6846..c81b06ea7c8f 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -1462,6 +1462,7 @@ Roland Puntaier <roland.puntaier@chello.at>
+ Rom le Clair <jacen.guardian@gmail.com>
+ Roman Inflianskas <infroma@gmail.com>
+ Ronan Lamy <ronan.lamy@gmail.com> <Ronan.Lamy@normalesup.org>
++Roshanraj2580 <roshanraj2580@gmail.com>
+ Rudr Tiwari <rudrtiwari@gmail.com>
+ Rupesh Harode <rupeshharode@gmail.com>
+ Rushabh Mehta <mehtarushabh2005@gmail.com> Rushabh Mehta <139112780+RushabhMehta2005@users.noreply.github.com>
+diff --git a/sympy/tensor/array/expressions/arrayexpr_derivatives.py b/sympy/tensor/array/expressions/arrayexpr_derivatives.py
+index 446157b5135f..d0fd6753ef51 100644
+--- a/sympy/tensor/array/expressions/arrayexpr_derivatives.py
++++ b/sympy/tensor/array/expressions/arrayexpr_derivatives.py
+@@ -16,7 +16,7 @@
+ from sympy.combinatorics.permutations import _af_invert
+ from sympy.matrices.expressions.applyfunc import ElementwiseApplyFunction
+ from sympy.tensor.array.expressions.array_expressions import (
+-    _ArrayExpr, ZeroArray, ArraySymbol, ArrayTensorProduct, ArrayAdd,
++    _ArrayExpr, ZeroArray, OneArray, ArraySymbol, ArrayTensorProduct, ArrayAdd,
+     PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc, get_ndim,
+     get_shape, ArrayContraction, _array_tensor_product, _array_contraction,
+     _array_diagonal, _array_add, _permute_dims, Reshape, ArraySum)
+@@ -45,7 +45,7 @@ def _(expr: Expr, x: _ArrayExpr):
+             tp = _array_tensor_product(dparent, MatrixUnit(m, n, expr.i, expr.j))
+             return _array_contraction(tp, (rank_x, rank_x + 2), (rank_x + 1, rank_x + 3))
+         raise NotImplementedError("algorithm not implemented for this case")
+-    return ZeroArray(*x.shape)
++    return ZeroArray(*(get_shape(x) + get_shape(expr)))
+ 
+ 
+ @array_derive.register(Add)
+@@ -181,6 +181,11 @@ def _(expr: ZeroArray, x: _ArrayExpr):
+     return ZeroArray(*(get_shape(x) + expr.shape))
+ 
+ 
++@array_derive.register(OneArray)
++def _(expr: OneArray, x: _ArrayExpr):
++    return ZeroArray(*(get_shape(x) + expr.shape))
++
++
+ @array_derive.register(Transpose)
+ def _(expr: Transpose, x: Expr):
+     # D(A.T, A) ==> (m,n,i,j) ==> D(A_ji, A_mn) = d_mj d_ni
+diff --git a/sympy/tensor/array/expressions/tests/test_arrayexpr_derivatives.py b/sympy/tensor/array/expressions/tests/test_arrayexpr_derivatives.py
+index 4b8177077b6b..671f85ecc32e 100644
+--- a/sympy/tensor/array/expressions/tests/test_arrayexpr_derivatives.py
++++ b/sympy/tensor/array/expressions/tests/test_arrayexpr_derivatives.py
+@@ -11,7 +11,7 @@
+ from sympy.matrices.expressions.applyfunc import ElementwiseApplyFunction
+ from sympy.tensor.array.expressions.array_expressions import ArraySymbol, ArrayTensorProduct, \
+     PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc, ArrayContraction, _permute_dims, \
+-    Reshape, ZeroArray
++    Reshape, ZeroArray, OneArray
+ from sympy.tensor.array.expressions.arrayexpr_derivatives import array_derive
+ 
+ k = symbols("k")
+@@ -139,6 +139,28 @@ def test_array_derive_zero_expressions():
+     assert array_derive(ZeroMatrix(2, 3), v) == ZeroArray(2, 2, 3)
+ 
+ 
++def test_array_derive_onearray():
++    M = MatrixSymbol("M", 2, 2)
++    v = ArraySymbol("v", (2,))
++    assert array_derive(OneArray(2, 2), M) == ZeroArray(2, 2, 2, 2)
++    assert array_derive(OneArray(3,), v) == ZeroArray(2, 3)
++
++    X = ArraySymbol("X", (1, 1))
++    O = OneArray(1)
++    res = array_derive(ArrayTensorProduct(O, X), X)
++    assert res.shape == (1, 1, 1, 1, 1)
++    assert res.as_explicit() == ImmutableDenseNDimArray([[[[[1]]]]])
++
++    res_rev = array_derive(ArrayTensorProduct(X, O), X)
++    assert res_rev.shape == (1, 1, 1, 1, 1)
++    assert res_rev.as_explicit() == ImmutableDenseNDimArray([[[[[1]]]]])
++
++    X2 = ArraySymbol("X", (2, 3))
++    O2 = OneArray(4)
++    res2 = array_derive(ArrayTensorProduct(O2, X2), X2)
++    assert res2.shape == (2, 3, 4, 2, 3)
++
++
+ def test_array_derive_matrix_rules_non_matrix_x():
+     # Transpose/Inverse/Determinant/MatPow rules used to hardcode rank-2 x
+     # and crashed for any other rank of the differentiation variable.

@@ -1,0 +1,25 @@
+{
+  "ai_disclosure": "Extensive collaboration with ChatGPT.",
+  "author": "smichr",
+  "entries": [
+    {
+      "submodule": "core",
+      "text": "as_terms no longer uses evaluation to order terms by their numerical coefficients"
+    },
+    {
+      "submodule": "printing",
+      "text": "rules for printing 2-term expressions have been improved to favor z - x over -x + z"
+    }
+  ],
+  "merged_at": "2026-11-10T19:58:10Z",
+  "number": 30918,
+  "overlap": {
+    "title_similarity": 0.3778801843317972,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* core\n  * as_terms no longer uses evaluation to order terms by their numerical coefficients\n* printing\n  * rules for printing 2-term expressions have been improved to favor z - x over -x + z",
+  "status": "entry",
+  "title": "avoid numerical evaluation when ordering expression terms"
+}

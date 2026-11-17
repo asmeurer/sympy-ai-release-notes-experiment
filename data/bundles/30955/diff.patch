@@ -1,0 +1,57 @@
+diff --git a/.mailmap b/.mailmap
+index f65870107d50..1be0532e8f97 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -1942,6 +1942,9 @@ prsdx <prsdx.dev@gmail.com>
+ prshnt19 <prashant.rawat216@gmail.com>
+ rahil-amin <rahilamin201@gmail.com>
+ rahuldan <rahul02013@gmail.com>
++raman118 <rcho38706@gmail.com>
++raman118 <rcho38706@gmail.com> Doremon <113814705+raman118@users.noreply.github.com>
++raman118 <rcho38706@gmail.com> Doremon <rcho38706@gmail.com>
+ ramvenkat98 <ramvenkat98@gmail.com>
+ rathmann <rathmann.os@gmail.com> <peter@ubuntu.ubuntu-domain>
+ rationa-kunal <kunalgk1999@gmail.com> kunal <kunalgk1999@gmail.com>
+diff --git a/sympy/combinatorics/fp_groups.py b/sympy/combinatorics/fp_groups.py
+index 9b2cc394f6a3..9218ccc36080 100644
+--- a/sympy/combinatorics/fp_groups.py
++++ b/sympy/combinatorics/fp_groups.py
+@@ -714,7 +714,7 @@ def to_FpGroup(self):
+         if isinstance(self.parent, FreeGroup):
+             gen_syms = [('x_%d'%i) for i in range(len(self.generators))]
+             return free_group(', '.join(gen_syms))[0]
+-        return self.parent.subgroup(C=self.C)
++        return self.parent.subgroup(self.generators, C=self.C)
+ 
+     def __str__(self):
+         if len(self.generators) > 30:
+diff --git a/sympy/combinatorics/tests/test_fp_groups.py b/sympy/combinatorics/tests/test_fp_groups.py
+index 0ef9662b5066..12cf1629194c 100644
+--- a/sympy/combinatorics/tests/test_fp_groups.py
++++ b/sympy/combinatorics/tests/test_fp_groups.py
+@@ -220,6 +220,25 @@ def _test_subgroup(K, T, S):
+     assert b**-1*a*b in H_free
+     assert b**3*a*b not in H_free
+ 
++def test_fp_subgroup_to_fp_group():
++    F, x = free_group("x")
++    G = FpGroup(F, [x**4])
++    H = FpSubgroup(G, [x**2])
++    assert H.C is None
++    K = H.to_FpGroup()
++    assert K.order() == 2
++    assert K.relators == (K.generators[0]**2,)
++
++    assert H.order() == 2
++    assert H.C is not None
++    K = H.to_FpGroup()
++    assert K.order() == 2
++    assert K.relators == (K.generators[0]**2,)
++
++    assert FpSubgroup(G, []).to_FpGroup().order() == 1
++    assert FpSubgroup(G, [x]).to_FpGroup().order() == 4
++
++
+ def test_permutation_methods():
+     F, x, y = free_group("x, y")
+     # DihedralGroup(8)

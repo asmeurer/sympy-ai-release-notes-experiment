@@ -1,0 +1,61 @@
+{
+  "additions": 22,
+  "author": "raman118",
+  "base": "master",
+  "body": "#### References to other Issues or PRs\n\nFixes #19324.\n\n#### Brief description of what is fixed or changed\n\n`Symbol('s').copy()` raises `TypeError` because the inherited method reconstructs it from empty arguments. `Atom.copy()` now returns the immutable atom itself, preserving symbol assumptions, dummy identity, wildcard exclusions, and numeric precision. Nonatomic expressions retain their existing shallow-copy behavior.\n\n#### Other comments\n\nThe regression reproduced the original `TypeError`. Basic, symbol, and number tests passed (156 tests), along with code-quality tests (6 passed), Ruff, and `bin/mailmap_check.py`.\n\n#### AI Generation Disclosure\n\nOpenAI Codex (GPT-6 Astra) generated all changes in `sympy/core/basic.py` and `sympy/core/tests/test_basic.py`. This PR description was also written by the AI agent at the account owner's request.\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* core\n  * Fixed `.copy()` on symbols and other atoms to return the immutable atom itself instead of failing when reconstructing it from empty arguments.\n<!-- END RELEASE NOTES -->\n",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "raman118",
+      "message": "Allow copying immutable atoms\n\nReturn the atom itself instead of reconstructing it from empty args, preserving symbol assumptions, dummy identity, wildcard exclusions, and numeric precision.\n\nAI-generated changes by OpenAI Codex (GPT-6 Astra).",
+      "sha": "e1f739537c58bff7fd192e56a2a2fbe28510cc68"
+    }
+  ],
+  "created_at": "2026-11-05T18:05:19Z",
+  "deletions": 1,
+  "diff": "diff --git a/sympy/core/basic.py b/sympy/core/basic.py\nindex c9fcdc03960f..82040ebe3d8a 100644\n--- a/sympy/core/basic.py\n+++ b/sympy/core/basic.py\n@@ -303,6 +303,8 @@ def copy(self):\n         \"\"\"\n         Return a shallow copy of the expression.\n \n+        Atomic expressions are immutable and return themselves when copied.\n+\n         Examples\n         ========\n \n@@ -2402,6 +2404,10 @@ class Atom(Basic):\n \n     __slots__ = ()\n \n+    def copy(self):\n+        \"\"\"Return this atom, since atomic expressions are immutable.\"\"\"\n+        return self\n+\n     def matches(self, expr, repl_dict=None, old=False):\n         if self == expr:\n             if repl_dict is None:\ndiff --git a/sympy/core/tests/test_basic.py b/sympy/core/tests/test_basic.py\nindex 4cec34bb9b10..f8ac40b7cceb 100644\n--- a/sympy/core/tests/test_basic.py\n+++ b/sympy/core/tests/test_basic.py\n@@ -11,7 +11,7 @@\n from sympy.core.function import Function, Lambda\n from sympy.core.numbers import I, pi, Float\n from sympy.core.singleton import S\n-from sympy.core.symbol import symbols, Symbol, Dummy\n+from sympy.core.symbol import symbols, Symbol, Dummy, Wild\n from sympy.concrete.summations import Sum\n from sympy.functions.elementary.trigonometric import (cos, sin)\n from sympy.functions.special.gamma_functions import gamma\n@@ -51,6 +51,21 @@ def test_immutable():\n         b1.x = 1\n \n \n+def test_copy():\n+    copied = b21.copy()\n+    assert copied == b21\n+    assert copied is not b21\n+    assert all(a is b for a, b in zip(copied.args, b21.args))\n+\n+\n+def test_atom_copy():\n+    x = Symbol('x', positive=True)\n+    atoms = [x, Atom(), Dummy('d'), Wild('w', exclude=[x]),\n+             S(2), S(2)/3, Float('1.23456789', 50)]\n+    for atom in atoms:\n+        assert atom.copy() is atom\n+\n+\n def test_equality():\n     instances = [b1, b2, b3, b21, Basic(b1, b1, b1), Basic]\n     for i, b_i in enumerate(instances):\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* core\n  * Fixed `.copy()` on symbols and other atoms to return the immutable atom itself instead of failing when reconstructing it from empty arguments. ([#30959](https://github.com/sympy/sympy/pull/30959) by [@raman118](https://github.com/raman118))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    #### References to other Issues or PRs\n\n    Fixes #19324.\n\n    #### Brief description of what is fixed or changed\n\n    `Symbol('s').copy()` raises `TypeError` because the inherited method reconstructs it from empty arguments. `Atom.copy()` now returns the immutable atom itself, preserving symbol assumptions, dummy identity, wildcard exclusions, and numeric precision. Nonatomic expressions retain their existing shallow-copy behavior.\n\n    #### Other comments\n\n    The regression reproduced the original `TypeError`. Basic, symbol, and number tests passed (156 tests), along with code-quality tests (6 passed), Ruff, and `bin/mailmap_check.py`.\n\n    #### AI Generation Disclosure\n\n    OpenAI Codex (GPT-6 Astra) generated all changes in `sympy/core/basic.py` and `sympy/core/tests/test_basic.py`. This PR description was also written by the AI agent at the account owner's request.\n\n    #### Release Notes\n\n    <!-- BEGIN RELEASE NOTES -->\n    * core\n      * Fixed `.copy()` on symbols and other atoms to return the immutable atom itself instead of failing when reconstructing it from empty arguments.\n    <!-- END RELEASE NOTES -->\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-05T18:05:24Z"
+    },
+    {
+      "author": "Peter230655",
+      "body": "Just curiosity: you have opened 4 - 5 PR within one hour or so on very different subjects it seemed to me. As you state, they were opened by AI. But do you, the human behind these PRs understand all of this in depth? Admirable!!",
+      "created_at": "2026-11-05T18:12:49Z"
+    },
+    {
+      "author": "raman118",
+      "body": "@Peter230655 I genuinely appreciate the concern! I first tried contributing last October but failed repeatedly and eventually took a long break. Now I'm giving it another shot. Yes, I use AI, but not to blindly generate PRs. I use it as a tool, while making sure I understand, review, and learn from my contributions. I'm here to improve, not flood repositories with AI slop.",
+      "created_at": "2026-11-05T18:36:42Z"
+    },
+    {
+      "author": "smichr",
+      "body": "@Peter230655 , when the issue gives a straightforward solution and a person or AI implements that solution as a small targeted change, that is a nice way to close out an issue.",
+      "created_at": "2026-11-05T18:42:47Z"
+    },
+    {
+      "author": "Peter230655",
+      "body": "> @Peter230655 I genuinely appreciate the concern! I first tried contributing last October but failed repeatedly and eventually took a long break. Now I'm giving it another shot. Yes, I use AI, but not to blindly generate PRs. I use it as a tool, while making sure I understand, review, and learn from my contributions. I'm here to improve, not flood repositories with AI slop.\r\n\r\nI was not concerned. I have to admire a person who can fully understand such diverse issues within an hour!",
+      "created_at": "2026-11-05T19:33:34Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "eric-wieser",
+      "body": "From https://gitter.im/sympy/sympy?at=5ebd78a149cc4a3b62e7a69f (ping @asmeurer):\r\n\r\n```python\r\nIn [155]: s = Symbol('s')\r\n\r\nIn [156]: s.copy()\r\n---------------------------------------------------------------------------\r\nTypeError                                 Traceback (most recent call last)\r\n<ipython-input-156-6e1d2ee6d3ad> in <module>\r\n----> 1 s.copy()\r\n\r\nc:\\users\\wiese\\repos\\ga\\sympy\\sympy\\core\\basic.py in copy(self)\r\n    115\r\n    116     def copy(self):\r\n--> 117         return self.func(*self.args)\r\n    118\r\n    119     def __reduce_ex__(self, proto):\r\n\r\nTypeError: __new__() missing 1 required positional argument: 'name'\r\n```\r\n\r\nThis should probably either:\r\n* Actually make a copy (perhaps by setting `self.func = functools.partial(Symbol, name=self.name)`\r\n* Return `self`\r\n* Raise a clearer error message",
+      "is_pull_request": false,
+      "number": 19324,
+      "state": "closed",
+      "title": "Symbol.copy() raises weird TypeError"
+    }
+  ],
+  "merge_commit_sha": "77a1e4c87bff67b447002bf05609bc68a449fc60",
+  "merged_at": "2026-11-05T18:43:08Z",
+  "number": 30959,
+  "review_comments": [],
+  "reviews": [],
+  "title": "Fix copying of symbols and other atoms"
+}

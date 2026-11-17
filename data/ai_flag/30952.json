@@ -1,0 +1,83 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 2796,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 1839,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 1839,
+      "cacheReadInputTokens": 2260,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.019372,
+      "inputTokens": 2,
+      "maxOutputTokens": 128000,
+      "outputTokens": 210,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 2,
+  "number": 30952,
+  "permission_denials": [],
+  "result_text": "{\"disclosure\":\"ai_wrote_text\",\"entry_looks_ai_written\":\"likely\",\"evidence\":\"The disclosure says Codex \\\"wrote this description at the account owner's request\\\", and the release notes are part of that description. The entry is a polished, condensed restatement of the description's first paragraph, with the same phrasing (\\\"negative counts and nonpositive total sizes\\\", \\\"nested zero-size groups... positive size\\\").\"}",
+  "structured_output": {
+    "disclosure": "ai_wrote_text",
+    "entry_looks_ai_written": "likely",
+    "evidence": "The disclosure says Codex \"wrote this description at the account owner's request\", and the release notes are part of that description. The entry is a polished, condensed restatement of the description's first paragraph, with the same phrasing (\"negative counts and nonpositive total sizes\", \"nested zero-size groups... positive size\")."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "disclosure": "ai_wrote_text",
+        "entry_looks_ai_written": "likely",
+        "evidence": "The disclosure says Codex \"wrote this description at the account owner's request\", and the release notes are part of that description. The entry is a polished, condensed restatement of the description's first paragraph, with the same phrasing (\"negative counts and nonpositive total sizes\", \"nested zero-size groups... positive size\")."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.019372,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 1839,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 1839,
+    "cache_read_input_tokens": 2260,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 2,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 1839,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 1839,
+        "cache_read_input_tokens": 2260,
+        "input_tokens": 2,
+        "output_tokens": 210,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 210,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

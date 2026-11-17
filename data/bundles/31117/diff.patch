@@ -1,0 +1,572 @@
+diff --git a/.github/workflows/release.yml b/.github/workflows/release.yml
+index 6188e08b3894..87079bf147bf 100644
+--- a/.github/workflows/release.yml
++++ b/.github/workflows/release.yml
+@@ -2,7 +2,7 @@
+ #                                                                    #
+ #           SymPy CI script for Github Actions                       #
+ #                                                                    #
+-#   Run on the release branch and builds the release artifacts.      #
++#   Build master and publish tagged release artifacts.      #
+ #                                                                    #
+ # ------------------------------------------------------------------ #
+ 
+@@ -10,12 +10,9 @@ name: release
+ on:
+   push:
+     branches:
+-      - '1.15'
++      - master
+     tags:
+-      - 'sympy-1.15.*'
+-  pull_request:
+-    branches:
+-      - '1.15'
++      - 'sympy-*'
+ 
+ concurrency:
+   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+@@ -23,21 +20,73 @@ concurrency:
+ 
+ permissions:
+   contents: read
+-env:
+-  release_branch: '1.15'
+-  release_version: '1.15.0.dev'
+-  final_release_version: '1.15.0'
+-  previous_version: '1.14.0'
+-  dev_version: '1.15-dev'
+-
+ jobs:
++  metadata:
++    name: Determine release metadata
++    runs-on: ubuntu-24.04
++    outputs:
++      version: ${{ steps.version.outputs.version }}
++      final: ${{ steps.version.outputs.final }}
++      notes: ${{ steps.version.outputs.notes }}
++      previous: ${{ steps.version.outputs.previous }}
++      dev: ${{ steps.version.outputs.dev }}
++    steps:
++      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
++        with:
++          persist-credentials: false
++          fetch-depth: 0
++      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
++        with:
++          python-version: '3.13'
++      - run: pip install 'setuptools-scm>=10.1' packaging
++      - id: version
++        shell: python
++        run: |
++          import os
++          import re
++          import subprocess
++          from packaging.version import Version
++          from setuptools_scm import get_version
++
++          version = get_version(root='.', version_scheme='release-branch-semver',
++                                git_describe_command='git describe --dirty --tags --long --match sympy-*')
++          parsed = Version(version)
++          tagged = os.environ['GITHUB_REF_TYPE'] == 'tag'
++          if tagged:
++              tag = os.environ['GITHUB_REF_NAME']
++              if not re.fullmatch(r'sympy-\d+\.\d+\.\d+(?:(?:a|b|rc)\d+)?', tag):
++                  raise ValueError(f'Invalid release tag: {tag}')
++              if tag != f'sympy-{version}':
++                  raise ValueError(f'Tag {tag} does not match build version {version}')
++              subprocess.run(['git', 'merge-base', '--is-ancestor', 'HEAD', 'origin/master'], check=True)
++          previous = ''
++          if tagged:
++              tags = subprocess.check_output(['git', 'tag', '--list', 'sympy-*'], text=True).splitlines()
++              stable = [Version(t[6:]) for t in tags if re.fullmatch(r'sympy-\d+\.\d+\.\d+', t)]
++              previous = str(max(v for v in stable if v < parsed))
++          values = {
++              'version': version,
++              'final': str(tagged and not parsed.is_prerelease).lower(),
++              'notes': parsed.base_version,
++              'previous': previous,
++              'dev': f'{parsed.major}.{parsed.minor + 1}-dev',
++          }
++          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
++              for key, value in values.items():
++                  print(f'{key}={value}', file=output)
+ 
+   # -------------------- Build artifacts --------------------------- #
+ 
+   build-packages:
++    env:
++      release_version: ${{ needs.metadata.outputs.version }}
++      previous_version: ${{ needs.metadata.outputs.previous }}
++      final_release_version: ${{ needs.metadata.outputs.notes }}
++      dev_version: ${{ needs.metadata.outputs.dev }}
++    needs: [metadata]
+     name: Build Packages
+ 
+-    runs-on: ubuntu-20.04
++    runs-on: ubuntu-24.04
+     steps:
+       # Check out with full git history for authors check:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+@@ -54,14 +103,18 @@ jobs:
+         run: |
+           pip install --upgrade setuptools pip wheel build
+           pip install .
+-          bin/mailmap_check.py --update-authors
++          if [[ "$GITHUB_REF_TYPE" == tag ]]; then
++            bin/mailmap_check.py --check-authors
++            git diff --exit-code
++          fi
+           mkdir -p "release-$release_version"
+-          python -m build --wheel
++          python -m build
+           mv "dist/sympy-$release_version-py3-none-any.whl" "release-$release_version/"
+-          python -m build --sdist
+           mv "dist/sympy-$release_version.tar.gz" "release-$release_version/"
+           release/compare_tar_against_git.py "release-$release_version/sympy-$release_version.tar.gz" .
+-          release/authors.py "$release_version" "$previous_version" "release-$release_version"
++          if [[ "$GITHUB_REF_TYPE" == tag ]]; then
++            release/authors.py "$release_version" "$previous_version" "release-$release_version"
++          fi
+ 
+       - name: Store package release files
+         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+@@ -70,13 +123,20 @@ jobs:
+           path: release-${{ env.release_version }}
+ 
+   build-docs:
++    env:
++      release_version: ${{ needs.metadata.outputs.version }}
++      previous_version: ${{ needs.metadata.outputs.previous }}
++      final_release_version: ${{ needs.metadata.outputs.notes }}
++      dev_version: ${{ needs.metadata.outputs.dev }}
++    needs: [metadata]
+     name: Build Docs
+ 
+-    runs-on: ubuntu-20.04
++    runs-on: ubuntu-24.04
+     steps:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+         with:
+           persist-credentials: false
++          fetch-depth: 0
+ 
+       - name: Setup Python
+         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+@@ -89,6 +149,15 @@ jobs:
+           pip install -r doc/requirements.txt
+           pip install .
+ 
++      - name: Use the installed version module for release docs
++        run: |
++          python -I - <<'PYTHON'
++          from importlib.metadata import distribution
++          from pathlib import Path
++          source = distribution('sympy').locate_file('sympy/release.py')
++          Path('sympy/release.py').write_bytes(source.read_bytes())
++          PYTHON
++
+       - name: Build release docs
+         run: |
+           mkdir -p "release-$release_version"
+@@ -103,13 +172,19 @@ jobs:
+   # -------------------- Test installation ------------------------- #
+ 
+   test-install:
+-    needs: [build-packages]
+-
+-    runs-on: ubuntu-20.04
++    env:
++      release_version: ${{ needs.metadata.outputs.version }}
++      previous_version: ${{ needs.metadata.outputs.previous }}
++      final_release_version: ${{ needs.metadata.outputs.notes }}
++      dev_version: ${{ needs.metadata.outputs.dev }}
++    needs: [metadata, build-packages]
++
++    runs-on: ubuntu-24.04
+     strategy:
+       fail-fast: false
+       matrix:
+-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13-dev', 'pypy-3.9', 'pypy-3.10']
++        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14', 'pypy-3.10']
++        distribution: [wheel, sdist]
+ 
+     name: Python ${{ matrix.python-version }} test install
+     steps:
+@@ -126,49 +201,27 @@ jobs:
+       - name: List files
+         run: ls -R
+ 
+-      - name: Install wheel
+-        run: pip install "sympy-$release_version-py3-none-any.whl"
++      - name: Install distribution
++        env:
++          DISTRIBUTION: ${{ matrix.distribution }}
++        run: |
++          if [[ "$DISTRIBUTION" == wheel ]]; then
++            pip install "sympy-$release_version-py3-none-any.whl"
++          else
++            pip install "sympy-$release_version.tar.gz"
++          fi
+ 
+       - name: Install test-only dependencies
+         run: pip install pytest pytest-xdist hypothesis
+ 
+       - name: Run tests after install
+-        run: python -c 'import sympy; sympy.test(parallel=True)'
+-
+-  # -------------------- Upload to Test-PyPI ----------------------- #
+-
+-  test-pypi-publish:
+-    name: Publish to Test-PyPI
+-    needs: [build-packages]
+-    # Run when a pull request is merged into a release branch.
+-    if: "github.event_name == 'push' && ! startsWith(github.ref, 'refs/tags')"
+-    environment:
+-      name: test-pypi
+-      url: https://test.pypi.org/p/sympy
+-    permissions:
+-      id-token: write # to authenticate with trusted publishing
+-    runs-on: ubuntu-latest
+-
+-    steps:
+-      - name: Download release artifacts
+-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+-        with:
+-          name: release_files_packages
+-          path: dist.all
+-
+-      - name: Copy the PyPI files into dist
+-        run: mkdir dist && cp dist.all/*.whl dist.all/*.tar.gz dist
+-
+-      - name: Publish package on TestPyPI
+-        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086  # v1.14.3
+-        with:
+-          repository-url: https://test.pypi.org/legacy/
++        run: python -c 'import sys, sympy; sys.exit(sympy.test(parallel=True))'
+ 
+   # -------------------- Upload to PyPI proper --------------------- #
+ 
+   pypi-publish:
+     name: Publish to PyPI
+-    needs: [build-packages]
++    needs: [metadata, build-packages]
+     # Run when a tag is pushed
+     if: "github.event_name == 'push' && startsWith(github.ref, 'refs/tags')"
+     environment:
+@@ -191,23 +244,16 @@ jobs:
+       - name: Publish package on PyPI
+         uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086  # v1.14.3
+ 
+-  # -------------------- Check if this is a final release ---------- #
+-
+-  check-final:
+-    name: Check whether the release is final
+-    needs: [build-packages, build-docs, pypi-publish]
+-    runs-on: ubuntu-latest
+-    outputs:
+-      # The env context is not available in jobs.<job id>.if so we set it here
+-      is-final: ${{ env.release_version == env.final_release_version }}
+-    steps:
+-      - run: echo "null"
+-
+   # -------------------- Make a GitHub release --------------------- #
+ 
+   github-publish:
++    env:
++      release_version: ${{ needs.metadata.outputs.version }}
++      previous_version: ${{ needs.metadata.outputs.previous }}
++      final_release_version: ${{ needs.metadata.outputs.notes }}
++      dev_version: ${{ needs.metadata.outputs.dev }}
+     name: Publish GitHub release
+-    needs: [check-final]
++    needs: [metadata, build-packages, build-docs, pypi-publish]
+     runs-on: ubuntu-latest
+     permissions:
+       contents: write # to create and update GitHub releases
+@@ -217,6 +263,7 @@ jobs:
+         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+         with:
+           persist-credentials: false
++          fetch-depth: 0
+ 
+       - name: Setup Python
+         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+@@ -239,31 +286,36 @@ jobs:
+         run: python release/sha256.py "$release_version" dist
+ 
+       - name: Create GitHub prerelease
+-        if: ${{ needs.check-final.outputs.is-final != 'true' }}
++        if: ${{ needs.metadata.outputs.final != 'true' }}
+         env:
+           GH_TOKEN: ${{ github.token }}
+         run: >
+-          gh release create "sympy-$release_version" dist/*
++          gh release create "$GITHUB_REF_NAME" dist/* --verify-tag
+               --prerelease
+               --title "SymPy $release_version"
+               --notes "See https://github.com/sympy/sympy/wiki/release-notes-for-$final_release_version for release notes"
+ 
+       - name: Create Final GitHub release
+-        if: ${{ needs.check-final.outputs.is-final == 'true' }}
++        if: ${{ needs.metadata.outputs.final == 'true' }}
+         env:
+           GH_TOKEN: ${{ github.token }}
+         run: >
+-          gh release create "sympy-$release_version" dist/*
++          gh release create "$GITHUB_REF_NAME" dist/* --verify-tag
+               --title "SymPy $release_version"
+               --notes "See https://github.com/sympy/sympy/wiki/release-notes-for-$final_release_version for release notes"
+ 
+   # -------------------- Update the docs repository ---------------- #
+ 
+   update-docs:
++    env:
++      release_version: ${{ needs.metadata.outputs.version }}
++      previous_version: ${{ needs.metadata.outputs.previous }}
++      final_release_version: ${{ needs.metadata.outputs.notes }}
++      dev_version: ${{ needs.metadata.outputs.dev }}
+     name: Update the docs repository
+-    needs: [check-final]
++    needs: [metadata, build-packages, build-docs, pypi-publish]
+     # Only run for a final release
+-    if: ${{ needs.check-final.outputs.is-final == 'true' }}
++    if: ${{ needs.metadata.outputs.final == 'true' }}
+     runs-on: ubuntu-latest
+ 
+     steps:
+diff --git a/.github/workflows/runtests.yml b/.github/workflows/runtests.yml
+index 4fee6c3f1dcf..62f6ead17794 100644
+--- a/.github/workflows/runtests.yml
++++ b/.github/workflows/runtests.yml
+@@ -578,16 +578,25 @@ jobs:
+       - run: pip install asv virtualenv packaging
+       - run: git submodule add https://github.com/sympy/sympy_benchmarks.git
+ 
+-        # Need to make sure we can access the branches from the main repo. We
+-        # will run benchmarks for the PR, for master and for the previous
+-        # release. The version branch names below should be updated once there
+-        # has been a newer release of sympy. The list of branches to check is
+-        # also specified in asv.conf.actions.json which should be updated as
+-        # well.
+-
+       - run: git remote add upstream https://github.com/sympy/sympy.git
+-      - run: git fetch upstream master
+-      - run: git fetch upstream 1.14
++      - run: git fetch upstream master --tags
++
++      - name: Select latest stable release
++        shell: python
++        run: |
++          import re
++          import subprocess
++          from packaging.version import Version
++
++          tags = subprocess.check_output(
++              ['git', 'tag', '--list', 'sympy-*'], text=True).splitlines()
++          stable_tags = [tag for tag in tags
++                         if re.fullmatch(r'sympy-\d+\.\d+\.\d+', tag)]
++          latest = max(stable_tags, key=lambda tag: Version(tag[6:]))
++          commit = subprocess.check_output(
++              ['git', 'rev-parse', f'{latest}^{{commit}}'], text=True).strip()
++          subprocess.run(['git', 'update-ref', 'refs/heads/benchmark-release', commit], check=True)
++          print(f'Benchmark release: {latest} ({commit})', flush=True)
+ 
+       - name: Configure benchmarks
+         run: asv machine --yes --config asv.conf.actions.json
+@@ -599,8 +608,8 @@ jobs:
+         # Output benchmark results
+       - run: asv compare upstream/master HEAD --config asv.conf.actions.json --factor 1.5 | tee pr_vs_master.txt
+       - run: asv compare upstream/master HEAD --config asv.conf.actions.json --factor 1.5 --only-changed | tee pr_vs_master_changed.txt
+-      - run: asv compare upstream/1.14 upstream/master --config asv.conf.actions.json --factor 1.5 | tee master_vs_release.txt
+-      - run: asv compare upstream/1.14 upstream/master --config asv.conf.actions.json --factor 1.5 --only-changed | tee master_vs_release_changed.txt
++      - run: asv compare benchmark-release upstream/master --config asv.conf.actions.json --factor 1.5 | tee master_vs_release.txt
++      - run: asv compare benchmark-release upstream/master --config asv.conf.actions.json --factor 1.5 --only-changed | tee master_vs_release_changed.txt
+ 
+         # we save all outputs as artifacts that can be downloaded from the
+         # GitHub Actions summary page.
+diff --git a/asv.conf.actions.json b/asv.conf.actions.json
+index 6b17f156f152..9c3cc3da021f 100644
+--- a/asv.conf.actions.json
++++ b/asv.conf.actions.json
+@@ -27,9 +27,8 @@
+     // List of branches to benchmark. If not provided, defaults to "master"
+     // (for git) or "tip" (for mercurial).
+ 
+-    // This list needs to be updated after each release of sympy. The branch to
+-    // be checked should always be the previous release.
+-    "branches": ["upstream/1.14", "upstream/master", "HEAD"], // for git
++    // The benchmarks workflow points benchmark-release at the latest stable tag.
++    "branches": ["benchmark-release", "upstream/master", "HEAD"], // for git
+     // "branches": ["tip"],    // for mercurial
+ 
+     // The DVCS being used.  If not set, it will be automatically
+diff --git a/bin/mailmap_check.py b/bin/mailmap_check.py
+index ac3596a4865e..e24530d82307 100755
+--- a/bin/mailmap_check.py
++++ b/bin/mailmap_check.py
+@@ -34,7 +34,10 @@ def sympy_dir():
+ def main(*args):
+ 
+     parser = ArgumentParser(description='Update the .mailmap file')
+-    parser.add_argument('--update-authors', action='store_true',
++    authors_options = parser.add_mutually_exclusive_group()
++    authors_options.add_argument('--check-authors', action='store_true',
++            help='Fail if AUTHORS needs updating.')
++    authors_options.add_argument('--update-authors', action='store_true',
+             help=filldedent("""
+             Also updates the AUTHORS file. DO NOT use this option as part of a
+             pull request. The AUTHORS file will be updated later at the time a
+@@ -149,6 +152,9 @@ def key(line):
+ 
+     # Actually update the AUTHORS file (if --update-authors was passed)
+     authors_changed = update_authors_file(lines_authors, old_lines_authors, args.update_authors)
++    if args.check_authors and lines_authors != old_lines_authors:
++        print(red('AUTHORS needs updating. Run bin/mailmap_check.py --update-authors.'))
++        authors_changed = 1
+ 
+     return int(problems) + int(authors_changed)
+ 
+diff --git a/pyproject.toml b/pyproject.toml
+index 2532d1943a05..6265536db74d 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -13,8 +13,7 @@ license-files = ["LICENSE", "LICENSES_BUNDLED.txt"]
+ keywords = ["Math", "CAS"]
+ # Keep in sync with sympy/__init__.py.
+ requires-python = ">=3.10"
+-# Set upper bound when making the release branch.
+-dependencies = ["mpmath>=1.1.0"]
++dependencies = ["mpmath>=1.1.0,<1.5"]
+ classifiers = [
+     "Operating System :: OS Independent",
+     "Programming Language :: Python",
+diff --git a/release/README-v3.md b/release/README-v3.md
+new file mode 100644
+index 000000000000..8d23e53997a3
+--- /dev/null
++++ b/release/README-v3.md
+@@ -0,0 +1,98 @@
++# Making a SymPy release
++
++This process uses the release workflow in `.github/workflows/release.yml`.
++Pushes to `master` build packages and documentation and test installation.
++Pushing a release tag triggers the actual PyPI publication, after manual
++approval in GitHub. Releases are direct from the master branch.
++
++## Things to review around a release
++
++- Make an issue for the release where discussions can happen.
++- Announce upcoming release on mailing list and ask if there are blockers.
++- Outstanding bugs, regressions, and release milestone items.
++- Python versions:
++  - used in CI jobs.
++  - `requires-python` in `pyproject.toml`
++  - Python version check in `sympy/__init__.py`.
++  - ruff's target Python version.
++  - Python classifiers in pyproject.toml.
++- mpmath and python-flint version bounds.
++- Prepare release notes, including highlights, deprecations, and breaking changes.
++
++## Publishing one release to PyPI
++
++Same procedure for release candidate, final release, or patch release.
++Make sure local master is fully up to date for each of these steps.
++
++### 1. Choose the version and commit
++
++No version files or workflows need to be edited because it is all handled by
++git tags and setuptools-scm. Need to choose what the version is though e.g.
++1.15.0rc1 or 1.15.0 or 1.15.1.
++
++### 2. New release notes page
++
++Before a final (not pre-release) release create a new release notes page on the
++wiki for the next version. Update the links between the release notes pages.
++
++### 3. Ensure AUTHORS is current
++
++Make and merge a PR to update the AUTHORS file before making the release:
++
++```bash
++python bin/mailmap_check.py --update-authors
++```
++
++Review the names and email mappings, merge duplicates in `.mailmap` and rerun.
++CC people who merged PRs without checking this at the time and admonish them.
++
++### 4. Create and push the tag
++
++Replace `<commit>` with the selected commit's SHA:
++
++```bash
++git tag -a sympy-1.15.0 <commit> -m "SymPy 1.15.0"
++git push upstream sympy-1.15.0
++```
++
++The tag push starts the release workflow. Do not move or reuse a published
++release tag.
++
++If something goes wrong in the release workflow and nothing was published then
++you need to delete the tag from the sympy/sympy repo to start again:
++```
++git push upstream --delete refs/tags/sympy-1.15.0
++git tag -d sympy-1.15.0
++```
++
++### 5. Approve publication
++
++Open the tagged release workflow run in GitHub Actions. Check the package,
++documentation, and installation-test results before approving deployment to the
++`pypi` environment. The publish step does not wait for all checks because it is
++gated on manual approval.
++
++The small number of people who can approve publication will get an email
++notification when it is time to do this.
++
++Double check that the correct commit was tagged before approving.
++
++### 6. Verify the PyPI release
++
++Confirm that the expected version appears on the SymPy PyPI project and that
++both the wheel and sdist are there. Do a test `pip install sympy==1.15.0` and
++`sympy.test(parallel=True)` in a fresh venv.
++
++### 7. Check other releases
++
++- docs site update (final releases only)
++- GitHub release
++- Author's list
++- Checksums
++
++### 8. Announce release on mailing list
++
++- Release highlights from release notes?
++- Author list
++- Checksums
++
+diff --git a/release/compare_tar_against_git.py b/release/compare_tar_against_git.py
+index 83826994335e..42459dc0f93b 100755
+--- a/release/compare_tar_against_git.py
++++ b/release/compare_tar_against_git.py
+@@ -96,6 +96,7 @@ def main(tarname, gitroot):
+     # This stuff :)
+     'release/.gitignore',
+     'release/README.md',
++    'release/README-v3.md',
+     'release/compare_tar_against_git.py',
+     'release/update_docs.py',
+     'release/build_docs.py',
+diff --git a/sympy/external/gmpy.py b/sympy/external/gmpy.py
+index 5e95c56ef7a6..f4b9ba5f9f27 100644
+--- a/sympy/external/gmpy.py
++++ b/sympy/external/gmpy.py
+@@ -99,7 +99,7 @@
+ # Tested python-flint version. Future versions might work but we will only use
+ # them if explicitly requested by SYMPY_GROUND_TYPES=flint.
+ #
+-_PYTHON_FLINT_VERSION_NEEDED = ["0.6", "0.7", "0.8", "0.9"]
++_PYTHON_FLINT_VERSION_NEEDED = ["0.9", "0.10", "0.11", "0.12"]
+ 
+ 
+ def _flint_version_okay(flint_version):

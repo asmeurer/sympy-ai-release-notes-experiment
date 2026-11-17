@@ -1,0 +1,108 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4567,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 2387,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 2387,
+      "cacheReadInputTokens": 23397,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0168257,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 493,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30954,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"vector\",\"text\":\"Constructing `Vector` directly, such as `Vector(a, b, c)`, now raises a `TypeError` that suggests using `CoordSys3D` basis vectors. Previously this created an invalid object that raised `RecursionError` on scalar multiplication.\"}],\"reasoning\":\"The merged diff makes `Vector.__new__` raise `TypeError` when called directly on `Vector`, which changes user-visible behavior from a broken object to a clear error. The entry is based on the diff in `sympy/vector/vector.py`. The `.mailmap` change and the new test don't need entries.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "vector",
+        "text": "Constructing `Vector` directly, such as `Vector(a, b, c)`, now raises a `TypeError` that suggests using `CoordSys3D` basis vectors. Previously this created an invalid object that raised `RecursionError` on scalar multiplication."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The merged diff makes `Vector.__new__` raise `TypeError` when called directly on `Vector`, which changes user-visible behavior from a broken object to a clear error. The entry is based on the diff in `sympy/vector/vector.py`. The `.mailmap` change and the new test don't need entries."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30954/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30954/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "vector",
+            "text": "Constructing `Vector` directly, such as `Vector(a, b, c)`, now raises a `TypeError` that suggests using `CoordSys3D` basis vectors. Previously this created an invalid object that raised `RecursionError` on scalar multiplication."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The merged diff makes `Vector.__new__` raise `TypeError` when called directly on `Vector`, which changes user-visible behavior from a broken object to a clear error. The entry is based on the diff in `sympy/vector/vector.py`. The `.mailmap` change and the new test don't need entries."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0168257,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 2387,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 2387,
+    "cache_read_input_tokens": 23397,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 1946,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 1946,
+        "cache_read_input_tokens": 11919,
+        "input_tokens": 2,
+        "output_tokens": 299,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 493,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

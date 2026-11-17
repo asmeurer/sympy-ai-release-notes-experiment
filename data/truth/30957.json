@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "OpenAI Codex (GPT-6 Astra) generated all changes in `sympy/combinatorics/tensor_can.py`, `sympy/combinatorics/tests/test_tensor_can.py`, and `sympy/tensor/tests/test_tensor.py`. This PR description was also written by the AI agent at the account owner's request.",
+  "author": "raman118",
+  "entries": [
+    {
+      "submodule": "combinatorics",
+      "text": "Fixed `get_symmetric_group_sgs(0)` returning empty generators, allowing zero-rank tensor symmetry groups to be used in direct products and `TensorSymmetry` construction."
+    }
+  ],
+  "merged_at": "2026-11-05T19:08:36Z",
+  "number": 30957,
+  "overlap": {
+    "title_similarity": 0.3482587064676617,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* combinatorics\n  * Fixed `get_symmetric_group_sgs(0)` returning empty generators, allowing zero-rank tensor symmetry groups to be used in direct products and `TensorSymmetry` construction.",
+  "status": "entry",
+  "title": "Handle zero-rank tensor symmetry groups"
+}

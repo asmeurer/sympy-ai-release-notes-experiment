@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "I used an AI assistant to explore test cases. I reviewed the change, ran the tests and doctests locally, and I can explain the code and the reasoning behind it.",
+  "author": "ish1416",
+  "entries": [
+    {
+      "submodule": "matrices",
+      "text": "Refined unitary matrix inverse to `Adjoint` and simplified unitary matrix products with adjoints."
+    }
+  ],
+  "merged_at": "2026-11-15T13:06:20Z",
+  "number": 31077,
+  "overlap": {
+    "title_similarity": 0.6748466257668712,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* matrices\n  * Refined unitary matrix inverse to `Adjoint` and simplified unitary matrix products with adjoints.",
+  "status": "entry",
+  "title": "fix(matrices): refine unitary matrices to Adjoint and simplify products"
+}

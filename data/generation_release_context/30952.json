@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4631,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 5843,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 5843,
+      "cacheReadInputTokens": 24201,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0320001,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 620,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 30952,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"utilities\",\"text\":\"Fixed `reshape` raising `ZeroDivisionError` for templates with a zero total, such as `reshape((1,), ())`. It now raises `ValueError` for empty templates, negative counts and templates whose total is not positive, and it correctly handles nested templates containing zero counts, such as `reshape([1, 2, 3, 4], ([0], 4))`.\"}],\"reasoning\":\"The PR fixes a user-visible bug in the public `sympy.utilities.iterables.reshape` (ZeroDivisionError for empty templates, unchecked negative counts, and nested zero-size groups). The bug is in older code, not a post-1.14 regression, so it needs an entry.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "utilities",
+        "text": "Fixed `reshape` raising `ZeroDivisionError` for templates with a zero total, such as `reshape((1,), ())`. It now raises `ValueError` for empty templates, negative counts and templates whose total is not positive, and it correctly handles nested templates containing zero counts, such as `reshape([1, 2, 3, 4], ([0], 4))`."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The PR fixes a user-visible bug in the public `sympy.utilities.iterables.reshape` (ZeroDivisionError for empty templates, unchecked negative counts, and nested zero-size groups). The bug is in older code, not a post-1.14 regression, so it needs an entry."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30952/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30952/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30952/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "utilities",
+            "text": "Fixed `reshape` raising `ZeroDivisionError` for templates with a zero total, such as `reshape((1,), ())`. It now raises `ValueError` for empty templates, negative counts and templates whose total is not positive, and it correctly handles nested templates containing zero counts, such as `reshape([1, 2, 3, 4], ([0], 4))`."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The PR fixes a user-visible bug in the public `sympy.utilities.iterables.reshape` (ZeroDivisionError for empty templates, unchecked negative counts, and nested zero-size groups). The bug is in older code, not a post-1.14 regression, so it needs an entry."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0320001,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 5843,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 5843,
+    "cache_read_input_tokens": 24201,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 5402,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 5402,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 331,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 620,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

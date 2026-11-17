@@ -1,0 +1,29 @@
+{
+  "ai_disclosure": "Collaboration with ChatGPT who wrote this OP after a minimal description.",
+  "author": "smichr",
+  "entries": [
+    {
+      "submodule": "sets",
+      "text": "Improved evaluation of `sin` and `cos` on `SetExpr` intervals."
+    },
+    {
+      "submodule": "sets",
+      "text": "Corrected endpoint inclusion in interval image calculations."
+    },
+    {
+      "submodule": "sets",
+      "text": "Prevented enumeration of infinite singularity sets in `imageset`."
+    }
+  ],
+  "merged_at": "2026-11-10T06:52:01Z",
+  "number": 30988,
+  "overlap": {
+    "title_similarity": 0.26778242677824265,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* sets\n  * Improved evaluation of `sin` and `cos` on `SetExpr` intervals.\n  * Corrected endpoint inclusion in interval image calculations.\n  * Prevented enumeration of infinite singularity sets in `imageset`.",
+  "status": "entry",
+  "title": "restricting critical-point searches to the domain of interest"
+}

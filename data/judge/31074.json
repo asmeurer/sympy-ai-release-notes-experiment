@@ -1,0 +1,135 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 9757,
+  "human_is": "B",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 7288,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 7288,
+      "cacheReadInputTokens": 15145,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.081069,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 986,
+      "provider": "firstParty",
+      "thinkingTokens": 175,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31074,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"no\",\"candidate_a\":{\"accuracy\":\"not_applicable\",\"overall\":5,\"problems\":[]},\"candidate_b\":{\"accuracy\":\"minor_inaccuracy\",\"overall\":2,\"problems\":[\"The change only adds type annotations and has no runtime effect, so it doesn't need an entry.\",\"TensAdd.doit was not annotated. The diff adds a TYPE_CHECKING-only `args` property on TensAdd so that type checking passes.\",\"Expr.doit only gained a TYPE_CHECKING stub declaration and was not otherwise changed.\",\"The entries are not complete sentences: they have no final period and use the imperative 'Annotate' instead of the past tense.\",\"The wording is about implementation details and doesn't tell users what changed for them.\"]},\"same_substance\":false,\"preferred\":\"A\",\"strength\":\"clear\",\"rationale\":\"The diff only adds static type hints. These are return annotations on Basic.doit and Atom.doit, plus TYPE_CHECKING-only stubs for Expr.doit and TensAdd.args, and none of them change runtime behavior, so NO ENTRY is the right call. Candidate B copied the PR description, which wrongly says TensAdd.doit was annotated; the diff actually adds an `args` stub. B's entries are also sentence fragments with no period, not in the past tense, and say nothing a user would find meaningful.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "not_applicable",
+      "overall": 5,
+      "problems": []
+    },
+    "candidate_b": {
+      "accuracy": "minor_inaccuracy",
+      "overall": 2,
+      "problems": [
+        "The change only adds type annotations and has no runtime effect, so it doesn't need an entry.",
+        "TensAdd.doit was not annotated. The diff adds a TYPE_CHECKING-only `args` property on TensAdd so that type checking passes.",
+        "Expr.doit only gained a TYPE_CHECKING stub declaration and was not otherwise changed.",
+        "The entries are not complete sentences: they have no final period and use the imperative 'Annotate' instead of the past tense.",
+        "The wording is about implementation details and doesn't tell users what changed for them."
+      ]
+    },
+    "preferred": "A",
+    "rationale": "The diff only adds static type hints. These are return annotations on Basic.doit and Atom.doit, plus TYPE_CHECKING-only stubs for Expr.doit and TensAdd.args, and none of them change runtime behavior, so NO ENTRY is the right call. Candidate B copied the PR description, which wrongly says TensAdd.doit was annotated; the diff actually adds an `args` stub. B's entries are also sentence fragments with no period, not in the past tense, and say nothing a user would find meaningful.",
+    "same_substance": false,
+    "should_have_entry": "no",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31074/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31074/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "not_applicable",
+          "overall": 5,
+          "problems": []
+        },
+        "candidate_b": {
+          "accuracy": "minor_inaccuracy",
+          "overall": 2,
+          "problems": [
+            "The change only adds type annotations and has no runtime effect, so it doesn't need an entry.",
+            "TensAdd.doit was not annotated. The diff adds a TYPE_CHECKING-only `args` property on TensAdd so that type checking passes.",
+            "Expr.doit only gained a TYPE_CHECKING stub declaration and was not otherwise changed.",
+            "The entries are not complete sentences: they have no final period and use the imperative 'Annotate' instead of the past tense.",
+            "The wording is about implementation details and doesn't tell users what changed for them."
+          ]
+        },
+        "preferred": "A",
+        "rationale": "The diff only adds static type hints. These are return annotations on Basic.doit and Atom.doit, plus TYPE_CHECKING-only stubs for Expr.doit and TensAdd.args, and none of them change runtime behavior, so NO ENTRY is the right call. Candidate B copied the PR description, which wrongly says TensAdd.doit was annotated; the diff actually adds an `args` stub. B's entries are also sentence fragments with no period, not in the past tense, and say nothing a user would find meaningful.",
+        "same_substance": false,
+        "should_have_entry": "no",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.081069,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 7288,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 7288,
+    "cache_read_input_tokens": 15145,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 1877,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 1877,
+        "cache_read_input_tokens": 10278,
+        "input_tokens": 2,
+        "output_tokens": 786,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 986,
+    "output_tokens_details": {
+      "thinking_tokens": 175
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

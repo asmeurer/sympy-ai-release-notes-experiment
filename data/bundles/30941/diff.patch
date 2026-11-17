@@ -1,0 +1,216 @@
+diff --git a/sympy/core/function.py b/sympy/core/function.py
+index d60ac452c770..b803001bd87c 100644
+--- a/sympy/core/function.py
++++ b/sympy/core/function.py
+@@ -1157,7 +1157,7 @@ class Derivative(Expr):
+ 
+         >>> e = sqrt((x + 1)**2 + x)
+         >>> diff(e, (x, 5), simplify=False).count_ops()
+-        136
++        139
+         >>> diff(e, (x, 5)).count_ops()
+         30
+ 
+@@ -3376,7 +3376,7 @@ def count_ops(expr, visual=False):
+                         a = a.as_two_terms()[1]
+                     else:
+                         a = -a
+-                n, d = fraction(a)
++                n, d = fraction(a, exact=True)
+                 if n.is_Integer:
+                     ops.append(DIV)
+                     if n < 0:
+diff --git a/sympy/integrals/tests/test_transforms.py b/sympy/integrals/tests/test_transforms.py
+index dca2c6f5b033..60b086cf703e 100644
+--- a/sympy/integrals/tests/test_transforms.py
++++ b/sympy/integrals/tests/test_transforms.py
+@@ -254,8 +254,9 @@ def test_mellin_transform_bessel():
+         (gamma(
+          s - a/2)*gamma(s + a/2)/2, (Max(-re(a)/2, re(a)/2), oo), True)
+     assert MT(besselj(a, 2*sqrt(2*sqrt(x)))*besselk(
+-        a, 2*sqrt(2*sqrt(x))), x, s) == (4**(-s)*gamma(2*s)*
+-        gamma(a/2 + s)/(2*gamma(a/2 - s + 1)), (Max(0, -re(a)/2), oo), True)
++        a, 2*sqrt(2*sqrt(x))), x, s) == ((S.One/4)**s*gamma(2*s
++        )*gamma(a/2 + s)/(2*gamma(a/2 - s + 1)), (
++        Max(0, -re(a)/2), oo), True)
+     # TODO bessely(a, x)*besselk(a, x) is a mess
+     assert MT(besseli(a, sqrt(x))*besselk(a, sqrt(x)), x, s) == \
+         (gamma(s)*gamma(
+@@ -605,7 +606,7 @@ def test_hankel_transform():
+         2**(-m + 1)*k**(m - 2)*gamma(-m/2 + 1)/gamma(m/2), k, r, 0) == r**(-m)
+ 
+     assert hankel_transform(1/r**m, r, k, nu) == (
+-        2*2**(-m)*k**(m - 2)*gamma(-m/2 + nu/2 + 1)/gamma(m/2 + nu/2))
++        2**(1 - m)*k**(m - 2)*gamma(-m/2 + nu/2 + 1)/gamma(m/2 + nu/2))
+     assert inverse_hankel_transform(2**(-m + 1)*k**(
+         m - 2)*gamma(-m/2 + nu/2 + 1)/gamma(m/2 + nu/2), k, r, nu) == r**(-m)
+ 
+diff --git a/sympy/integrals/transforms.py b/sympy/integrals/transforms.py
+index 61f5aa78def2..853e3e416a8b 100644
+--- a/sympy/integrals/transforms.py
++++ b/sympy/integrals/transforms.py
+@@ -1490,7 +1490,7 @@ def hankel_transform(f, r, k, nu, **hints):
+ 
+     >>> ht = hankel_transform(1/r**m, r, k, nu)
+     >>> ht
+-    2*k**(m - 2)*gamma(-m/2 + nu/2 + 1)/(2**m*gamma(m/2 + nu/2))
++    2**(1 - m)*k**(m - 2)*gamma(-m/2 + nu/2 + 1)/gamma(m/2 + nu/2)
+ 
+     >>> inverse_hankel_transform(ht, k, r, nu)
+     r**(-m)
+@@ -1552,7 +1552,7 @@ def inverse_hankel_transform(F, k, r, nu, **hints):
+ 
+     >>> ht = hankel_transform(1/r**m, r, k, nu)
+     >>> ht
+-    2*k**(m - 2)*gamma(-m/2 + nu/2 + 1)/(2**m*gamma(m/2 + nu/2))
++    2**(1 - m)*k**(m - 2)*gamma(-m/2 + nu/2 + 1)/gamma(m/2 + nu/2)
+ 
+     >>> inverse_hankel_transform(ht, k, r, nu)
+     r**(-m)
+diff --git a/sympy/series/sequences.py b/sympy/series/sequences.py
+index 0ddbbdf8a73b..ae719513b94e 100644
+--- a/sympy/series/sequences.py
++++ b/sympy/series/sequences.py
+@@ -331,7 +331,7 @@ def find_linear_recurrence(self,n,d=None,gfvar=None):
+         >>> sequence(x+y*(-2)**(-n), (n, 0, oo)).find_linear_recurrence(30)
+         [1/2, 1/2]
+         >>> sequence(3*5**n + 12).find_linear_recurrence(20,gfvar=x)
+-        ([6, -5], 3*(5 - 21*x)/((x - 1)*(5*x - 1)))
++        ([6, -5], (15 - 63*x)/((x - 1)*(5*x - 1)))
+         >>> sequence(lucas(n)).find_linear_recurrence(15,gfvar=x)
+         ([1, 1], (x - 2)/(x**2 + x - 1))
+         """
+diff --git a/sympy/simplify/radsimp.py b/sympy/simplify/radsimp.py
+index 17c4e0cf3c5d..2638ffebb493 100644
+--- a/sympy/simplify/radsimp.py
++++ b/sympy/simplify/radsimp.py
+@@ -1111,20 +1111,23 @@ def fraction(expr, exact=False):
+     for term in Mul.make_args(expr):
+         if term.is_commutative and (term.is_Pow or isinstance(term, exp)):
+             b, ex = term.as_base_exp()
+-            if ex.is_negative:
++            if exact:
++                if ex.is_number and ex.could_extract_minus_sign():
++                    if ex is S.NegativeOne:
++                        denom.append(b)
++                    else:
++                        denom.append(Pow(b, -ex, evaluate=False))
++                else:
++                    numer.append(term)
++            elif ex.is_negative:
+                 if ex is S.NegativeOne:
+                     denom.append(b)
+-                elif exact:
+-                    if ex.is_constant():
+-                        denom.append(Pow(b, -ex, evaluate=False))
+-                    else:
+-                        numer.append(term)
+                 else:
+                     denom.append(Pow(b, -ex))
+             elif ex.is_positive:
+                 numer.append(term)
+-            elif not exact and ex.is_Mul:
+-                n, d = term.as_numer_denom()  # this will cause evaluation
++            elif ex.is_Mul:
++                n, d = term.as_numer_denom()
+                 if n != 1:
+                     numer.append(n)
+                 denom.append(d)
+diff --git a/sympy/simplify/tests/test_radsimp.py b/sympy/simplify/tests/test_radsimp.py
+index 06da3fedf3b2..b82e8fb2538a 100644
+--- a/sympy/simplify/tests/test_radsimp.py
++++ b/sympy/simplify/tests/test_radsimp.py
+@@ -1,8 +1,10 @@
+ from __future__ import annotations
++from unittest.mock import PropertyMock, patch
++
+ from sympy.core.add import Add
+ from sympy.core.function import (Derivative, Function, diff)
+ from sympy.core.mul import Mul
+-from sympy.core.numbers import (I, Rational)
++from sympy.core.numbers import (I, Rational, pi)
+ from sympy.core.power import Pow
+ from sympy.core.singleton import S
+ from sympy.core.symbol import (Symbol, Wild, symbols)
+@@ -20,6 +22,7 @@
+     collect_sqrt, fraction_expand, collect_abs)
+ from sympy.testing.pytest import raises
+ 
++
+ from sympy.abc import x, y, z, a, b, c, d
+ 
+ 
+@@ -403,11 +406,34 @@ def test_fraction_expand():
+     assert eq.expand() == y + y**2/x
+ 
+ 
++def test_fraction_exact_no_sign_inference():
++    p = Symbol('p', positive=True)
++    cases = [
++        (2**(-pi), (1, 2**pi)),
++        (exp(-p), (exp(-p), 1)),
++        (Pow(2, 1 - p, evaluate=False),
++         (Pow(2, 1 - p, evaluate=False), 1)),
++    ]
++
++    for expr, expected in cases:
++        exponent = expr.as_base_exp()[1]
++        with (
++            patch.object(type(exponent), 'is_negative',
++                         new_callable=PropertyMock) as negative,
++            patch.object(type(exponent), 'is_positive',
++                         new_callable=PropertyMock) as positive,
++        ):
++            negative.side_effect = AssertionError("queried is_negative")
++            positive.side_effect = AssertionError("queried is_positive")
++            assert fraction(expr, exact=True) == expected
++
++
+ def test_fraction():
+     x, y, z = map(Symbol, 'xyz')
+     A = Symbol('A', commutative=False)
+ 
+     assert fraction(S.Half) == (1, 2)
++    assert fraction(2**-pi, exact=True) == (1, 2**pi)
+ 
+     assert fraction(x) == (x, 1)
+     assert fraction(1/x) == (1, x)
+diff --git a/sympy/simplify/tests/test_simplify.py b/sympy/simplify/tests/test_simplify.py
+index 304bbe70d9c0..9cd31a5294d7 100644
+--- a/sympy/simplify/tests/test_simplify.py
++++ b/sympy/simplify/tests/test_simplify.py
+@@ -361,7 +361,7 @@ def test_hypersimp():
+     assert hypersimp(binomial(n + 1, k), k) == (n - k + 1)/(k + 1)
+ 
+     term = (4*k + 1)*factorial(k)/factorial(2*k + 1)
+-    assert hypersimp(term, k) == S.Half*((4*k + 5)/(3 + 14*k + 8*k**2))
++    assert hypersimp(term, k) == (4*k + 5)/(16*k**2 + 28*k + 6)
+ 
+     term = 1/((2*k - 1)*factorial(2*k + 1))
+     assert hypersimp(term, k) == (k - S.Half)/((k + 1)*(2*k + 1)*(2*k + 3))
+diff --git a/sympy/simplify/trigsimp.py b/sympy/simplify/trigsimp.py
+index c9e389394a40..9cc1fb77c1c0 100644
+--- a/sympy/simplify/trigsimp.py
++++ b/sympy/simplify/trigsimp.py
+@@ -633,7 +633,7 @@ def exp_trig(e):
+         # functions
+         choices = [e]
+         if e.has(*_trigs):
+-            op = e.rewrite(exp)
++            op = e.rewrite(_trigs, exp)
+             # if e is an Add, we can try to factor it
+             # helps with expressions with leading factors
+             if e.is_Add:
+diff --git a/sympy/solvers/tests/test_pde.py b/sympy/solvers/tests/test_pde.py
+index 42acf0081cb4..690f8425f808 100644
+--- a/sympy/solvers/tests/test_pde.py
++++ b/sympy/solvers/tests/test_pde.py
+@@ -173,7 +173,7 @@ def test_pde_1st_linear_constant_coeff():
+ 
+     eq = (u.diff(x)/u) + (u.diff(y)/u) + 1 - (exp(x + y)/u)
+     sol = pdsolve(eq)
+-    assert sol == Eq(f(x, y), F(x - y)*exp(-x/2 - y/2) + exp(x + y)/3)
++    assert sol == Eq(f(x, y), (F(x - y) + exp(3*x/2 + 3*y/2)/3)*exp(-x/2 - y/2))
+     assert classify_pde(eq) == ('1st_linear_constant_coeff',
+     '1st_linear_constant_coeff_Integral')
+     assert checkpdesol(eq, sol)[0]

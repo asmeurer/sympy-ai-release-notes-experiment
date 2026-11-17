@@ -1,0 +1,77 @@
+{
+  "additions": 63,
+  "author": "Hirata-Origami",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\r\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\nLocal source: doc/src/contributing/pull-request-guidelines.rst\r\nKeep all section headings below. -->\r\n\r\n#### References to other Issues or PRs\r\nFixes #31030. Also addresses the maintainer's request to compare `Max` versus `Piecewise` (see the maintainer's comment here: https://github.com/sympy/sympy/issues/31030#issuecomment-6780930328).\r\n\r\n#### Brief description of what is fixed or changed\r\n- **The problem:** `Interval(a, b).measure` previously returned `b - a`, which evaluates to a negative value when `b < a`.\r\n- **The change:** It now returns `Max(0, end - start)`.\r\n- **Comparison & reasoning:** While both `Max` and `Piecewise` variants fix the bug equally and pass identical downstream checks, `Max` is chosen because it is a plain function rather than a conditional with bound variables. This makes it safer to embed in other expressions and avoids noisy relational conditions (such as `b >= -oo` on infinite intervals).\r\n- **The tests:** `test_measure` was updated to reflect the new behavior, and a new test `test_Interval_measure_reversed_symbolic_endpoints` was added.\r\n\r\n#### Other comments\r\n- Both variants break the exact same single test (`test_measure`), which previously encoded the buggy behavior.\r\n- `Max` yields significantly cleaner output expressions.\r\n- Extensively tested: ran the test suites for `sympy/sets`, `calculus`, `solveset`, `inequalities`, and `stats`, along with all sets doctests.\r\n\r\n#### AI Generation Disclosure\r\nAn AI assistant helped compare the `Max` vs. `Piecewise` variants, drafted the one-line code change, and drafted the corresponding test cases across `sympy/sets`. I reviewed the changes thoroughly, verified them, and ran the test suite locally.\r\n\r\n#### Release Notes\r\n\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\n* sets\r\n  * Fixed interval measure calculation for symbolic endpoints to use `Max(0, end - start)` instead of returning a negative measure or a complex `Piecewise` expression.\r\n<!-- END RELEASE NOTES -->",
+  "changed_files": 3,
+  "commits": [
+    {
+      "author": "Hirata-Origami",
+      "message": "Interval.measure: use Max(0, end - start)",
+      "sha": "5af7d0668731c780efdb599e9fb40cfda70a243e"
+    },
+    {
+      "author": "Hirata-Origami",
+      "message": "author: add Hirata-Origami to .mailmap\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
+      "sha": "ef81fa632ccd2eba3f77b8656d8cd72f264be40e"
+    },
+    {
+      "author": "Hirata-Origami",
+      "message": "sets: test Interval.measure with sign assumptions, infinite endpoints and empty intervals",
+      "sha": "8962fb7c05e1ec0dcdc8383996ce6c75589153c1"
+    }
+  ],
+  "created_at": "2026-11-10T23:05:42Z",
+  "deletions": 3,
+  "diff": "diff --git a/.mailmap b/.mailmap\nindex eb0e4d5a1cc6..e86984d0467c 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -792,6 +792,7 @@ Henry Gebhardt <hsggebhardt@gmail.com>\n Henry Metlov <genrih.metlov@gmail.com>\n Himanshu <hs80941@gmail.com>\n Himanshu Ladia <hladia199811@gmail.com>\n+Hirata-Origami <117330860+Hirata-Origami@users.noreply.github.com>\n Hiren Chalodiya <hirenchalodiya99@gmail.com>\n Hong Xu <hong@topbug.net>\n Hou-Rui <houruinus@gmail.com> Hou-Rui <13244639785@163.com>\ndiff --git a/sympy/sets/sets.py b/sympy/sets/sets.py\nindex 0e5166fba96f..69bd213dc86a 100644\n--- a/sympy/sets/sets.py\n+++ b/sympy/sets/sets.py\n@@ -1276,7 +1276,7 @@ def as_relational(self, x):\n \n     @property\n     def _measure(self):\n-        return self.end - self.start\n+        return Max(0, self.end - self.start)\n \n     def _kind(self):\n         return SetKind(NumberKind)\ndiff --git a/sympy/sets/tests/test_sets.py b/sympy/sets/tests/test_sets.py\nindex 9279f45ddcf9..840b75c86e08 100644\n--- a/sympy/sets/tests/test_sets.py\n+++ b/sympy/sets/tests/test_sets.py\n@@ -747,12 +747,71 @@ def test_set_evalf():\n     assert FiniteSet(2, x).evalf() == FiniteSet(Float('2.0'), x)\n \n \n+def test_Interval_measure_reversed_symbolic_endpoints():\n+    # The measure of an interval whose endpoints turn out to be reversed is\n+    # 0 (it is empty), not a negative number.\n+    a, b = symbols('a b', real=True)\n+    m = Interval(a, b).measure\n+    assert m == Max(0, b - a)\n+    assert m.subs({a: 3, b: 1}) == 0\n+    assert m.subs({a: 1, b: 3}) == 2\n+    assert Interval.open(a, b).measure == Max(0, b - a)\n+    # a provably nonnegative length is unchanged\n+    x = Symbol('x', positive=True)\n+    assert Interval(0, x).measure == x\n+\n+\n+def test_Interval_measure_assumptions():\n+    n = Symbol('n', negative=True)\n+    nonpos = Symbol('nonpos', nonpositive=True)\n+    p = Symbol('p', positive=True)\n+    nonneg = Symbol('nonneg', nonnegative=True)\n+    inf_pos = Symbol('inf_pos', extended_positive=True, finite=False)\n+    a = Symbol('a', real=True)\n+\n+    # sign information lets Max collapse\n+    assert Interval(n, 0).measure == -n\n+    assert Interval(n, p).measure == p - n\n+    assert Interval(0, nonneg).measure == nonneg\n+    assert Interval(nonpos, 0).measure == -nonpos\n+    assert Interval(0, nonpos).measure == 0\n+\n+    # infinite endpoints\n+    assert Interval(-oo, oo).measure is oo\n+    assert Interval(0, oo).measure is oo\n+    assert Interval(-oo, 0).measure is oo\n+    assert Interval(-oo, a).measure is oo\n+    assert Interval(a, oo).measure is oo\n+    assert Interval(0, inf_pos).measure == inf_pos\n+\n+    # intervals that are provably empty have measure 0\n+    assert Interval(0, n) is S.EmptySet\n+    assert Interval(0, n).measure == 0\n+    assert Interval.open(a, a) is S.EmptySet\n+    assert Interval.open(a, a).measure == 0\n+\n+\n+def test_Interval_zero_measure_not_always_empty():\n+    a, b = symbols('a b', real=True)\n+    nonpos = Symbol('nonpos', nonpositive=True)\n+    # measure 0 does not imply EmptySet: a single point has measure 0\n+    assert Interval(1, 1) == FiniteSet(1)\n+    assert Interval(1, 1).measure == 0\n+    assert Interval(a, a) == FiniteSet(a)\n+    assert Interval(a, a).measure == 0\n+    # empty intervals do have measure 0\n+    assert Interval(3, 1) is S.EmptySet and S.EmptySet.measure == 0\n+    # undetermined cases stay unevaluated rather than claiming EmptySet\n+    assert Interval(a, b).is_empty is None\n+    assert Interval(0, nonpos).is_empty is None\n+\n+\n def test_measure():\n     a = Symbol('a', real=True)\n \n     assert Interval(1, 3).measure == 2\n-    assert Interval(0, a).measure == a\n-    assert Interval(1, a).measure == a - 1\n+    assert Interval(0, a).measure == Max(0, a)\n+    assert Interval(1, a).measure == Max(0, a - 1)\n \n     assert Union(Interval(1, 2), Interval(3, 4)).measure == 2\n     assert Union(Interval(1, 2), Interval(3, 4), FiniteSet(5, 6, 7)).measure \\\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* sets\n  * Fixed interval measure calculation for symbolic endpoints to use `Max(0, end - start)` instead of returning a negative measure or a complex `Piecewise` expression. ([#31037](https://github.com/sympy/sympy/pull/31037) by [@Hirata-Origami](https://github.com/Hirata-Origami))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\r\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\n    Local source: doc/src/contributing/pull-request-guidelines.rst\r\n    Keep all section headings below. -->\r\n\r\n    #### References to other Issues or PRs\r\n    Fixes #31030. Also addresses the maintainer's request to compare `Max` versus `Piecewise` (see the maintainer's comment here: https://github.com/sympy/sympy/issues/31030#issuecomment-6780930328).\r\n\r\n    #### Brief description of what is fixed or changed\r\n    - **The problem:** `Interval(a, b).measure` previously returned `b - a`, which evaluates to a negative value when `b < a`.\r\n    - **The change:** It now returns `Max(0, end - start)`.\r\n    - **Comparison & reasoning:** While both `Max` and `Piecewise` variants fix the bug equally and pass identical downstream checks, `Max` is chosen because it is a plain function rather than a conditional with bound variables. This makes it safer to embed in other expressions and avoids noisy relational conditions (such as `b >= -oo` on infinite intervals).\r\n    - **The tests:** `test_measure` was updated to reflect the new behavior, and a new test `test_Interval_measure_reversed_symbolic_endpoints` was added.\r\n\r\n    #### Other comments\r\n    - Both variants break the exact same single test (`test_measure`), which previously encoded the buggy behavior.\r\n    - `Max` yields significantly cleaner output expressions.\r\n    - Extensively tested: ran the test suites for `sympy/sets`, `calculus`, `solveset`, `inequalities`, and `stats`, along with all sets doctests.\r\n\r\n    #### AI Generation Disclosure\r\n    An AI assistant helped compare the `Max` vs. `Piecewise` variants, drafted the one-line code change, and drafted the corresponding test cases across `sympy/sets`. I reviewed the changes thoroughly, verified them, and ran the test suite locally.\r\n\r\n    #### Release Notes\r\n\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    * sets\r\n      * Fixed interval measure calculation for symbolic endpoints to use `Max(0, end - start)` instead of returning a negative measure or a complex `Piecewise` expression.\r\n    <!-- END RELEASE NOTES -->\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-10T23:05:47Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "asmeurer",
+      "body": "```\n>>> Interval(a, b).measure\n-a + b\n```\n\nThis is wrong if `b < a`, because the interval would be empty. The more correct expression would be `Piecewise((b - a, b >= a), (0, True))`. ",
+      "is_pull_request": false,
+      "number": 31030,
+      "state": "closed",
+      "title": "Interval(a, b).measure is wrong if b < a"
+    }
+  ],
+  "merge_commit_sha": "ef65ee574776388e943b49e990c8a89bbda8a44c",
+  "merged_at": "2026-11-11T16:01:57Z",
+  "number": 31037,
+  "review_comments": [
+    {
+      "author": "smichr",
+      "body": "We should probably test negative and nonpositive, too. And finite=False assumptions -- will it work for (-oo,oo), (0,oo)?\n\nDoes an interval with 0 measure also report EmptySet?",
+      "created_at": "2026-11-11T00:48:59Z",
+      "path": "sympy/sets/tests/test_sets.py"
+    },
+    {
+      "author": "Hirata-Origami",
+      "body": "Thanks, added tests in 8962fb7 (`test_Interval_measure_assumptions`, `test_Interval_zero_measure_not_always_empty`):\n\n- **negative / nonpositive:** `Interval(n, 0).measure == -n`, `Interval(n, p).measure == p - n`, `Interval(nonpos, 0).measure == -nonpos`, and `Interval(0, nonpos).measure == 0` (`Max` collapses using the sign assumptions). `Interval(0, n)` with `n` negative is already `EmptySet`.\n- **infinite endpoints:** `(-oo, oo)`, `(0, oo)`, `(-oo, 0)`, `(-oo, a)`, `(a, oo)` all give `oo`, and a symbol with `extended_positive=True, finite=False` gives itself.\n- **zero measure vs `EmptySet`:** not equivalent. Provably empty intervals (`Interval(3, 1)`, `Interval.open(a, a)`, `Interval(0, n)`) are `EmptySet` with measure 0, but a single point (`Interval(1, 1)`, `Interval(a, a)`) is a `FiniteSet` with measure 0. For undetermined cases such as `Interval(a, b)` or `Interval(0, nonpos)`, `is_empty` is `None`, so nothing claims `EmptySet`.\n\nOne thing I found while checking `finite=False`: for a symbol like `Symbol('f', extended_real=True, finite=False)` (infinite but sign unknown), `f <= 0` evaluates to `True` on master, so `Max(0, f)` returns `0` and `Interval(0, f).measure` becomes `0` with this change (it was `f` before). That comes from the relational evaluation / assumptions for such symbols, not from `_measure`, so I left it out of the tests here. Happy to open a separate issue if you think it's worth tracking.\n",
+      "created_at": "2026-11-11T00:54:14Z",
+      "path": "sympy/sets/tests/test_sets.py"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-11T00:48:59Z"
+    },
+    {
+      "author": "Hirata-Origami",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-11T00:54:14Z"
+    }
+  ],
+  "title": "Fix interval measure for reversed/symbolic bounds using Max(0, end - start)"
+}

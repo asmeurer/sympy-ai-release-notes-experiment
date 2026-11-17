@@ -1,0 +1,131 @@
+{
+  "additions": 63,
+  "author": "Cypher-Monarch",
+  "base": "master",
+  "body": "#### References to other Issues or PRs\n\nFixes #29714\n\n#### Brief description of what is fixed or changed\n\nDifferentiating an undefined function with multiple composite arguments could introduce unintended symbols into `free_symbols`.\n\nFor example:\n\n```python\nx, y = symbols('x y')\nf = Function('f')\nresult = f(x + y, x*y).diff(y).diff(x)\n```\n\nPreviously, the result could contain an unintended symbol such as `_x + y` instead of only the expected `x` and `y`.\n\nThe issue was traced to collision detection in `Subs.__new__()` and structural identity handling in `Subs._hashable_content()`.\n\nTwo changes were made:\n\n- `Subs.__new__()`: Updated the collision check to handle free symbols that are not among the substitution variables, while reusing the existing `s_pts` mapping.\n- `Subs._hashable_content()`: Added the number of substitution variables and sorted substitution points to distinguish `Subs` objects after canonicalization.\n\nA dedicated regression test, `test_Subs_composite_arguments_derivative`, was added to `sympy/core/tests/test_functions.py`. It checks the original reproducer and additional cases involving different differentiation orders, powers and constants, repeated composite arguments, overlapping free symbols, nested expressions, and repeated differentiation.\n\n#### Other comments\n\n`./bin/test test_function`: 145 passed, 1 xfailed.\n\n`./bin/test`: 13366 passed, 749 skipped, 261 deselected, 328 xfailed, 1 xpassed.\n\nThe original issue was reproduced on the unmodified branch and verified as fixed after the changes.\n\n#### AI Generation Disclosure\n\nAn AI coding assistant was used during the investigation to help triangulate the source of the issue and suggest possible approaches to fixing it.\n\nThe AI assistant's involvement was limited to investigation and proposing potential solutions. The implementation and regression tests were developed independently.\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* core\n  * Fixed unintended free symbols introduced when differentiating undefined functions with composite arguments.\n<!-- END RELEASE NOTES -->",
+  "changed_files": 3,
+  "commits": [
+    {
+      "author": "Cypher-Monarch",
+      "message": "tests: add regression test for Subs with composite arguments",
+      "sha": "9a2fb5de436a3a5192913225330771078a584c93"
+    },
+    {
+      "author": "Cypher-Monarch",
+      "message": "fix(core): correct Subs symbol handling and hashing",
+      "sha": "17d257047448d69df7252d32eb05d05b6ae298d8"
+    },
+    {
+      "author": "Cypher-Monarch",
+      "message": "test(core): expand Subs derivative regression coverage",
+      "sha": "c540bd08be0d02bdd3a5ad24284939066f55d620"
+    },
+    {
+      "author": "Cypher-Monarch",
+      "message": "fix(functions): fix inconsistent indentation in _hashable_content",
+      "sha": "07b94eb898a0ccd581141ccc2751bb46d99a19e3"
+    },
+    {
+      "author": "Cypher-Monarch",
+      "message": "perf: remove redundant frozenset return in _hashable_content",
+      "sha": "e72b2dad88f146ffce3b2fec7b4a600f8bc93a7a"
+    },
+    {
+      "author": "Cypher-Monarch",
+      "message": "chore(mailmap): add Cypher-Monarch to mailmap",
+      "sha": "187acb9fb185e79a4c80b9b5c46b693079490693"
+    },
+    {
+      "author": "Cypher-Monarch",
+      "message": "chore: fix code formatting with ruff",
+      "sha": "6fc6b67da91d3463effda4c5e44ff7e62dd4dc9c"
+    },
+    {
+      "author": "Cypher-Monarch",
+      "message": "tests: add coverage for doit collision case",
+      "sha": "7084315eb09dfe0efa1ed67ef3003602a0d7a360"
+    }
+  ],
+  "created_at": "2026-11-14T04:10:44Z",
+  "deletions": 5,
+  "diff": "diff --git a/.mailmap b/.mailmap\nindex 892be90192df..80c59d6e0319 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -556,6 +556,7 @@ Costor <pcs2009@web.de>\n Craig A. Stoudt <craig.stoudt@gmail.com>\n Cristian Di Pietrantonio <cristiandipietrantonio@gmail.com>\n Crist\u00f3v\u00e3o Sousa <crisjss@gmail.com>\n+Cypher-Monarch <monarchcypher@gmail.com>\n C\u00e9dric Travelletti <cedrictravelletti@gmail.com> Cedric <cedric@localhost.localdomain>\n Daan Koning (he/him) <daanolivierkoning@gmail.com>\n Daiki Takahashi <haru.td@gmail.com> haru-44 <36563693+haru-44@users.noreply.github.com>\ndiff --git a/sympy/core/function.py b/sympy/core/function.py\nindex b803001bd87c..cd81f38883b0 100644\n--- a/sympy/core/function.py\n+++ b/sympy/core/function.py\n@@ -2333,6 +2333,10 @@ class Subs(Expr):\n     >>> s, ss\n     (Subs(x, x, 0), Subs(y, y, 0))\n     \"\"\"\n+\n+    # Ensure generated substitution symbols do not collide with existing free symbols in the expression.\n+\n+\n     def __new__(cls, expr, variables, point, **assumptions):\n         if not is_sequence(variables, Tuple):\n             variables = [variables]\n@@ -2383,9 +2387,9 @@ def mystr(expr, **settings):\n             # because the new symbol that would be created is _1 but _1\n             # is already mapped to 0 so __0 and __1 are used for the new\n             # symbols\n-            if any(r in expr.free_symbols and\n-                   r in variables and\n-                   Symbol(pre + mystr(point[variables.index(r)])) != r\n+            if any(r in expr.free_symbols and (\n+                   r not in variables or\n+                   s_pts[point[variables.index(r)]] != r)\n                    for _, r in reps):\n                 pre += \"_\"\n                 continue\n@@ -2510,8 +2514,13 @@ def __hash__(self):\n         return super().__hash__()\n \n     def _hashable_content(self):\n-        return (self._expr.xreplace(self.canonical_variables),\n-            ) + tuple(ordered([(v, p) for v, p in\n+        # Include substitution metadata to distinguish Subs objects that may otherwise have identical canonicalized expressions.\n+\n+        return (\n+            self._expr.xreplace(self.canonical_variables),\n+            len(self.variables),\n+            tuple(sorted(self.point, key=default_sort_key)),\n+        ) + tuple(ordered([(v, p) for v, p in\n             zip(self.variables, self.point) if not self.expr.has(v)]))\n \n     def _eval_subs(self, old, new):\ndiff --git a/sympy/core/tests/test_function.py b/sympy/core/tests/test_function.py\nindex 6c84dc7bdfd5..146310a51c07 100644\n--- a/sympy/core/tests/test_function.py\n+++ b/sympy/core/tests/test_function.py\n@@ -505,6 +505,8 @@ def test_Subs():\n     assert len(Subs(f(x, y), (x, y), (0, 1)).variables) == 2\n     assert Subs(f(x, y), (x, y), (0, 1)).point == Tuple(0, 1)\n \n+    assert Subs(x + Symbol('_0'), x, 0) != Subs(2*x, x, 0)\n+\n     assert Subs(f(x), x, 0) == Subs(f(y), y, 0)\n     assert Subs(f(x, y), (x, y), (0, 1)) == Subs(f(x, y), (y, x), (1, 0))\n     assert Subs(f(x)*y, (x, y), (0, 1)) == Subs(f(y)*x, (y, x), (0, 1))\n@@ -550,6 +552,52 @@ def test_Subs():\n         f(x, g(x)), g(x))*Derivative(g(x), x) + Subs(Derivative(\n         f(y, g(x)), y), y, x)\n \n+\n+\n+def test_Subs_composite_arguments_derivative():\n+    x, y, z = symbols('x y z')\n+    f = Function('f')\n+\n+    # Regression test: differentiating a function with multiple\n+    # composite arguments must not introduce spurious free symbols.\n+    result = f(x + y, x*y).diff(y).diff(x)\n+    assert result.free_symbols == {x, y}\n+\n+    # Check that repeated differentiation with different composite\n+    # arguments and differentiation orders does not introduce\n+    # unexpected free symbols.\n+    cases = [\n+        # Different differentiation order.\n+        (f(x + y, x*y), (x, y), {x, y}),\n+\n+        # Composite arguments involving powers and constants.\n+        (f(x**2 + y, x*y + 1), (y, x), {x, y}),\n+\n+        # Multiple arguments containing the same composite expression.\n+        (f(x + y, x + y), (y, x), {x, y}),\n+\n+        # Three composite arguments with overlapping free symbols.\n+        (f(x + y, x*y, x*z + y), (y, x), {x, y, z}),\n+\n+        # Nested composite expressions.\n+        (f((x + y)**2, x*y + x), (y, x), {x, y}),\n+\n+        # Repeated differentiation of the same expression.\n+        (f(x + y, x*y), (y, x, y), {x, y}),\n+\n+        # Different powers and a different differentiation order.\n+        (f(x**2 + y**2, x*y + y**3), (x, y, x), {x, y}),\n+    ]\n+\n+    for expr, variables, allowed_symbols in cases:\n+        result = expr\n+        for variable in variables:\n+            result = result.diff(variable)\n+\n+        assert result.free_symbols <= allowed_symbols\n+\n+\n+\n def test_doitdoit():\n     done = Derivative(f(x, g(x)), x, g(x)).doit()\n     assert done == done.doit()\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* core\n  * Fixed unintended free symbols introduced when differentiating undefined functions with composite arguments. ([#31087](https://github.com/sympy/sympy/pull/31087) by [@Cypher-Monarch](https://github.com/Cypher-Monarch))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    #### References to other Issues or PRs\n\n    Fixes #29714\n\n    #### Brief description of what is fixed or changed\n\n    Differentiating an undefined function with multiple composite arguments could introduce unintended symbols into `free_symbols`.\n\n    For example:\n\n    ```python\n    x, y = symbols('x y')\n    f = Function('f')\n    result = f(x + y, x*y).diff(y).diff(x)\n    ```\n\n    Previously, the result could contain an unintended symbol such as `_x + y` instead of only the expected `x` and `y`.\n\n    The issue was traced to collision detection in `Subs.__new__()` and structural identity handling in `Subs._hashable_content()`.\n\n    Two changes were made:\n\n    - `Subs.__new__()`: Updated the collision check to handle free symbols that are not among the substitution variables, while reusing the existing `s_pts` mapping.\n    - `Subs._hashable_content()`: Added the number of substitution variables and sorted substitution points to distinguish `Subs` objects after canonicalization.\n\n    A dedicated regression test, `test_Subs_composite_arguments_derivative`, was added to `sympy/core/tests/test_functions.py`. It checks the original reproducer and additional cases involving different differentiation orders, powers and constants, repeated composite arguments, overlapping free symbols, nested expressions, and repeated differentiation.\n\n    #### Other comments\n\n    `./bin/test test_function`: 145 passed, 1 xfailed.\n\n    `./bin/test`: 13366 passed, 749 skipped, 261 deselected, 328 xfailed, 1 xpassed.\n\n    The original issue was reproduced on the unmodified branch and verified as fixed after the changes.\n\n    #### AI Generation Disclosure\n\n    An AI coding assistant was used during the investigation to help triangulate the source of the issue and suggest possible approaches to fixing it.\n\n    The AI assistant's involvement was limited to investigation and proposing potential solutions. The implementation and regression tests were developed independently.\n\n    #### Release Notes\n\n    <!-- BEGIN RELEASE NOTES -->\n    * core\n      * Fixed unintended free symbols introduced when differentiating undefined functions with composite arguments.\n    <!-- END RELEASE NOTES -->\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-14T04:10:53Z"
+    },
+    {
+      "author": "smichr",
+      "body": "Welcome to SymPy! This is in.",
+      "created_at": "2026-11-15T06:54:30Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "yeguarr",
+      "body": "## Issue\n\nWhen differentiating a function with multiple arguments that are compositions of the base symbols (e.g., `f(x+y, x*y)`), SymPy introduces symbols whose names are the string reps of those compositions, such as `Symbol('_x + y')`, instead of proper `Dummy` symbols. These symbols are not `Dummy` and therefore are not treated as internal temporaries; they leak into `free_symbols` and break any subsequent evaluation / `lambdify` attempt.\n\n## Steps to Reproduce\n\n```python\nimport sympy as sp\n\nx, y = sp.symbols('x y')\nf = sp.Function('f')\n\nexpr = f(x + y, x*y)\ndexpr = expr.diff(y).diff(x)\n\nprint(dexpr)\nprint(sp.srepr(dexpr))\n```\n\n## Expected Behavior\n\nOnly `Dummy` variables (e.g., `Dummy('xi_1')`) should appear in the `Subs` and `Derivative` nodes. The expression\u2019s free symbols should be just `{x, y}`.\n\n## Actual Output\n\nThe printed expression contains symbols like `_x + y`. The internal representation (`srepr`) shows:\n```\n...\nSymbol('_x + y')\n...\n```\nand `free_symbols` returns `{y, _x + y, x}` (or similar). These symbols are ordinary `Symbol` objects, not `Dummy`, and lack substitution.\n\n## Python Version\n\n- SymPy version: 1.14.0\n- Python version: 3.14.4\n\n## Additional Context\n\nThis behaviour was discovered while trying to create a custom `lambdify` for Julia\u2019s `SymPyPythonCall` package, but the bug is reproducible in pure SymPy. Workaround involves manually replacing these symbols by the corresponding expressions, but the root cause should be fixed.",
+      "is_pull_request": false,
+      "number": 29714,
+      "state": "closed",
+      "title": "Derivative of function with composite arguments creates non-Dummy symbols with expression names"
+    }
+  ],
+  "merge_commit_sha": "d41110f35552d6eae4dae7206cb692d992f17ffa",
+  "merged_at": "2026-11-15T06:54:00Z",
+  "number": 31087,
+  "review_comments": [
+    {
+      "author": "smichr",
+      "body": "I am not sure this change is necessary. The hash collision was allowing an already hashed Subs to replace the correct one and once that is corrected as you have done below, you should not see the extraneous symbol. This test formerly contained such a symbol and now it doesn't:\n```python\n>>> f=Function('f')\n>>> Subs(Derivative(f(z, x*y), z), z, x + y).diff(x)\ny*Subs(Derivative(f(z, _xi_2), _xi_2, z), (_xi_2, z), (x*y, x + y)) + Subs(Derivative(f(z, x*y), (z, 2)), z, x + y)\n>>> _.atoms()\n{1, y, 2, z, x, _xi_2}\n```",
+      "created_at": "2026-11-15T03:19:17Z",
+      "path": "sympy/core/function.py"
+    },
+    {
+      "author": "smichr",
+      "body": "All these tests pass with only the change to hashing.",
+      "created_at": "2026-11-15T03:21:00Z",
+      "path": "sympy/core/tests/test_function.py"
+    },
+    {
+      "author": "smichr",
+      "body": "Ahh....but if you add this I suspect it will pass for your full PR\n```python\n>>> x = Symbol('x')\n... u = Symbol('_0')\n...\n... a = Subs(x + u, x, 0)\n... b = Subs(2*x, x, 0)\n...\n>>> a,b\n(Subs(_0 + x, x, 0), Subs(2*x, x, 0))\n>>> a==b\nTrue  <--- I suspect you will get False (as it should be) since a.doit() != b.doit()\n```",
+      "created_at": "2026-11-15T03:25:59Z",
+      "path": "sympy/core/tests/test_function.py"
+    },
+    {
+      "author": "smichr",
+      "body": "```suggestion\n    assert Subs(x + Symbol('_0'), x, 0) != Subs(2*x, x, 0)\n    assert Subs(f(x), x, 0) == Subs(f(y), y, 0)\n```",
+      "created_at": "2026-11-15T03:30:19Z",
+      "path": "sympy/core/tests/test_function.py"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-15T03:19:17Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-15T03:21:00Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-15T03:25:59Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-15T03:30:19Z"
+    }
+  ],
+  "title": "Fix Subs symbol handling for derivatives with composite arguments"
+}

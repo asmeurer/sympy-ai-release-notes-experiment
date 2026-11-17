@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "OpenAI Codex (GPT-6 Astra) generated all changes in `sympy/core/basic.py` and `sympy/core/tests/test_basic.py`. This PR description was also written by the AI agent at the account owner's request.",
+  "author": "raman118",
+  "entries": [
+    {
+      "submodule": "core",
+      "text": "Fixed `.copy()` on symbols and other atoms to return the immutable atom itself instead of failing when reconstructing it from empty arguments."
+    }
+  ],
+  "merged_at": "2026-11-05T18:43:08Z",
+  "number": 30959,
+  "overlap": {
+    "title_similarity": 0.39080459770114945,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* core\n  * Fixed `.copy()` on symbols and other atoms to return the immutable atom itself instead of failing when reconstructing it from empty arguments.",
+  "status": "entry",
+  "title": "Fix copying of symbols and other atoms"
+}

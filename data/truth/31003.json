@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "This is a collaboration with ChatGPT.",
+  "author": "smichr",
+  "entries": [
+    {
+      "submodule": "simplify",
+      "text": "cse post-processor `cse_to_functions` is now available"
+    }
+  ],
+  "merged_at": "2026-11-12T01:33:11Z",
+  "number": 31003,
+  "overlap": {
+    "title_similarity": 0.39473684210526316,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* simplify\n  * cse post-processor `cse_to_functions` is now available",
+  "status": "entry",
+  "title": "cse function postprocess"
+}

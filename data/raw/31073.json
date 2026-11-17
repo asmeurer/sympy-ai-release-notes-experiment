@@ -1,0 +1,32 @@
+{
+  "additions": 6,
+  "author": "hunterhogan",
+  "base": "master",
+  "body": "\ud83e\udd16 *This description was drafted by an AI agent (Claude Code).*\n\n#### References to other Issues or PRs\n\n\n#### Brief description of what is fixed or changed\n\n- `Set.intersect` and its alias `Set.intersection`.\n- `Set.__contains__\n- `Union.__new__.\n\n#### Other comments\n\n`Union.__new__.args` uses `tuple` in the body instead of `list` because it's the same type as the signature.\n\n#### AI Generation Disclosure\n\nClaude Code (Claude Opus 5.5)\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* sets\n    * add signatures to methods in `Set` and `Union`.\n<!-- END RELEASE NOTES -->\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n",
+  "changed_files": 1,
+  "commits": [
+    {
+      "author": "Hunter Hogan",
+      "message": "Annotate Set.intersect, Set.__contains__, and Union.__new__\n\nUnion.__new__ builds args as tuples instead of lists so args keeps one\ntype; simplify_union converts its input to a set either way.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "6d2b0013c433665ce61f01af985fe73eea4febff"
+    }
+  ],
+  "created_at": "2026-11-13T16:02:01Z",
+  "deletions": 6,
+  "diff": "diff --git a/sympy/sets/sets.py b/sympy/sets/sets.py\nindex 69bd213dc86a..1e69a736efbf 100644\n--- a/sympy/sets/sets.py\n+++ b/sympy/sets/sets.py\n@@ -163,7 +163,7 @@ def union(self, other):\n         \"\"\"\n         return Union(self, other)\n \n-    def intersect(self, other):\n+    def intersect(self, other: Set) -> Set:\n         \"\"\"\n         Returns the intersection of 'self' and 'other'.\n \n@@ -184,7 +184,7 @@ def intersect(self, other):\n         \"\"\"\n         return Intersection(self, other)\n \n-    def intersection(self, other):\n+    def intersection(self, other: Set) -> Set:\n         \"\"\"\n         Alias for :meth:`intersect()`\n         \"\"\"\n@@ -836,7 +836,7 @@ def __pow__(self, exp):\n     def __sub__(self, other):\n         return Complement(self, other)\n \n-    def __contains__(self, other):\n+    def __contains__(self, other: Basic | complex | tuple[Basic | complex, ...]) -> Boolean:\n         other = _sympify(other)\n         c = self._contains(other)\n         b = tfn[c]\n@@ -1362,7 +1362,7 @@ def identity(self):\n     def zero(self):\n         return S.UniversalSet\n \n-    def __new__(cls, *args, **kwargs):\n+    def __new__(cls, *args: Set, **kwargs: bool) -> Set:  # type: ignore[misc]\n         evaluate = kwargs.get('evaluate', global_parameters.evaluate)\n \n         # flatten inputs to merge intersections and iterables\n@@ -1370,10 +1370,10 @@ def __new__(cls, *args, **kwargs):\n \n         # Reduce sets using known rules\n         if evaluate:\n-            args = list(cls._new_args_filter(args))\n+            args = tuple(cls._new_args_filter(args))\n             return simplify_union(args)\n \n-        args = list(ordered(args, Set._infimum_key))\n+        args = tuple(ordered(args, Set._infimum_key))\n \n         obj = Basic.__new__(cls, *args)\n         obj._argset = frozenset(args)\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* sets\n  * add signatures to methods in `Set` and `Union`. ([#31073](https://github.com/sympy/sympy/pull/31073) by [@hunterhogan](https://github.com/hunterhogan))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    \ud83e\udd16 *This description was drafted by an AI agent (Claude Code).*\n\n    #### References to other Issues or PRs\n\n\n    #### Brief description of what is fixed or changed\n\n    - `Set.intersect` and its alias `Set.intersection`.\n    - `Set.__contains__\n    - `Union.__new__.\n\n    #### Other comments\n\n    `Union.__new__.args` uses `tuple` in the body instead of `list` because it's the same type as the signature.\n\n    #### AI Generation Disclosure\n\n    Claude Code (Claude Opus 5.5)\n\n    #### Release Notes\n\n    <!-- BEGIN RELEASE NOTES -->\n    * sets\n        * add signatures to methods in `Set` and `Union`.\n    <!-- END RELEASE NOTES -->\n\n    \ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-13T16:02:07Z"
+    }
+  ],
+  "labels": [],
+  "linked": [],
+  "merge_commit_sha": "c4b1314f79db0411de193713387dd6807824ac19",
+  "merged_at": "2026-11-13T17:22:40Z",
+  "number": 31073,
+  "review_comments": [],
+  "reviews": [],
+  "title": "\ud83e\udd16 Annotate Set.intersect, Set.__contains__, and Union.__new__"
+}

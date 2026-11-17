@@ -1,0 +1,79 @@
+diff --git a/.mailmap b/.mailmap
+index e637044e2ebd..9ed27f0e28ec 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -620,8 +620,6 @@ Dmitry Batkovich <batya239@gmail.com>
+ Dmitry Savransky <dsavransky@gmail.com>
+ Dominik Stańczak <stanczakdominik@gmail.com>
+ Donald Wilson <donwilson1029@gmail.com> wilds-23 <wilds-23@rhodes.edu>
+-Doremon <113814705+raman118@users.noreply.github.com>
+-Doremon <rcho38706@gmail.com>
+ Duane Nykamp <nykamp@umn.edu>
+ Duc-Minh Phan <alephvn@gmail.com>
+ Dustin Gadal <Dustin.Gadal@gmail.com> <dustin.gadal@gmail.com>
+@@ -1964,6 +1962,8 @@ prsdx <prsdx.dev@gmail.com>
+ prshnt19 <prashant.rawat216@gmail.com>
+ rahil-amin <rahilamin201@gmail.com>
+ rahuldan <rahul02013@gmail.com>
++raman118 <rcho38706@gmail.com> Doremon <113814705+raman118@users.noreply.github.com>
++raman118 <rcho38706@gmail.com> Doremon <rcho38706@gmail.com>
+ ramvenkat98 <ramvenkat98@gmail.com>
+ rathmann <rathmann.os@gmail.com> <peter@ubuntu.ubuntu-domain>
+ rationa-kunal <kunalgk1999@gmail.com> kunal <kunalgk1999@gmail.com>
+diff --git a/sympy/printing/pycode.py b/sympy/printing/pycode.py
+index 52f95cd61ae0..b5268f47feba 100644
+--- a/sympy/printing/pycode.py
++++ b/sympy/printing/pycode.py
+@@ -885,7 +885,7 @@ def _print_lowergamma(self, e):
+             self._print(e.args[1]))
+ 
+     def _print_log2(self, e):
+-        return '{0}({1})/{0}(2)'.format(
++        return '({0}({1})/{0}(2))'.format(
+             self._module_format('mpmath.log'), self._print(e.args[0]))
+ 
+     def _print_log1p(self, e):
+diff --git a/sympy/printing/tests/test_pycode.py b/sympy/printing/tests/test_pycode.py
+index 7170a0e0888a..2d8db24afbb0 100644
+--- a/sympy/printing/tests/test_pycode.py
++++ b/sympy/printing/tests/test_pycode.py
+@@ -2,7 +2,7 @@
+ from sympy import Not
+ from sympy.codegen import Assignment
+ from sympy.codegen.ast import none
+-from sympy.codegen.cfunctions import expm1, log1p
++from sympy.codegen.cfunctions import expm1, log1p, log2
+ from sympy.codegen.scipy_nodes import cosm1
+ from sympy.codegen.matrix_nodes import MatrixSolve
+ from sympy.core import Expr, Mod, symbols, Eq, Le, Gt, zoo, oo, Rational, Pow
+@@ -147,6 +147,8 @@ def test_MpmathPrinter():
+     assert p.doprint(S.Infinity) == 'mpmath.inf'
+     assert p.doprint(S.NegativeInfinity) == 'mpmath.ninf'
+     assert p.doprint(loggamma(x)) == 'mpmath.loggamma(x)'
++    assert p.doprint(log2(x)**2) == '(mpmath.log(x)/mpmath.log(2))**2'
++    assert p.doprint(1/log2(x)) == '1/(mpmath.log(x)/mpmath.log(2))'
+ 
+ 
+ def test_NumPyPrinter():
+diff --git a/sympy/utilities/tests/test_lambdify.py b/sympy/utilities/tests/test_lambdify.py
+index 3987e223e52d..eed1b96c748a 100644
+--- a/sympy/utilities/tests/test_lambdify.py
++++ b/sympy/utilities/tests/test_lambdify.py
+@@ -230,6 +230,17 @@ def test_number_precision():
+     prec = 1e-49  # mpmath precision is around 50 decimal places
+     assert -prec < f(0) - sin02 < prec
+ 
++def test_mpmath_log2_precedence():
++    expressions = (log2(x), log2(x)**2, 1/log2(x), x/log2(x))
++    functions = [lambdify(x, expr, 'mpmath') for expr in expressions]
++    with mpmath.workdps(50):
++        for value in (mpmath.mpf(8), mpmath.mpf('0.25'), mpmath.mpc(2, 3)):
++            logarithm = mpmath.log(value, 2)
++            expected = (logarithm, logarithm**2, 1/logarithm, value/logarithm)
++            for function, result in zip(functions, expected):
++                assert mpmath.almosteq(function(value), result)
++
++
+ @conserve_mpmath_dps
+ def test_mpmath_precision():
+     mpmath.mp.dps = 100

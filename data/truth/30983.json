@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "Prepared and verified with an AI coding assistant (Antigravity). Tested against SymPy's explicit matrix evaluation and local test suite.",
+  "author": "ish1416",
+  "entries": [
+    {
+      "submodule": "matrices",
+      "text": "Restricted `MatPow._eval_adjoint` and `MatPow._eval_conjugate` to non-negative integer exponents, avoiding invalid evaluation for non-integers on branch cuts and undefined powers of singular matrices."
+    }
+  ],
+  "merged_at": "2026-11-08T04:57:40Z",
+  "number": 30983,
+  "overlap": {
+    "title_similarity": 0.49264705882352944,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* matrices\n  * Restricted `MatPow._eval_adjoint` and `MatPow._eval_conjugate` to non-negative integer exponents, avoiding invalid evaluation for non-integers on branch cuts and undefined powers of singular matrices.",
+  "status": "entry",
+  "title": "fix(matrices): restrict MatPow adjoint and conjugate to nonnegative integer powers"
+}

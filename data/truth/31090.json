@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "Constantly used Gemini 4 (Hydrogen) to assist with the style of writing the code",
+  "author": "zorgonk",
+  "entries": [
+    {
+      "submodule": "solvers",
+      "text": "`nsolve` now raises a `TypeError` when an unevaluated SymPy `Expr` (such as `pi` or `E`) is passed as an initial guess instead of a `Number` or Python number"
+    }
+  ],
+  "merged_at": "2026-11-15T19:03:48Z",
+  "number": 31090,
+  "overlap": {
+    "title_similarity": 0.46534653465346537,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* solvers\n  * `nsolve` now raises a `TypeError` when an unevaluated SymPy `Expr` (such as `pi` or `E`) is passed as an initial guess instead of a `Number` or Python number",
+  "status": "entry",
+  "title": "raise TypeError for non-Number Expr initial guess in nsolve"
+}

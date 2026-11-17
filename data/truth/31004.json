@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "I used an AI assistant (Antigravity) to help explore the math and draft the code. I have personally worked through and verified the derivation and the problem myself, checked it against explicit matrix derivatives, and understand all the changes here. I'm happy to explain any part or make adjustments during review.",
+  "author": "ish1416",
+  "entries": [
+    {
+      "submodule": "matrices",
+      "text": "Added scalar derivative for `Inverse` and safe dispatch in `Trace._eval_derivative`."
+    }
+  ],
+  "merged_at": "2026-11-12T09:42:05Z",
+  "number": 31004,
+  "overlap": {
+    "title_similarity": 0.7515923566878981,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* matrices\n  * Added scalar derivative for `Inverse` and safe dispatch in `Trace._eval_derivative`.",
+  "status": "entry",
+  "title": "fix(matrices): implement scalar derivative for Inverse and safe dispatch in Trace"
+}

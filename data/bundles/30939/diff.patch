@@ -1,0 +1,14 @@
+diff --git a/MANIFEST.in b/MANIFEST.in
+index 0f86a60960a0..5f918858cc35 100644
+--- a/MANIFEST.in
++++ b/MANIFEST.in
+@@ -10,7 +10,9 @@ exclude .flake8
+ exclude .gitattributes
+ exclude .gitignore
+ exclude .mailmap
++exclude AGENTS.md
+ exclude CITATION.cff
++exclude CLAUDE.md
+ exclude CODE_OF_CONDUCT.md
+ exclude CONTRIBUTING.md
+ exclude MANIFEST.in

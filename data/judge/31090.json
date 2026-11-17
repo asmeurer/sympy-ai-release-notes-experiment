@@ -1,0 +1,137 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 11707,
+  "human_is": "A",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 8270,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 8270,
+      "cacheReadInputTokens": 15238,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0922436,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1151,
+      "provider": "firstParty",
+      "thinkingTokens": 315,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31090,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"minor_inaccuracy\",\"overall\":3,\"problems\":[\"Implies only a `Number` or Python number is accepted, but the merged check uses `pure_complex`, so expressions like `1 - I/2` are still allowed.\",\"Doesn't say that a TypeError (`cannot create mpf from pi`) was already raised before this change, so the only real change is a clearer message.\",\"Missing the final period, and 'now raises' is present tense rather than past tense.\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"A bit long for a single entry.\",\"'now raises' is present tense rather than past tense.\"]},\"same_substance\":false,\"preferred\":\"B\",\"strength\":\"clear\",\"rationale\":\"The merged diff makes `nsolve` raise a TypeError with the message \\\"You must evaluate numeric initial guesses; e.g. use pi.n() instead of pi\\\" for any SymPy initial guess that `pure_complex` can't reduce to a plain number. Before this change it already failed with a TypeError, \\\"cannot create mpf from pi\\\". Candidate B describes this correctly: the change is a clearer message, and it tells users to use `pi.n()`. Candidate A repeats the PR description's \\\"instead of a Number\\\" framing, which is out of date because the merged code still accepts complex number expressions like `1 - I/2`. A also suggests the TypeError is new, and it lacks a final period.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "minor_inaccuracy",
+      "overall": 3,
+      "problems": [
+        "Implies only a `Number` or Python number is accepted, but the merged check uses `pure_complex`, so expressions like `1 - I/2` are still allowed.",
+        "Doesn't say that a TypeError (`cannot create mpf from pi`) was already raised before this change, so the only real change is a clearer message.",
+        "Missing the final period, and 'now raises' is present tense rather than past tense."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "A bit long for a single entry.",
+        "'now raises' is present tense rather than past tense."
+      ]
+    },
+    "preferred": "B",
+    "rationale": "The merged diff makes `nsolve` raise a TypeError with the message \"You must evaluate numeric initial guesses; e.g. use pi.n() instead of pi\" for any SymPy initial guess that `pure_complex` can't reduce to a plain number. Before this change it already failed with a TypeError, \"cannot create mpf from pi\". Candidate B describes this correctly: the change is a clearer message, and it tells users to use `pi.n()`. Candidate A repeats the PR description's \"instead of a Number\" framing, which is out of date because the merged code still accepts complex number expressions like `1 - I/2`. A also suggests the TypeError is new, and it lacks a final period.",
+    "same_substance": false,
+    "should_have_entry": "yes",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31090/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31090/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "minor_inaccuracy",
+          "overall": 3,
+          "problems": [
+            "Implies only a `Number` or Python number is accepted, but the merged check uses `pure_complex`, so expressions like `1 - I/2` are still allowed.",
+            "Doesn't say that a TypeError (`cannot create mpf from pi`) was already raised before this change, so the only real change is a clearer message.",
+            "Missing the final period, and 'now raises' is present tense rather than past tense."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "A bit long for a single entry.",
+            "'now raises' is present tense rather than past tense."
+          ]
+        },
+        "preferred": "B",
+        "rationale": "The merged diff makes `nsolve` raise a TypeError with the message \"You must evaluate numeric initial guesses; e.g. use pi.n() instead of pi\" for any SymPy initial guess that `pure_complex` can't reduce to a plain number. Before this change it already failed with a TypeError, \"cannot create mpf from pi\". Candidate B describes this correctly: the change is a clearer message, and it tells users to use `pi.n()`. Candidate A repeats the PR description's \"instead of a Number\" framing, which is out of date because the merged code still accepts complex number expressions like `1 - I/2`. A also suggests the TypeError is new, and it lacks a final period.",
+        "same_substance": false,
+        "should_have_entry": "yes",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0922436,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 8270,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 8270,
+    "cache_read_input_tokens": 15238,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 2766,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 2766,
+        "cache_read_input_tokens": 10371,
+        "input_tokens": 2,
+        "output_tokens": 951,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1151,
+    "output_tokens_details": {
+      "thinking_tokens": 315
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

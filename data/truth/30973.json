@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "NO AI USE",
+  "author": "Roshanraj2580",
+  "entries": [
+    {
+      "submodule": "tensor",
+      "text": "Support `array_derive` for `OneArray`."
+    }
+  ],
+  "merged_at": "2026-11-09T23:20:45Z",
+  "number": 30973,
+  "overlap": {
+    "title_similarity": 0.9041095890410958,
+    "truth_quoted_in_commits": true,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": true
+  },
+  "raw": "* tensor\n  * Support `array_derive` for `OneArray`.",
+  "status": "entry",
+  "title": "tensor: support array_derive for OneArray"
+}

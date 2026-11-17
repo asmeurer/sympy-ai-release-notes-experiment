@@ -1,0 +1,109 @@
+{
+  "additions": 5,
+  "author": "wermos",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\nLocal source: doc/src/contributing/pull-request-guidelines.rst\nKeep all section headings below. -->\n\n#### References to other Issues or PRs\nFixes #25419.\n\n#### Brief description of what is fixed or changed\n\nThis PR adds support for `\\leqq` as less-than-or-equal-to, and `\\geqq` as greater-than-or-equal-to. It also adds a test for `\\geqslant`, which was previously not tested in the test suite.\n\n\n#### AI Generation Disclosure\n\nNone.\n\n#### Release Notes\n\n\n<!-- BEGIN RELEASE NOTES -->\n* parsing\n    - The Lark-based LaTeX parser now parses expressions with `\\leqq` and `\\geqq`.\n<!-- END RELEASE NOTES -->\n",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "wermos",
+      "message": "Add \\leqq and \\geqq to the Lark LaTeX parser.",
+      "sha": "8d074a4d1a26a55415a9bdba59282b31603a5cd8"
+    },
+    {
+      "author": "wermos",
+      "message": "Add tests for \\leqq and \\geqq in the Lark LaTeX parser.",
+      "sha": "859c57ecee797c0d20949989b8098fa7fed816fa"
+    },
+    {
+      "author": "wermos",
+      "message": "Add a test for \\geqslant in the Lark LaTeX parser.",
+      "sha": "a2af2b2c1649fe05bd4d2aa17012f8f24f52ed18"
+    }
+  ],
+  "created_at": "2026-11-14T15:21:36Z",
+  "deletions": 2,
+  "diff": "diff --git a/sympy/parsing/latex/lark/grammar/latex.lark b/sympy/parsing/latex/lark/grammar/latex.lark\nindex 7024420a4341..b64ab7cd5793 100644\n--- a/sympy/parsing/latex/lark/grammar/latex.lark\n+++ b/sympy/parsing/latex/lark/grammar/latex.lark\n@@ -117,9 +117,9 @@ NOT_EQUAL: /\\\\neq(?![a-zA-Z])/ | /\\\\ne(?![a-zA-Z])/\n LT: \"<\"\n // \"\\le\" requires a negative lookahead to avoid matching as a prefix of \"\\left\". Without the negative lookahead,\n // LTE was matching the \"\\le\" part of \"\\left\", leaving behind \"ft\" as garbage tokens.\n-LTE: \"\\\\leq\" | /\\\\le(?![a-zA-Z])/ | \"\\\\leqslant\"   \n+LTE: \"\\\\leq\" | /\\\\le(?![a-zA-Z])/ | \"\\\\leqslant\" | \"\\\\leqq\"\n GT: \">\"\n-GTE: \"\\\\geq\" | \"\\\\ge\" | \"\\\\geqslant\"\n+GTE: \"\\\\geq\" | \"\\\\ge\" | \"\\\\geqslant\" | \"\\\\geqq\"\n \n DIV_SYMBOL: CMD_DIV | DIV\n MUL_SYMBOL: MUL | CMD_TIMES | CMD_CDOT\ndiff --git a/sympy/parsing/tests/test_latex_lark.py b/sympy/parsing/tests/test_latex_lark.py\nindex bd449076a868..ed0a1036d540 100644\n--- a/sympy/parsing/tests/test_latex_lark.py\n+++ b/sympy/parsing/tests/test_latex_lark.py\n@@ -279,6 +279,9 @@ def _MatMul(a, b):\n     (r\"x \\le y\", Le(x, y)),\n     (r\"x \\ge y\", Ge(x, y)),\n     (r\"x \\leqslant y\", Le(x, y)),\n+    (r\"x \\geqslant y\", Ge(x, y)),\n+    (r\"x \\leqq y\", Le(x, y)),\n+    (r\"x \\geqq y\", Ge(x, y)),\n     (r\"x < y\", StrictLessThan(x, y)),\n     (r\"x \\leq y\", LessThan(x, y)),\n     (r\"x > y\", StrictGreaterThan(x, y)),\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* parsing\n  - The Lark-based LaTeX parser now parses expressions with `\\leqq` and `\\geqq`. ([#31100](https://github.com/sympy/sympy/pull/31100) by [@wermos](https://github.com/wermos))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\n    Local source: doc/src/contributing/pull-request-guidelines.rst\n    Keep all section headings below. -->\n\n    #### References to other Issues or PRs\n    Fixes #25419.\n\n    #### Brief description of what is fixed or changed\n\n    This PR adds support for `\\leqq` as less-than-or-equal-to, and `\\geqq` as greater-than-or-equal-to. It also adds a test for `\\geqslant`, which was previously not tested in the test suite.\n\n\n    #### AI Generation Disclosure\n\n    None.\n\n    #### Release Notes\n\n\n    <!-- BEGIN RELEASE NOTES -->\n    * parsing\n        - The Lark-based LaTeX parser now parses expressions with `\\leqq` and `\\geqq`.\n    <!-- END RELEASE NOTES -->\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-14T15:21:40Z"
+    },
+    {
+      "author": "wermos",
+      "body": "Ping @sylee957 for review",
+      "created_at": "2026-11-14T15:21:54Z"
+    },
+    {
+      "author": "wermos",
+      "body": "Since the tests are passing and @sylee957 said \"I'm willing to merge any time after\", I will go ahead and get this in.",
+      "created_at": "2026-11-14T16:30:20Z"
+    },
+    {
+      "author": "sylee957",
+      "body": "I think that lark community should have added feature to detect regex conflict, using interregular. This should detect previous conflict like \\left and \\le.\nProbably we should have more since we have added more grammar tokens.",
+      "created_at": "2026-11-14T16:37:18Z"
+    },
+    {
+      "author": "wermos",
+      "body": "Maybe we can put in a feature request at [Lark](https://github.com/lark-parser/lark)?",
+      "created_at": "2026-11-14T16:52:32Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "wermos",
+      "body": "## Background\r\n\r\nThe current ANTLR LaTeX parser supports using `\\leqq` and `\\leqslant` as the less-than-or-equal-to operator, and also supports `\\geqq` and `\\geqslant` for greater-than-or-equal-to operator.\r\n\r\nWhile I have seen `\\leqslant` and `\\geqslant` used as the less-than-or-equal-to and the greater-than-or-equal-to operator respectively, I've never seen `\\leqq` and `\\geqq` used in this way.\r\n\r\n## Lark Parser\r\n\r\nSince I'm rewriting the LaTeX parser in Lark, I wanted to get the community's thoughts on supporting `\\leqslant`, `\\leqq`, `\\geqslant`, and `\\geqq` symbols for denoting these operators. For now, the Lark parser doesn't support any of these extra symbols for less-than-or-equal-to or greater-than-or-equal-to. However, if this is something that people want, it can easily be added.",
+      "is_pull_request": false,
+      "number": 25419,
+      "state": "closed",
+      "title": "[GSoC] `\\leqq` and `\\leqslant` for less-than-or-equal-to, `\\geqq` and `\\geqslant` for greater-than-or-equal-to"
+    }
+  ],
+  "merge_commit_sha": "f8343efa5d7d8e468c74904d5577d1f8e112c47b",
+  "merged_at": "2026-11-14T16:31:19Z",
+  "number": 31100,
+  "review_comments": [
+    {
+      "author": "sylee957",
+      "body": "What is this cryptic regex `\\\\le(?![a-zA-Z])/`?",
+      "created_at": "2026-11-14T15:38:08Z",
+      "path": "sympy/parsing/latex/lark/grammar/latex.lark"
+    },
+    {
+      "author": "wermos",
+      "body": "That was added in #29489.",
+      "created_at": "2026-11-14T15:40:14Z",
+      "path": "sympy/parsing/latex/lark/grammar/latex.lark"
+    },
+    {
+      "author": "sylee957",
+      "body": "I see, that looks irrelevant to this PR anyway I'm willing to merge any time after",
+      "created_at": "2026-11-14T15:47:00Z",
+      "path": "sympy/parsing/latex/lark/grammar/latex.lark"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "sylee957",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-14T15:38:08Z"
+    },
+    {
+      "author": "wermos",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-14T15:40:14Z"
+    },
+    {
+      "author": "sylee957",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-14T15:47:00Z"
+    }
+  ],
+  "title": "Add support for `\\leqq` and  `\\geqq` in the Lark LaTeX parser"
+}

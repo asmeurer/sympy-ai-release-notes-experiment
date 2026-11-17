@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "This is a collaboration with ChatGPT.",
+  "author": "smichr",
+  "entries": [
+    {
+      "submodule": "solvers",
+      "text": "Improved `solveset` for modular powers using cycle detection; handle non-coprime bases and possible exponent expansion."
+    }
+  ],
+  "merged_at": "2026-11-13T19:14:05Z",
+  "number": 31043,
+  "overlap": {
+    "title_similarity": 0.15172413793103448,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* solvers\n  * Improved `solveset` for modular powers using cycle detection; handle non-coprime bases and possible exponent expansion.",
+  "status": "entry",
+  "title": "update Mod solving in solveset"
+}

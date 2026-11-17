@@ -1,0 +1,146 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 15511,
+  "human_is": "B",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 8588,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 8588,
+      "cacheReadInputTokens": 40786,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.1030532,
+      "inputTokens": 8,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1308,
+      "provider": "firstParty",
+      "thinkingTokens": 303,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 6,
+  "number": 31072,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"accurate\",\"overall\":5,\"problems\":[]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"Starts with `CmathPrinter`, a class most users never touch, before it gets to the user-facing `lambdify` case.\",\"Has no concrete example of an expression that used to fail.\"]},\"same_substance\":true,\"preferred\":\"A\",\"strength\":\"slight\",\"rationale\":\"The diff deletes a broken `CmathPrinter._print_Float` override. That override called itself recursively, so `lambdify(..., 'cmath')` on any expression with a float constant raised `RecursionError`. This is a user-visible bug fix and deserves an entry. Both candidates describe it correctly under `printing`. A puts the fix in terms users meet, `lambdify` with `'cmath'`, and adds a short example. B leads with the internal-facing `CmathPrinter` class, so A is slightly better.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "accurate",
+      "overall": 5,
+      "problems": []
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "Starts with `CmathPrinter`, a class most users never touch, before it gets to the user-facing `lambdify` case.",
+        "Has no concrete example of an expression that used to fail."
+      ]
+    },
+    "preferred": "A",
+    "rationale": "The diff deletes a broken `CmathPrinter._print_Float` override. That override called itself recursively, so `lambdify(..., 'cmath')` on any expression with a float constant raised `RecursionError`. This is a user-visible bug fix and deserves an entry. Both candidates describe it correctly under `printing`. A puts the fix in terms users meet, `lambdify` with `'cmath'`, and adds a short example. B leads with the internal-facing `CmathPrinter` class, so A is slightly better.",
+    "same_substance": true,
+    "should_have_entry": "yes",
+    "strength": "slight"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31072/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31072/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "output_mode": "content",
+        "path": "<repo>/work/sympy/doc/src",
+        "pattern": "CmathPrinter|cmath"
+      },
+      "name": "Grep"
+    },
+    {
+      "input": {
+        "head_limit": 20,
+        "output_mode": "content",
+        "path": "<repo>/work/sympy/sympy/utilities/lambdify.py",
+        "pattern": "cmath"
+      },
+      "name": "Grep"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "accurate",
+          "overall": 5,
+          "problems": []
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "Starts with `CmathPrinter`, a class most users never touch, before it gets to the user-facing `lambdify` case.",
+            "Has no concrete example of an expression that used to fail."
+          ]
+        },
+        "preferred": "A",
+        "rationale": "The diff deletes a broken `CmathPrinter._print_Float` override. That override called itself recursively, so `lambdify(..., 'cmath')` on any expression with a float constant raised `RecursionError`. This is a user-visible bug fix and deserves an entry. Both candidates describe it correctly under `printing`. A puts the fix in terms users meet, `lambdify` with `'cmath'`, and adds a short example. B leads with the internal-facing `CmathPrinter` class, so A is slightly better.",
+        "same_substance": true,
+        "should_have_entry": "yes",
+        "strength": "slight"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.1030532,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 8588,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 8588,
+    "cache_read_input_tokens": 40786,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 8,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 538,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 538,
+        "cache_read_input_tokens": 12917,
+        "input_tokens": 2,
+        "output_tokens": 588,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1308,
+    "output_tokens_details": {
+      "thinking_tokens": 303
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "additions": 2,
+  "author": "oscarbenjamin",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\r\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\nLocal source: doc/src/contributing/pull-request-guidelines.rst\r\nKeep all section headings below. -->\r\n\r\n#### References to other Issues or PRs\r\n\r\nThis is causing CI errors on all PRs:\r\nhttps://github.com/sympy/sympy/actions/runs/43056018373/job/130645561865\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\nRemove the checkconflict.yml workflow file. This workflow runs a script that checks all PRs to see if they are mergeable and adds a label indicating whether the PR has merge conflicts. It stopped working for some reason and I've decided that the fix is just to delete it.\r\n\r\nI don't think that we need to explicitly labels PRs with merge conflicts with a label that says that they have merge conflicts (I don't think I've ever made use of as a feature).\r\n\r\nAlso I don't like that this workflow uses the risky `pull_request_target` event that has been exploited by hackers in other repos so removing it makes me a little happier about the security of CI.\r\n\r\nAnother change here is to fix a test that was recently added that fails on PyPy.\r\n\r\n#### Other comments\r\n\r\n#### AI Generation Disclosure\r\n\r\nNO AI USE\r\n\r\n#### Release Notes\r\n\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\nNO ENTRY\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 3,
+  "commits": [
+    {
+      "author": "Oscar Benjamin",
+      "message": "fix(ci): remove CI job that checks PRs for merge conflicts",
+      "sha": "0a2b85ec9baf2a33ea52cb38dccbbaeb4f81a022"
+    },
+    {
+      "author": "Oscar Benjamin",
+      "message": "test(core): fix test that failed under pypy",
+      "sha": "c7f2d0f52d323277fa02dba565a73a6bdc809ae4"
+    },
+    {
+      "author": "Oscar Benjamin",
+      "message": "Remove checkconflict.yml from whitelist",
+      "sha": "d961d5ccb912d671217a503e69dd11dd9b03cc3e"
+    }
+  ],
+  "created_at": "2026-11-11T16:34:02Z",
+  "deletions": 36,
+  "diff": "diff --git a/.github/workflows/checkconflict.yml b/.github/workflows/checkconflict.yml\ndeleted file mode 100644\nindex 39ac103ebfbf..000000000000\n--- a/.github/workflows/checkconflict.yml\n+++ /dev/null\n@@ -1,32 +0,0 @@\n-name: \"Maintenance\"\n-on:\n-  # So that PRs touching the same files as the push are updated\n-  push:\n-  # So that the `dirtyLabel` is removed if conflicts are resolve\n-\n-  # XXX: This workflow needs to update labels on fork PRs, so it uses the\n-  # privileged pull_request_target event. Do not add checkout or shell steps\n-  # that consume PR-controlled data here.\n-\n-  pull_request_target: # zizmor: ignore[dangerous-triggers]\n-    types: [synchronize]\n-\n-concurrency:\n-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}\n-  cancel-in-progress: true\n-\n-permissions: {}\n-\n-jobs:\n-  main:\n-    name: Check Merge Conflicts\n-    permissions:\n-      pull-requests: read # to check if PR is mergeable.\n-      issues: write # to add and remove the merge-conflict label\n-    runs-on: ubuntu-latest\n-    steps:\n-      - name: Check if PRs have merge conflicts\n-        uses: eps1lon/actions-label-merge-conflict@0273be72a0bbd58fcd71d0d6c02c209b50d1e5e1 # v3.1.0\n-        with:\n-          dirtyLabel: \"Merge conflict\"\n-          repoToken: \"${{ github.token }}\"\ndiff --git a/release/compare_tar_against_git.py b/release/compare_tar_against_git.py\nindex 4ce381fd2915..83826994335e 100755\n--- a/release/compare_tar_against_git.py\n+++ b/release/compare_tar_against_git.py\n@@ -36,7 +36,6 @@ def main(tarname, gitroot):\n     '.github/workflows/runtests.yml',\n     '.github/workflows/emscripten.yml',\n     '.github/workflows/release.yml',\n-    '.github/workflows/checkconflict.yml',\n     '.github/workflows/nightly-wheels.yml',\n     '.github/workflows/zizmor.yml',\n     '.ci/durations.json',\ndiff --git a/sympy/core/tests/test_subs.py b/sympy/core/tests/test_subs.py\nindex 4d7d12c68cfd..d3f7f7215123 100644\n--- a/sympy/core/tests/test_subs.py\n+++ b/sympy/core/tests/test_subs.py\n@@ -661,14 +661,13 @@ def test_aresame_identical_and_class():\n     b1 = Basic(f1)\n     b2 = Basic(f1)\n \n-    assert f1 is not f2\n     assert b1 is not b2\n \n     assert _aresame(f1, f1)\n-    assert not _aresame(f1, f2)\n+    assert _aresame(f1, f2) == (f1 is f2)\n     assert _aresame(b1, b1)\n     assert _aresame(b1, b2)\n-    assert not _aresame(b1, Basic(f2))\n+    assert _aresame(b1, Basic(f2)) == (f1 is f2)\n \n     assert not _aresame(f1, S.NaN)\n     assert not _aresame(b1, Basic(S.NaN))\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\n* No release notes entry will be added for this pull request.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\n    Local source: doc/src/contributing/pull-request-guidelines.rst\n    Keep all section headings below. -->\n\n    #### References to other Issues or PRs\n\n    This is causing CI errors on all PRs:\n    https://github.com/sympy/sympy/actions/runs/43056018373/job/130645561865\n\n    #### Brief description of what is fixed or changed\n\n    Remove the checkconflict.yml workflow file. This workflow runs a script that checks all PRs to see if they are mergeable and adds a label indicating whether the PR has merge conflicts. It stopped working for some reason and I've decided that the fix is just to delete it.\n\n    I don't think that we need to explicitly labels PRs with merge conflicts with a label that says that they have merge conflicts (I don't think I've ever made use of as a feature).\n\n    Also I don't like that this workflow uses the risky `pull_request_target` event that has been explited by hackers in other repos so removing it makes me a little happier about the security of CI.\n\n    Another change here is to fix a test that was recently added that fails on PyPy.\n\n    #### Other comments\n\n    #### AI Generation Disclosure\n\n    NO AI USE\n\n    #### Release Notes\n\n\n    <!-- BEGIN RELEASE NOTES -->\n    NO ENTRY\n    <!-- END RELEASE NOTES -->\n\n\n</details><p>\n",
+      "created_at": "2026-11-11T16:34:06Z"
+    },
+    {
+      "author": "sympy-bot",
+      "body": "### \ud83d\udfe0\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I've noticed that some of your commits add or delete files. Since this is sometimes done unintentionally, I wanted to alert you about it.\n\nThis is an experimental feature of SymPy Bot. If you have any feedback on it, please comment at https://github.com/sympy/sympy-bot/issues/75.\n\nThe following commits **delete files**:\n* 0a2b85ec9baf2a33ea52cb38dccbbaeb4f81a022:\n  - `.github/workflows/checkconflict.yml`\n\nIf these files were added/deleted on purpose, you can ignore this message.\n",
+      "created_at": "2026-11-11T16:34:09Z"
+    },
+    {
+      "author": "smichr",
+      "body": "Did you try change the `read` to `write`?\r\n```\r\npermissions:\r\n  pull-requests: write\r\n  issues: write\r\n```\r\nChatGPT notes, \"I inspected the pinned action's TypeScript source. It queries GitHub's API and updates labels. It does not check out or execute contributor code.\"",
+      "created_at": "2026-11-11T17:20:36Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "> Did you try change the `read` to `write`?\r\n\r\nNo, but those things have not changed since 2 days ago when this started breaking. This workflow has never been particularly useful and I don't want to maintain it and I don't like the security risk.\r\n\r\nI don't care what ChatGPT says about the pinned action: it is simpler and safer not to have any pull_request_target anywhere in CI.",
+      "created_at": "2026-11-11T19:10:43Z"
+    }
+  ],
+  "labels": [
+    "CI"
+  ],
+  "linked": [],
+  "merge_commit_sha": "631c7cce3a93dbd245ab76e8ac5888d8da8dc3d5",
+  "merged_at": "2026-11-11T19:26:34Z",
+  "number": 31041,
+  "review_comments": [],
+  "reviews": [],
+  "title": "fix(ci): remove CI job that checks PRs for merge conflicts"
+}

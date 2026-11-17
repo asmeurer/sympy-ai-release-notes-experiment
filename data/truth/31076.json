@@ -1,0 +1,16 @@
+{
+  "ai_disclosure": "This PR was created in collaboration with Claude Opus 5.5. I manually looked over all the code before opening the PR.",
+  "author": "wermos",
+  "entries": [],
+  "merged_at": "2026-11-13T18:51:23Z",
+  "number": 31076,
+  "overlap": {
+    "title_similarity": null,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "NO ENTRY",
+  "status": "no_entry",
+  "title": "Update tests in Lark LaTeX parser, add tests"
+}

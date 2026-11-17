@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "ChatGPT collaboration.",
+  "author": "smichr",
+  "entries": [
+    {
+      "submodule": "core",
+      "text": "evaluation of Mod upon instantiation has been improved wrt Float and Rational coefficients"
+    }
+  ],
+  "merged_at": "2026-11-15T20:13:24Z",
+  "number": 31042,
+  "overlap": {
+    "title_similarity": 0.3779527559055118,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* core\n  * evaluation of Mod upon instantiation has been improved wrt Float and Rational coefficients",
+  "status": "entry",
+  "title": "retune how Mod handles Floats in args"
+}

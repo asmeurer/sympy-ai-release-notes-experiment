@@ -1,0 +1,104 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4516,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 2496,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 2496,
+      "cacheReadInputTokens": 24201,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0178321,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 542,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 31135,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":true,\"entries\":[],\"reasoning\":\"The fix corrects a regression (`atoms()` on `And`/`Or` with `evaluate=False`) introduced after 1.14.0. The issue reports it working in 1.14.0 and broken in 1.15.0rc2, so no released version had the bug and no entry is needed.\"}",
+  "structured_output": {
+    "entries": [],
+    "no_entry": true,
+    "reasoning": "The fix corrects a regression (`atoms()` on `And`/`Or` with `evaluate=False`) introduced after 1.14.0. The issue reports it working in 1.14.0 and broken in 1.15.0rc2, so no released version had the bug and no entry is needed."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31135/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31135/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31135/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [],
+        "no_entry": true,
+        "reasoning": "The fix corrects a regression (`atoms()` on `And`/`Or` with `evaluate=False`) introduced after 1.14.0. The issue reports it working in 1.14.0 and broken in 1.15.0rc2, so no released version had the bug and no entry is needed."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0178321,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 2496,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 2496,
+    "cache_read_input_tokens": 24201,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 2055,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 2055,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 253,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 542,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

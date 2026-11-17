@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "OpenAI Codex generated the changes in `sympy/sets/handlers/union.py` and `sympy/sets/tests/test_sets.py`.",
+  "author": "raman118",
+  "entries": [
+    {
+      "submodule": "sets",
+      "text": "Fixed interval unions raising a `TypeError` when one open endpoint is known to belong to the other set but membership of the opposite endpoint is undecidable."
+    }
+  ],
+  "merged_at": "2026-11-17T01:33:54Z",
+  "number": 31134,
+  "overlap": {
+    "title_similarity": 0.15178571428571427,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* sets\n  * Fixed interval unions raising a `TypeError` when one open endpoint is known to belong to the other set but membership of the opposite endpoint is undecidable.",
+  "status": "entry",
+  "title": "Handle uncertain endpoint membership when simplifying interval unions"
+}

@@ -1,0 +1,147 @@
+diff --git a/sympy/combinatorics/perm_groups.py b/sympy/combinatorics/perm_groups.py
+index 5ba0124b8935..73e86b874679 100644
+--- a/sympy/combinatorics/perm_groups.py
++++ b/sympy/combinatorics/perm_groups.py
+@@ -4171,9 +4171,7 @@ def update_nu(l):
+             init_subgroup = PermutationGroup([identity])
+         if tests is None:
+             trivial_test = lambda x: True
+-            tests = []
+-            for i in range(base_len):
+-                tests.append(trivial_test)
++            tests = [trivial_test] * base_len
+         # line 1: more initializations.
+         res = init_subgroup
+         f = base_len - 1
+diff --git a/sympy/physics/quantum/operatorordering.py b/sympy/physics/quantum/operatorordering.py
+index abe056f86c6b..6f813f20ff67 100644
+--- a/sympy/physics/quantum/operatorordering.py
++++ b/sympy/physics/quantum/operatorordering.py
+@@ -29,8 +29,7 @@ def _expand_powers(factors):
+         if (isinstance(factor, Pow)
+                 and isinstance(factor.args[1], Integer)
+                 and factor.args[1] > 0):
+-            for n in range(factor.args[1]):
+-                new_factors.append(factor.args[0])
++            new_factors.extend([factor.args[0]] * factor.args[1])
+         else:
+             new_factors.append(factor)
+ 
+diff --git a/sympy/polys/subresultants_qq_zz.py b/sympy/polys/subresultants_qq_zz.py
+index e4c2b9089745..f1be6c83e074 100644
+--- a/sympy/polys/subresultants_qq_zz.py
++++ b/sympy/polys/subresultants_qq_zz.py
+@@ -327,15 +327,9 @@ def sylvester(f, g, x, method = 1):
+     # Sylvester's matrix of 1853 (a.k.a sylvester2)
+     else:
+         if len(fp) < len(gp):
+-            h = []
+-            for i in range(len(gp) - len(fp)):
+-                h.append(0)
+-            fp[ : 0] = h
++            fp[:0] = [0] * (len(gp) - len(fp))
+         else:
+-            h = []
+-            for i in range(len(fp) - len(gp)):
+-                h.append(0)
+-            gp[ : 0] = h
++            gp[:0] = [0] * (len(fp) - len(gp))
+         mx = max(m, n)
+         dim = 2*mx
+         M = zeros( dim )
+@@ -2349,14 +2343,10 @@ def subresultants_vv(p, q, x, method = 0):
+ 
+     # make two rows (row0, row1) of poly coefficients
+     row0 = Poly(f, x, domain = QQ).all_coeffs()
+-    leng0 = len(row0)
+-    for i in range(col_num - leng0):
+-        row0.append(0)
++    row0.extend([0] * (col_num - len(row0)))
+     row0 = Matrix([row0])
+     row1 = Poly(g,x, domain = QQ).all_coeffs()
+-    leng1 = len(row1)
+-    for i in range(col_num - leng1):
+-        row1.append(0)
++    row1.extend([0] * (col_num - len(row1)))
+     row1 = Matrix([row1])
+ 
+     # row pointer for deg_f - deg_g == 1; may be reset below
+@@ -2487,14 +2477,10 @@ def subresultants_vv_2(p, q, x):
+ 
+     # make two rows (row0, row1) of poly coefficients
+     row0 = Poly(f, x, domain = QQ).all_coeffs()
+-    leng0 = len(row0)
+-    for i in range(col_num - leng0):
+-        row0.append(0)
++    row0.extend([0] * (col_num - len(row0)))
+     row0 = Matrix([row0])
+     row1 = Poly(g,x, domain = QQ).all_coeffs()
+-    leng1 = len(row1)
+-    for i in range(col_num - leng1):
+-        row1.append(0)
++    row1.extend([0] * (col_num - len(row1)))
+     row1 = Matrix([row1])
+ 
+     # main loop
+@@ -2523,9 +2509,7 @@ def subresultants_vv_2(p, q, x):
+         deg_f, deg_g = deg_g, d
+         row0 = row1
+         row1 = Poly(poly, x, domain = QQ).all_coeffs()
+-        leng1 = len(row1)
+-        for i in range(col_num - leng1):
+-            row1.append(0)
++        row1.extend([0] * (col_num - len(row1)))
+         row1 = Matrix([row1])
+ 
+     return sr_list
+diff --git a/sympy/printing/pretty/pretty.py b/sympy/printing/pretty/pretty.py
+index 26f566ba4943..8a0f5e2ab890 100644
+--- a/sympy/printing/pretty/pretty.py
++++ b/sympy/printing/pretty/pretty.py
+@@ -1218,9 +1218,8 @@ def _print_BasisDependent(self, expr):
+         #Fixing the newlines
+         lengths = []
+         strs = ['']
+-        flag = []
++        flag = [0] * len(o1)
+         for i, partstr in enumerate(o1):
+-            flag.append(0)
+             # XXX: What is this hack?
+             if '\n' in partstr:
+                 tempstr = partstr
+diff --git a/sympy/printing/repr.py b/sympy/printing/repr.py
+index f8e7cca449eb..02946c754a20 100644
+--- a/sympy/printing/repr.py
++++ b/sympy/printing/repr.py
+@@ -177,11 +177,8 @@ def _print_MatrixBase(self, expr):
+                                        self._print(expr.rows),
+                                        self._print(expr.cols),
+                                        self._print([]))
+-        l = []
+-        for i in range(expr.rows):
+-            l.append([])
+-            for j in range(expr.cols):
+-                l[-1].append(expr[i, j])
++        l = [[expr[i, j] for j in range(expr.cols)]
++             for i in range(expr.rows)]
+         return '%s(%s)' % (expr.__class__.__name__, self._print(l))
+ 
+     def _print_CharacterTable(self, expr):
+diff --git a/sympy/printing/tableform.py b/sympy/printing/tableform.py
+index 2e91e428a523..6e3ecbdf363d 100644
+--- a/sympy/printing/tableform.py
++++ b/sympy/printing/tableform.py
+@@ -321,11 +321,8 @@ def _latex(self, printer):
+         """
+         # Check heading:
+         if self._headings[1]:
+-            new_line = []
+-            for i in range(self._w):
+-                # Format the item somehow if needed:
+-                new_line.append(str(self._headings[1][i]))
+-            self._headings[1] = new_line
++            self._headings[1] = [
++                str(self._headings[1][i]) for i in range(self._w)]
+ 
+         alignments = []
+         if self._headings[0]:

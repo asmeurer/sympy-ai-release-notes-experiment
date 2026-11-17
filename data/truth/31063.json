@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "OpenAI Codex (GPT-6 Astra) generated the changes in `.mailmap`, `sympy/printing/latex.py`, and `sympy/printing/tests/test_latex.py`",
+  "author": "raman118",
+  "entries": [
+    {
+      "submodule": "printing",
+      "text": "Fixed ambiguous LaTeX output for derivatives of products by parenthesizing the differentiated expression."
+    }
+  ],
+  "merged_at": "2026-11-13T12:21:14Z",
+  "number": 31063,
+  "overlap": {
+    "title_similarity": 0.26666666666666666,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* printing\n  * Fixed ambiguous LaTeX output for derivatives of products by parenthesizing the differentiated expression.",
+  "status": "entry",
+  "title": "Parenthesize products inside LaTeX derivatives"
+}

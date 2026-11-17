@@ -1,0 +1,27 @@
+diff --git a/sympy/simplify/cse_main.py b/sympy/simplify/cse_main.py
+index 0541cfc5a3ea..aab21a6e80a2 100644
+--- a/sympy/simplify/cse_main.py
++++ b/sympy/simplify/cse_main.py
+@@ -694,7 +694,7 @@ def _rebuild(expr):
+             args = expr.args
+ 
+         new_args = list(map(_rebuild, args))
+-        if isinstance(expr, Unevaluated) or new_args != args:
++        if isinstance(expr, Unevaluated) or new_args != list(args):
+             new_expr = expr.func(*new_args)
+         else:
+             new_expr = expr
+diff --git a/sympy/simplify/tests/test_cse.py b/sympy/simplify/tests/test_cse.py
+index c111e607b2ae..6a22626017d4 100644
+--- a/sympy/simplify/tests/test_cse.py
++++ b/sympy/simplify/tests/test_cse.py
+@@ -558,6 +558,9 @@ def test_cse_unevaluated():
+         msg = f'Expected common subexpression {xp1} or {-xp1}, instead got {ue}'
+         assert False, msg
+ 
++    p = Pow(x, 1, evaluate=False)
++    assert cse([p, p]) == ([(x0, p)], [x0, x0])
++
+ 
+ def test_cse__performance():
+     nexprs, nterms = 3, 20

@@ -1,0 +1,133 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 8137,
+  "human_is": "A",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 6833,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 6833,
+      "cacheReadInputTokens": 15170,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.07467399999999999,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 848,
+      "provider": "firstParty",
+      "thinkingTokens": 96,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31007,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"accurate\",\"overall\":2,\"problems\":[\"Does not name the affected function (`factor_terms`), so users can't tell what changed for them\",\"\\\"Hollow multiplication\\\" is internal jargon that end users won't know\",\"Not a complete sentence: starts lowercase and has no final period\",\"\\\"fixed a condition\\\" describes the implementation rather than what users see\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":5,\"problems\":[]},\"same_substance\":false,\"preferred\":\"B\",\"strength\":\"clear\",\"rationale\":\"The diff changes `_keep_coeff` so that rebuilding an Add no longer leaves an unevaluated `Mul(r, 1)`. The added test shows `factor_terms` now returning `x + 1/2` where it used to return `x + (1/2)*1`. This bug fix is visible to users, so it deserves an entry. Candidate B names the public function, describes the symptom with a concrete example, and follows the formatting rules. Candidate A is technically true, but it uses the jargon \\\"hollow multiplication\\\", doesn't name `factor_terms`, and isn't a properly capitalized and punctuated sentence.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "accurate",
+      "overall": 2,
+      "problems": [
+        "Does not name the affected function (`factor_terms`), so users can't tell what changed for them",
+        "\"Hollow multiplication\" is internal jargon that end users won't know",
+        "Not a complete sentence: starts lowercase and has no final period",
+        "\"fixed a condition\" describes the implementation rather than what users see"
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 5,
+      "problems": []
+    },
+    "preferred": "B",
+    "rationale": "The diff changes `_keep_coeff` so that rebuilding an Add no longer leaves an unevaluated `Mul(r, 1)`. The added test shows `factor_terms` now returning `x + 1/2` where it used to return `x + (1/2)*1`. This bug fix is visible to users, so it deserves an entry. Candidate B names the public function, describes the symptom with a concrete example, and follows the formatting rules. Candidate A is technically true, but it uses the jargon \"hollow multiplication\", doesn't name `factor_terms`, and isn't a properly capitalized and punctuated sentence.",
+    "same_substance": false,
+    "should_have_entry": "yes",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31007/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31007/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "accurate",
+          "overall": 2,
+          "problems": [
+            "Does not name the affected function (`factor_terms`), so users can't tell what changed for them",
+            "\"Hollow multiplication\" is internal jargon that end users won't know",
+            "Not a complete sentence: starts lowercase and has no final period",
+            "\"fixed a condition\" describes the implementation rather than what users see"
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 5,
+          "problems": []
+        },
+        "preferred": "B",
+        "rationale": "The diff changes `_keep_coeff` so that rebuilding an Add no longer leaves an unevaluated `Mul(r, 1)`. The added test shows `factor_terms` now returning `x + 1/2` where it used to return `x + (1/2)*1`. This bug fix is visible to users, so it deserves an entry. Candidate B names the public function, describes the symptom with a concrete example, and follows the formatting rules. Candidate A is technically true, but it uses the jargon \"hollow multiplication\", doesn't name `factor_terms`, and isn't a properly capitalized and punctuated sentence.",
+        "same_substance": false,
+        "should_have_entry": "yes",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.07467399999999999,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 6833,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 6833,
+    "cache_read_input_tokens": 15170,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 1397,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 1397,
+        "cache_read_input_tokens": 10303,
+        "input_tokens": 2,
+        "output_tokens": 648,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 848,
+    "output_tokens_details": {
+      "thinking_tokens": 96
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

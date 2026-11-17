@@ -1,0 +1,93 @@
+diff --git a/.mailmap b/.mailmap
+index 8cf66f814074..e54858cb4f62 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -1491,6 +1491,8 @@ Ruslan Pisarev <rpisarev@cloudlinux.com> <ruslan@rpisarev.org.ua>
+ Russell Fordyce <rfordyce@expressive-py.org> <6064285+rfordyce@users.noreply.github.com>
+ Russell Fordyce <rfordyce@expressive-py.org> <rfordyce@users.noreply.github.com>
+ Ryan Krauss <ryanlists@gmail.com>
++Ryn Wang <94994001+rynwang@users.noreply.github.com>
++Ryn Wang <Ryn.Wang@outlook.com>
+ Rémy Léone <rleone@online.net>
+ S. Hanko <suzy.hanko@gmail.com>
+ S.Y. Lee <sylee957@gmail.com> (Lazard) S.Y. Lee <sylee957@gmail.com>
+diff --git a/sympy/matrices/expressions/applyfunc.py b/sympy/matrices/expressions/applyfunc.py
+index 579a037b0d6c..938ae4bf41f9 100644
+--- a/sympy/matrices/expressions/applyfunc.py
++++ b/sympy/matrices/expressions/applyfunc.py
+@@ -118,7 +118,10 @@ def _get_function_fdiff(self):
+         d = Dummy("d")
+         function = self.function(d)
+         fdiff = function.diff(d)
+-        if isinstance(fdiff, Function):
++        if isinstance(fdiff, Function) and fdiff.args == (d,):
++            # Keep the bare function class only when the derivative is the
++            # function applied to the same variable; otherwise the argument
++            # (e.g. the shift in exp(d + 1)) would be lost.
+             fdiff = type(fdiff)
+         else:
+             fdiff = Lambda(d, fdiff)
+diff --git a/sympy/matrices/expressions/tests/test_applyfunc.py b/sympy/matrices/expressions/tests/test_applyfunc.py
+index 3645e26d3a5f..1f35ed371616 100644
+--- a/sympy/matrices/expressions/tests/test_applyfunc.py
++++ b/sympy/matrices/expressions/tests/test_applyfunc.py
+@@ -117,3 +117,14 @@ def test_applyfunc_shape_11_matrices():
+     expr = M.applyfunc(double)
+     assert isinstance(expr, MatMul)
+     assert expr == 2*M
++
++
++def test_derivative_keeps_function_argument():
++    # https://github.com/sympy/sympy/issues/30902 (item 2)
++    # The derivative of an elementwise function must keep the argument of
++    # the differentiated function, e.g. exp(z + 1) -> exp(z + 1), not exp(z).
++    expr = X.applyfunc(lambda z: exp(z + 1))
++    dexpr = expr.diff(X).as_explicit()
++    assert dexpr[0, 0, 0, 0] == exp(X[0, 0] + 1)
++    assert dexpr[1, 2, 1, 2] == exp(X[1, 2] + 1)
++    assert dexpr[0, 0, 0, 1] == 0
+diff --git a/sympy/tensor/array/expressions/array_expressions.py b/sympy/tensor/array/expressions/array_expressions.py
+index a89004aa9c83..379e3b6105db 100644
+--- a/sympy/tensor/array/expressions/array_expressions.py
++++ b/sympy/tensor/array/expressions/array_expressions.py
+@@ -1191,7 +1191,10 @@ def _get_function_fdiff(self):
+         d = Dummy("d")
+         function = self.function(d)
+         fdiff = function.diff(d)
+-        if isinstance(fdiff, Function):
++        if isinstance(fdiff, Function) and fdiff.args == (d,):
++            # Keep the bare function class only when the derivative is the
++            # function applied to the same variable; otherwise the argument
++            # (e.g. the shift in exp(d + 1)) would be lost.
+             fdiff = type(fdiff)
+         else:
+             fdiff = Lambda(d, fdiff)
+diff --git a/sympy/tensor/array/expressions/tests/test_arrayexpr_derivatives.py b/sympy/tensor/array/expressions/tests/test_arrayexpr_derivatives.py
+index 4b8177077b6b..3177a6bdfddc 100644
+--- a/sympy/tensor/array/expressions/tests/test_arrayexpr_derivatives.py
++++ b/sympy/tensor/array/expressions/tests/test_arrayexpr_derivatives.py
+@@ -2,7 +2,8 @@
+ from sympy import (exp, log, Matrix, Array, derive_by_array, ImmutableMatrix,
+     ImmutableDenseNDimArray, Transpose, Inverse, Determinant, MatPow, ZeroMatrix,
+     Trace, atan2)
+-from sympy.core.symbol import symbols
++from sympy.core.symbol import symbols, Dummy
++from sympy.core.function import Lambda
+ from sympy.functions.elementary.trigonometric import (cos, sin)
+ from sympy.matrices.expressions.diagonal import DiagMatrix, DiagonalMatrix
+ from sympy.matrices.expressions.matexpr import MatrixExpr, MatrixSymbol, MatrixElement
+@@ -298,3 +299,14 @@ def test_array_derive_scalar_sums():
+     assert array_derive(M3[0, 0] + 2*M3[1, 2], M3).as_explicit() == \
+         Matrix([[1, 0, 0], [0, 0, 2], [0, 0, 0]])
+     assert (Trace(M3) + k).diff(M3) == Identity(3)
++
++
++def test_array_applyfunc_derivative_keeps_function_argument():
++    # https://github.com/sympy/sympy/issues/30902 (item 2)
++    A2 = ArraySymbol("A2", (2, 2))
++    d = Dummy("d")
++    cg = ArrayElementwiseApplyFunc(Lambda(d, exp(d + 1)), A2)
++    res = array_derive(cg, A2).as_explicit()
++    assert res[0, 0, 0, 0] == exp(A2[0, 0] + 1)
++    assert res[1, 1, 1, 1] == exp(A2[1, 1] + 1)
++    assert res[0, 0, 1, 1] == 0

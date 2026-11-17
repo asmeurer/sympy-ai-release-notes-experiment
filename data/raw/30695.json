@@ -1,0 +1,104 @@
+{
+  "additions": 27,
+  "author": "DroneBetter",
+  "base": "master",
+  "body": "i have [another branch](https://github.com/DroneBetter/sympy/tree/stirling_D-finitude) where i started working on a more meaningful change making both `stirling` functions cached, but that meant dealing with the recursion limit, and switching to the formula for `n` over some threshold causes a sudden jump to lower performance than currently (and deciding on a strategy to get around this without making the code size too unwieldy will be nontrivial), so i decided to make an extremely easy-to-review drop-in PR in the meantime.\r\n\r\n#### References to other Issues or PRs\r\nthe only one vaguely applicable to this is #14616 which presents more advanced strategies; my PR from the interesting branch will discuss those in detail in this section.\r\n\r\n#### Brief description of what is fixed or changed\r\nthe existing version generates all Stirling numbers `stirling(h,j)` with `h<=n,j<=k`, forming a trapezoid (triangle with a rectangle beneath it), then throws away all but `stirling(n,k)`; in fact, we can cut out a triangle to form a parallelogram by adding the additional constraint `h-j<=n-k`.\r\n\r\nthis implements that by changing `row` to be a row of the array `T(h,j) = stirling(h+j,j)` instead of a row of the number triangle, so the length is constant and it can be implemented as a prefix sum.\r\n\r\n#### Other comments\r\nit is about twice as fast to generate each element of a full row, since $\\int_{k=0}^nk(n-k)=\\frac{n^3}6$ instead of $\\int_{k=0}^nk(n-k/2)=\\frac{n^3}3$.\r\n\r\nthis is approximately evidenced by unrigorous profiling:\r\n```python\r\n>>> from sympy.functions.combinatorial.numbers import _stirling1 as cycle,_stirling2 as subset\r\n>>> n=400;from time import time;t=time();print(hash(tuple(subset(n,k) for k in range(n+1))),time()-t)\r\n-1829327518960325621 7.069313049316406 #before\r\n-1829327518960325621 3.110057830810547 #after\r\n>>> #after restarting the shell to clear cache:\r\n>>> n=400;from time import time;t=time();print(hash(tuple(cycle(n,k) for k in range(n+1))),time()-t)\r\n-1165711630153352067 7.355808973312378 #before\r\n-1165711630153352067 3.1521079540252686 #after\r\n```\r\n(in fact, it seems slightly better than twice as fast, since operations are not constant-time; most of the 'weight' (measured in bit length) of the Stirling triangles is towards the left side, since the first kind are asymptotically Poisson with rate parameter $\\sim\\log n$ while the second kind are asymptotically normal with expectation $\\sim{n\\over\\log n}$ and variance $\\sim{n\\over\\log^2n}$.)\r\n\r\nthis is of course still very slow (since most of the computation is still being duplicated), but i will handle that Later ahaha\r\n\r\n#### AI Generation Disclosure\r\nNO AI USE\r\n\r\n#### Release Notes\r\n<!-- BEGIN RELEASE NOTES -->\r\n* functions\r\n  * Compute `stirling(n,k)` by performing the recurrence in a parallelogram instead of a trapezoid; this is about twice as fast at generating full rows, and saves about a linear factor for small/fixed `n-k`.\r\n<!-- END RELEASE NOTES -->",
+  "changed_files": 1,
+  "commits": [
+    {
+      "author": "DroneBetter",
+      "message": "make Stirling numbers take `\u0398(k*(n-k))` ops instead of `\u0398(k*(n-k/2))`\n\ngoing to do a bigger change that replaces it with a `cache` but this shall be much easier to review",
+      "sha": "9811af084e4f1ea702ee7058c98215762fef9e9d"
+    },
+    {
+      "author": "DroneBetter",
+      "message": "make `_stirling` output `Integer` always\n\noops thank you for catching",
+      "sha": "e50f58fab55bb099ae4b2823dc511903d084f347"
+    }
+  ],
+  "created_at": "2026-10-07T18:07:24Z",
+  "deletions": 9,
+  "diff": "diff --git a/sympy/functions/combinatorial/numbers.py b/sympy/functions/combinatorial/numbers.py\nindex 5cdc1e78fb5e..a906c2674250 100644\n--- a/sympy/functions/combinatorial/numbers.py\n+++ b/sympy/functions/combinatorial/numbers.py\n@@ -2680,12 +2680,22 @@ def _eval_stirling1(n, k):\n     return _stirling1(n, k)\n \n \n+\n @cacheit\n def _stirling1(n, k):\n-    row = [0, 1]+[0]*(k-1) # for n = 1\n-    for i in range(2, n+1):\n-        for j in range(min(k,i), 0, -1):\n-            row[j] = (i-1) * row[j] + row[j-1]\n+    if n < k:\n+        return S.Zero\n+    if not k:\n+        return Integer(n == 0)\n+\n+    d = n-k\n+    row = [1]*(k+1)\n+    row[0] = 0\n+\n+    for h in range(1, d+1):\n+        for j in range(1, k+1):\n+            row[j] = (h+j-1)*row[j] + row[j-1] #row[j] = stirling1(h+j,j)\n+\n     return Integer(row[k])\n \n \n@@ -2707,13 +2717,21 @@ def _eval_stirling2(n, k):\n \n     return _stirling2(n, k)\n \n-\n @cacheit\n def _stirling2(n, k):\n-    row = [0, 1]+[0]*(k-1) # for n = 1\n-    for i in range(2, n+1):\n-        for j in range(min(k,i), 0, -1):\n-            row[j] = j * row[j] + row[j-1]\n+    if n < k:\n+        return S.Zero\n+    if not k:\n+        return Integer(n == 0)\n+\n+    d = n-k\n+    row = [1]*(k+1)\n+    row[0] = 0\n+\n+    for h in range(1, d+1):\n+        for j in range(1, k+1):\n+            row[j] = j*row[j] + row[j-1] #row[j] = stirling2(h+j,j)\n+\n     return Integer(row[k])\n \n \n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* functions\n  * Compute `stirling(n,k)` by performing the recurrence in a parallelogram instead of a trapezoid; this is about twice as fast at generating full rows, and saves about a linear factor for small/fixed `n-k`. ([#30695](https://github.com/sympy/sympy/pull/30695) by [@DroneBetter](https://github.com/DroneBetter))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    i have [another branch](https://github.com/DroneBetter/sympy/tree/stirling_D-finitude) where i started working on a more meaningful change making both `stirling` functions cached, but that meant dealing with the recursion limit, and switching to the formula for `n` over some threshold causes a sudden jump to lower performance than currently (and deciding on a strategy to get around this without making the code size too unwieldy will be nontrivial), so i decided to make an extremely easy-to-review drop-in PR in the meantime.\r\n\r\n    #### References to other Issues or PRs\r\n    the only one vaguely applicable to this is #14616 which presents more advanced strategies; my PR from the interesting branch will discuss those in detail in this section.\r\n\r\n    #### Brief description of what is fixed or changed\r\n    the existing version generates all Stirling numbers `stirling(h,j)` with `h<=n,j<=k`, forming a trapezoid (triangle with a rectangle beneath it), then throws away all but `stirling(n,k)`; in fact, we can cut out a triangle to form a parallelogram by adding the additional constraint `h-j<=n-k`.\r\n\r\n    this implements that by changing `row` to be a row of the array `T(h,j) = stirling(h+j,j)` instead of a row of the number triangle, so the length is constant and it can be implemented as a prefix sum.\r\n\r\n    #### Other comments\r\n    it is about twice as fast to generate each element of a full row, since $\\int_{k=0}^nk(n-k)=\\frac{n^3}6$ instead of $\\int_{k=0}^nk(n-k/2)=\\frac{n^3}3$.\r\n\r\n    this is approximately evidenced by unrigorous profiling:\r\n    ```python\r\n    >>> from sympy.functions.combinatorial.numbers import _stirling1 as cycle,_stirling2 as subset\r\n    >>> n=400;from time import time;t=time();print(hash(tuple(subset(n,k) for k in range(n+1))),time()-t)\r\n    -1829327518960325621 7.069313049316406 #before\r\n    -1829327518960325621 3.110057830810547 #after\r\n    >>> #after restarting the shell to clear cache:\r\n    >>> n=400;from time import time;t=time();print(hash(tuple(cycle(n,k) for k in range(n+1))),time()-t)\r\n    -1165711630153352067 7.355808973312378 #before\r\n    -1165711630153352067 3.1521079540252686 #after\r\n    ```\r\n    (in fact, it seems slightly better than twice as fast, since operations are not constant-time; most of the 'weight' (measured in bit length) of the Stirling triangles is towards the left side, since the first kind are asymptotically Poisson with rate parameter $\\sim\\log n$ while the second kind are asymptotically normal with expectation $\\sim{n\\over\\log n}$ and variance $\\sim{n\\over\\log^2n}$.)\r\n\r\n    this is of course still very slow (since most of the computation is still being duplicated), but i will handle that Later ahaha\r\n\r\n    #### AI Generation Disclosure\r\n    NO AI USE\r\n\r\n    #### Release Notes\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    * functions\r\n      * Compute `stirling(n,k)` by performing the recurrence in a parallelogram instead of a trapezoid; this is about twice as fast at generating full rows, and saves about a linear factor for small/fixed `n-k`.\r\n    <!-- END RELEASE NOTES -->\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-10-07T18:07:33Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "Okay, looks good. Thanks",
+      "created_at": "2026-11-11T16:12:26Z"
+    }
+  ],
+  "labels": [
+    "ntheory",
+    "functions"
+  ],
+  "linked": [
+    {
+      "author": "sidhantnagpal",
+      "body": "The current implementation uses the following recurrence for evaluation of Stirling Numbers of 1st Kind:\r\n`s(n + 1, k) = n*s(n, k) + s(n, k - 1)` with memoization, and is hence `O(n**2)`.\r\n\r\nAlso, by definition:\r\n`s(n, k) = coefficient of x**n in ff(x, k)`, where `ff` is falling factorial\r\nUsing this definition with `FFT` (Fast Fourier Transform) - `O(nlg(n))`\r\nor Karatsuba - `O(n**lg(3))`, the coefficients for the same can be evaluated. \r\nThe overall complexity for obtaining one entire row (corresponding to `n`) would be `O(nlg(n)**2)` or `O(n**lg(3) lg(n))` depending on the method used. The extra log factor is due to divide and conquer employed to calculate `x*(x - 1)*(x - 2)...(x - (k - 1))`.\r\n\r\nSimilar recurrence for Stirling Numbers of 2nd Kind:\r\n`S(n + 1, k) = k*S(n, k) + S(n, k - 1)` with memoization, and is hence `O(n**2)`.\r\n\r\nThe closed form expression for `S(n, k)` is:\r\n`S(n, k) = sum {0 <= i <= k} (i**n / i!) * ((-1)**(k - i) / (k - i)!)`\r\nAfter a closer look it is evident that if `a(i) = i**n / i!` and `b(i) = (-1)**i / i!`, then the above sum just represents the `k^th term` in the `convolution` of `a` and `b`.\r\nHence, the overall computation for obtaining one entire row can be sped to match the complexity of doing convolution.",
+      "is_pull_request": false,
+      "number": 14616,
+      "state": "open",
+      "title": "Discussion for computation of Stirling Numbers"
+    }
+  ],
+  "merge_commit_sha": "b0f32629850cc141cb6c5d995902c5d26ee023a1",
+  "merged_at": "2026-11-11T16:12:32Z",
+  "number": 30695,
+  "review_comments": [
+    {
+      "author": "oscarbenjamin",
+      "body": "This should return Integer rather than int e.g. `return S.Zero` or return `Integer(n == 0)`.",
+      "created_at": "2026-11-10T12:22:31Z",
+      "path": "sympy/functions/combinatorial/numbers.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "Same in other places.",
+      "created_at": "2026-11-10T12:22:44Z",
+      "path": "sympy/functions/combinatorial/numbers.py"
+    },
+    {
+      "author": "DroneBetter",
+      "body": "I somewhat disagree, on the basis that\n* it doesn't do so already\n* its only use either way is wrapped in another function that converts its output to `Integer`\n* `Integer` is faster (with gmpy or flint) when you need to multiply large bigints with each other, but (aiui) Toom-Cook/FFT-based multiplication algorithms require both numbers to be large for them to be effective; the coefficients are always small because they're bounded by the number of iterations taken\n(this is the same philosophy as #30687)",
+      "created_at": "2026-11-11T09:51:40Z",
+      "path": "sympy/functions/combinatorial/numbers.py"
+    },
+    {
+      "author": "DroneBetter",
+      "body": "wait nvm it does do so already sorry",
+      "created_at": "2026-11-11T09:51:53Z",
+      "path": "sympy/functions/combinatorial/numbers.py"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T12:22:31Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T12:22:44Z"
+    },
+    {
+      "author": "DroneBetter",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-11T09:51:40Z"
+    },
+    {
+      "author": "DroneBetter",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-11T09:51:53Z"
+    }
+  ],
+  "title": "make Stirling numbers take `\u0398(k*(n-k))` ops instead of `\u0398(k*(n-k/2))`"
+}

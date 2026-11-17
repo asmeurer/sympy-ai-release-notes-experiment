@@ -1,0 +1,79 @@
+{
+  "additions": 6,
+  "author": "ninglinLiu",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\nLocal source: doc/src/contributing/pull-request-guidelines.rst\nKeep all section headings below. -->\n\n#### References to other Issues or PRs\n\n\n#### Brief description of what is fixed or changed\n\nRemoves a duplicated \"to\" in the `homomorphisms.py` docstring and in `doc/src/contributing/dependencies.md`. Docs/comments only; no behavior change.\n\n#### Other comments\n\n\n#### AI Generation Disclosure\n\nThis typo fix was identified and applied with assistance from Grok Bot, an automated coding assistant. The change itself is limited to removing duplicated words in the two files listed above.\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\nNO ENTRY\n<!-- END RELEASE NOTES -->",
+  "changed_files": 3,
+  "commits": [
+    {
+      "author": "ninglinLiu",
+      "message": "docs: typo, remove duplicated words\n\nSigned-off-by: ninglinLiu <x07514475479@gmail.com>",
+      "sha": "632a0edeed9171d024faba63016f85d4d6ffba2a"
+    },
+    {
+      "author": "NingLin Liu",
+      "message": "docs: add NingLin Liu to .mailmap",
+      "sha": "201b2dc8d5c153a46dc7711d3d5ee337fb9f27e8"
+    },
+    {
+      "author": "NingLin Liu",
+      "message": "docs: tighten recommended optional dependencies wording",
+      "sha": "9ed5655faafb5ed58ebc79967706895f8357df67"
+    }
+  ],
+  "created_at": "2026-11-13T00:48:58Z",
+  "deletions": 21,
+  "diff": "diff --git a/.mailmap b/.mailmap\nindex e637044e2ebd..e7819347e2a5 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -1264,6 +1264,8 @@ Nikos Karagiannakis <nikoskaragiannakis@gmail.com>\n Nilabja Bhattacharya <nilabja10201992@gmail.com>\n Nils Schulte <47043622+Schnilz@users.noreply.github.com>\n Nimish Telang <ntelang@gmail.com>\n+NingLin Liu <x07514475479@gmail.com>\n+NingLin Liu <x07514475479@gmail.com> ninglinLiu <x07514475479@gmail.com>\n Nirasha Jayalath <64356062+jayalath-jknr@users.noreply.github.com>\n Nirmal Sarswat <nirmalsarswat400@gmail.com>\n Nisarg Chaudhari <54911392+Nisarg-Chaudhari@users.noreply.github.com>\ndiff --git a/doc/src/contributing/dependencies.md b/doc/src/contributing/dependencies.md\nindex 4dfed64e200d..7abc2f8b955a 100644\n--- a/doc/src/contributing/dependencies.md\n+++ b/doc/src/contributing/dependencies.md\n@@ -65,26 +65,9 @@ are working on a part of SymPy that uses them.\n \n ### Recommended Optional Dependencies\n \n-These dependencies are not required for SymPy to function, but it is\n-recommended that all users install them if they can, as they will improve the\n-general performance of SymPy.\n-\n-- **gmpy2**: [gmpy2](https://gmpy2.readthedocs.io/en/latest/) is a\n-  Python wrapper for the [GMP multiple-precision\n-  library](https://gmplib.org/). It provides large integers that are faster\n-  than the built-in Python `int`. When gmpy2 is installed, it is used\n-  automatically by certain core functions that operate on integers, such as\n-  the [polys](polys-docs). See {ref}`polys-domainsref` for more details. SymPy\n-  uses `gmpy2` automatically when it is installed. No further action is\n-  required to enable it.\n-\n-  The polys themselves are used by many parts of SymPy, such as the\n-  integration algorithms, simplification algorithms like `collect()` and\n-  `factor()`, the matrices, and some parts of the core. Thus, installing\n-  `gmpy2` can speed up many parts of SymPy. It is not a required dependency of\n-  SymPy because it makes use of a non-Python library (GMP), which is also\n-  non-BSD licensed. However, we recommended all users who are able to to\n-  install `gmpy2` to get a better SymPy experience.\n+These optional dependencies are recommended for improved SymPy performance.\n+\n+- **gmpy2**: [gmpy2](https://gmpy2.readthedocs.io/en/latest/) provides faster large-integer arithmetic using the [GMP library](https://gmplib.org/). SymPy uses it automatically when installed, particularly in its [polynomial routines](polys-docs), which support integration, simplification, matrices, and other operations. See {ref}`polys-domainsref` for details. It remains optional because GMP is a non-Python library with a non-BSD license. We encourage all users who can install `gmpy2` to do so for a better SymPy experience.\n \n ### Interactive Use\n \ndiff --git a/sympy/polys/agca/homomorphisms.py b/sympy/polys/agca/homomorphisms.py\nindex 40ed11202f37..72124eef18cf 100644\n--- a/sympy/polys/agca/homomorphisms.py\n+++ b/sympy/polys/agca/homomorphisms.py\n@@ -177,7 +177,7 @@ def restrict_domain(self, sm):\n \n     def restrict_codomain(self, sm):\n         \"\"\"\n-        Return ``self``, with codomain restricted to to ``sm``.\n+        Return ``self``, with codomain restricted to ``sm``.\n \n         Here ``sm`` has to be a submodule of ``self.codomain`` containing the\n         image.\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\n* No release notes entry will be added for this pull request.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\n    Local source: doc/src/contributing/pull-request-guidelines.rst\n    Keep all section headings below. -->\n\n    #### References to other Issues or PRs\n\n\n    #### Brief description of what is fixed or changed\n\n    Removes a duplicated \"to\" in the `homomorphisms.py` docstring and in `doc/src/contributing/dependencies.md`. Docs/comments only; no behavior change.\n\n    #### Other comments\n\n\n    #### AI Generation Disclosure\n\n    This typo fix was identified and applied with assistance from Grok Bot, an automated coding assistant. The change itself is limited to removing duplicated words in the two files listed above.\n\n    #### Release Notes\n\n    <!-- BEGIN RELEASE NOTES -->\n    NO ENTRY\n    <!-- END RELEASE NOTES -->\n\n</details><p>\n",
+      "created_at": "2026-11-13T00:49:02Z"
+    },
+    {
+      "author": "smichr",
+      "body": "Thanks. Many years ago I worked on cleanup of docstrings...brings back good memories. :-)",
+      "created_at": "2026-11-13T08:38:12Z"
+    }
+  ],
+  "labels": [],
+  "linked": [],
+  "merge_commit_sha": "95cd58f71eed2e0b750c759f8d2638bed82a8790",
+  "merged_at": "2026-11-13T08:56:21Z",
+  "number": 31065,
+  "review_comments": [
+    {
+      "author": "smichr",
+      "body": "What about replacing the 3 paragraphs with \n\nThese optional dependencies are recommended for improved SymPy performance.\n\n- **gmpy2**: [gmpy2](https://gmpy2.readthedocs.io/en/latest/)] provides faster large-integer arithmetic using the [GMP library](https://gmplib.org/). SymPy uses it automatically when installed, particularly in its [polynomial routines](https://github.com/sympy/sympy/pull/31065/polys-docs), which support integration, simplification, matrices, and other operations. See {ref}`polys-domainsref` for details. It remains optional because GMP is a non-Python library with a non-BSD license. We encourage all users who can install `gmpy2` to do so for a better SymPy experience.",
+      "created_at": "2026-11-13T07:27:54Z",
+      "path": "doc/src/contributing/dependencies.md"
+    },
+    {
+      "author": "ninglinLiu",
+      "body": "Thanks \u2014 applied in 9ed5655. I used your wording, with two small cleanups so the links resolve: dropped the extra `]` on the gmpy2 docs URL, and kept the existing `(polys-docs)` target instead of a self-PR path.",
+      "created_at": "2026-11-13T08:26:13Z",
+      "path": "doc/src/contributing/dependencies.md"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "11350613",
+      "body": "",
+      "state": "APPROVED",
+      "submitted_at": "2026-11-13T05:43:37Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-13T07:27:54Z"
+    },
+    {
+      "author": "ninglinLiu",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-13T08:26:14Z"
+    }
+  ],
+  "title": "docs: typo, remove duplicated words"
+}

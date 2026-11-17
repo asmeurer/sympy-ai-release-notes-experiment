@@ -1,0 +1,129 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 7647,
+  "human_is": "B",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 8619,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 8619,
+      "cacheReadInputTokens": 15217,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.08787139999999999,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 793,
+      "provider": "firstParty",
+      "thinkingTokens": 136,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30966,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"Two sentences, a bit longer than needed\",\"Doesn't mention the matrix-element differentiation case\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":5,\"problems\":[]},\"same_substance\":true,\"preferred\":\"B\",\"strength\":\"slight\",\"rationale\":\"The diff changes Transpose._eval_derivative so that it transposes the inner derivative. Before, the transpose was dropped, so differentiating with respect to a scalar or a matrix element gave a result with the wrong shape or orientation. This is a user-visible bug fix under matrices, and both entries describe it correctly. B is a single sentence and covers both the scalar case and the matrix-element case. A adds a concrete example, which is useful, but it is longer and leaves out the matrix-element case. Either entry would be fine to publish.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "Two sentences, a bit longer than needed",
+        "Doesn't mention the matrix-element differentiation case"
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 5,
+      "problems": []
+    },
+    "preferred": "B",
+    "rationale": "The diff changes Transpose._eval_derivative so that it transposes the inner derivative. Before, the transpose was dropped, so differentiating with respect to a scalar or a matrix element gave a result with the wrong shape or orientation. This is a user-visible bug fix under matrices, and both entries describe it correctly. B is a single sentence and covers both the scalar case and the matrix-element case. A adds a concrete example, which is useful, but it is longer and leaves out the matrix-element case. Either entry would be fine to publish.",
+    "same_substance": true,
+    "should_have_entry": "yes",
+    "strength": "slight"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30966/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30966/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "Two sentences, a bit longer than needed",
+            "Doesn't mention the matrix-element differentiation case"
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 5,
+          "problems": []
+        },
+        "preferred": "B",
+        "rationale": "The diff changes Transpose._eval_derivative so that it transposes the inner derivative. Before, the transpose was dropped, so differentiating with respect to a scalar or a matrix element gave a result with the wrong shape or orientation. This is a user-visible bug fix under matrices, and both entries describe it correctly. B is a single sentence and covers both the scalar case and the matrix-element case. A adds a concrete example, which is useful, but it is longer and leaves out the matrix-element case. Either entry would be fine to publish.",
+        "same_substance": true,
+        "should_have_entry": "yes",
+        "strength": "slight"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.08787139999999999,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 8619,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 8619,
+    "cache_read_input_tokens": 15217,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 3136,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 3136,
+        "cache_read_input_tokens": 10350,
+        "input_tokens": 2,
+        "output_tokens": 593,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 793,
+    "output_tokens_details": {
+      "thinking_tokens": 136
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "additions": 5,
+  "author": "smichr",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\r\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\nLocal source: doc/src/contributing/pull-request-guidelines.rst\r\nKeep all section headings below. -->\r\n\r\n#### References to other Issues or PRs\r\n\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\nA latex test fails under Windows when trying to create a TemporaryFile instead of doing work in a TemporaryDirectory\r\n\r\n#### Other comments\r\n\r\nNo test is added except for noting that with the change the tests pass locally and without the change they fail.\r\n\r\n#### with\r\n```\r\n> python -m pytest -v sympy/parsing/tests/test_custom_latex.py\r\n...\r\nsympy/parsing/tests/test_custom_latex.py::test_custom1 PASSED                                                    [ 50%]\r\nsympy/parsing/tests/test_custom_latex.py::test_custom2 PASSED                                                    [100%]\r\n```\r\n#### without\r\n```\r\nsympy/parsing/tests/test_custom_latex.py::test_custom1 FAILED                                                    [ 50%]\r\nsympy/parsing/tests/test_custom_latex.py::test_custom2 FAILED                                                    [100%]\r\n```\r\n\r\n#### AI Generation Disclosure\r\n\r\nMy work, advised by ChatGPT.\r\n\r\n#### Release Notes\r\n\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\nNO ENTRY\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 1,
+  "commits": [
+    {
+      "author": "Christopher Smith",
+      "message": "use TemporaryDirectory",
+      "sha": "fdeb28c81cb1e99dd8249b3a586628e9d3f5ac1f"
+    }
+  ],
+  "created_at": "2026-11-14T05:30:51Z",
+  "deletions": 5,
+  "diff": "diff --git a/sympy/parsing/tests/test_custom_latex.py b/sympy/parsing/tests/test_custom_latex.py\nindex bd202ef61e0c..0aab3aa17fff 100644\n--- a/sympy/parsing/tests/test_custom_latex.py\n+++ b/sympy/parsing/tests/test_custom_latex.py\n@@ -28,11 +28,11 @@ def init_custom_parser(modification, transformer=None):\n     latex_grammar = Path(grammar_file).read_text(encoding=\"utf-8\")\n     latex_grammar += modification\n \n-    with tempfile.NamedTemporaryFile() as f:\n-        f.write(bytes(latex_grammar, encoding=\"utf8\"))\n-        f.flush()\n-\n-        parser = LarkLaTeXParser(grammar_file=f.name, transformer=transformer)\n+    with tempfile.TemporaryDirectory() as d:\n+        path = Path(d) / \"latex.lark\"\n+        path.write_text(latex_grammar, encoding=\"utf-8\")\n+        parser = LarkLaTeXParser(\n+            grammar_file=str(path), transformer=transformer)\n \n     return parser\n \n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\n* No release notes entry will be added for this pull request.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\r\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\n    Local source: doc/src/contributing/pull-request-guidelines.rst\r\n    Keep all section headings below. -->\r\n\r\n    #### References to other Issues or PRs\r\n\r\n\r\n    #### Brief description of what is fixed or changed\r\n\r\n    A latex test fails under Windows when trying to create a TemporaryFile instead of doing work in a TemporaryDirectory\r\n\r\n    #### Other comments\r\n\r\n    No test is added except for noting that with the change the tests pass locally and without the change they fail.\r\n\r\n    #### with\r\n    ```\r\n    > python -m pytest -v sympy/parsing/tests/test_custom_latex.py\r\n    ...\r\n    sympy/parsing/tests/test_custom_latex.py::test_custom1 PASSED                                                    [ 50%]\r\n    sympy/parsing/tests/test_custom_latex.py::test_custom2 PASSED                                                    [100%]\r\n    ```\r\n    #### without\r\n    ```\r\n    sympy/parsing/tests/test_custom_latex.py::test_custom1 FAILED                                                    [ 50%]\r\n    sympy/parsing/tests/test_custom_latex.py::test_custom2 FAILED                                                    [100%]\r\n    ```\r\n\r\n    #### AI Generation Disclosure\r\n\r\n    My work, advised by ChatGPT.\r\n\r\n    #### Release Notes\r\n\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    NO ENTRY\r\n    <!-- END RELEASE NOTES -->\r\n\n\n</details><p>\n",
+      "created_at": "2026-11-14T05:30:55Z"
+    }
+  ],
+  "labels": [],
+  "linked": [],
+  "merge_commit_sha": "3842255762dfbccaead5be9928430a8fd79196fe",
+  "merged_at": "2026-11-14T13:14:03Z",
+  "number": 31089,
+  "review_comments": [],
+  "reviews": [],
+  "title": "use TemporaryDirectory instead of TemporaryFile"
+}

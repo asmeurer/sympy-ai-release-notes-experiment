@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "I directed the work for ChatGPT which staged code and tests which I have reviewed.",
+  "author": "smichr",
+  "entries": [
+    {
+      "submodule": "printing",
+      "text": "Fixed incorrect grouping of nested reciprocals in code printers."
+    }
+  ],
+  "merged_at": "2026-11-14T20:34:59Z",
+  "number": 31103,
+  "overlap": {
+    "title_similarity": 0.4603174603174603,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* printing\n  * Fixed incorrect grouping of nested reciprocals in code printers.",
+  "status": "entry",
+  "title": "printing: share Mul factor staging and group printed reciprocals"
+}

@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "Discovered and fixed by Claude Opus 5.5, reviewed by myself. PR description is written by myself.",
+  "author": "tqa236",
+  "entries": [
+    {
+      "submodule": "core",
+      "text": "`Lambda.subs` no longer replaces an expression that contains a bound variable. Formerly, `Lambda(x, x**2).subs(x**2, z)` incorrectly gave `Lambda(x, z)`; now it gives the unchanged `Lambda(x, x**2)`"
+    }
+  ],
+  "merged_at": "2026-11-03T11:02:59Z",
+  "number": 30910,
+  "overlap": {
+    "title_similarity": 0.56,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* core\n  * `Lambda.subs` no longer replaces an expression that contains a bound variable. Formerly, `Lambda(x, x**2).subs(x**2, z)` incorrectly gave `Lambda(x, z)`; now it gives the unchanged `Lambda(x, x**2)`",
+  "status": "entry",
+  "title": "Lambda.subs no longer replaces expressions that contain its bound variable"
+}

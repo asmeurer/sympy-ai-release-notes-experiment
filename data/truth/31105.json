@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "AI tools were used during investigation to help trace the `PolificationFailed` traceback and verify edge-case behavior. [Add details of any AI assistance with code, tests, or PR text, as applicable.]",
+  "author": "jiyakaushik26",
+  "entries": [
+    {
+      "submodule": "simplify",
+      "text": "Fixed a `PolificationFailed` error in `trigsimp` when using the `groebner` or `combined` methods on expressions without polynomial generators."
+    }
+  ],
+  "merged_at": "2026-11-15T02:18:39Z",
+  "number": 31105,
+  "overlap": {
+    "title_similarity": 0.48863636363636365,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* simplify\n  * Fixed a `PolificationFailed` error in `trigsimp` when using the `groebner` or `combined` methods on expressions without polynomial generators.",
+  "status": "entry",
+  "title": "Fix PolificationFailed in trigsimp groebner"
+}

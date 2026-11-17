@@ -1,0 +1,42 @@
+{
+  "additions": 6,
+  "author": "zorgonk",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\r\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\nLocal source: doc/src/contributing/pull-request-guidelines.rst\r\nKeep all section headings below. -->\r\n\r\n#### References to other Issues or PRs\r\nNone\r\n\r\n#### Brief description of what is fixed or changed\r\nThis PR fixes some typos and grammar mistakes in Development Workflow Process.\r\n( `doc/src/contributing/new-contributors-guide/workflow-process.md` )  :-\r\n\r\n- \"intended for people are already familiar\" -> \"intended for people **who** are already familiar\"\r\n- \"It's only function is to distinguish\" -> \"**Its** only function is to distinguish\"\r\n- \"need to include imports for every function used define any symbols that are used\" -> \"need to include imports for every function used **and** define any symbols\r\n that are used\"\r\n- \"These do indicate to reviewers\" -> \"These do **not** indicate to reviewers\"\r\n- \"which always recorded the name\" -> \"which always **records** the name\"\r\n\r\n#### Other comments\r\nFirst contribution\r\n\r\n#### AI Generation Disclosure\r\nUsed Gemini 3.6 Flash to make sure of the errors and error corrections\r\n\r\n#### Release Notes\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\nNO ENTRY\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "Anandhu Sathyan",
+      "message": "DOC: Fix typos and grammar in Development Workflow Process",
+      "sha": "24d2cfbd15901e7a91c9aaccb52f4121209041de"
+    },
+    {
+      "author": "Anandhu Sathyan",
+      "message": "Add Anandhu Sathyan to .mailmap",
+      "sha": "49f6e6bb82047ffd5c2f1abf3929b32bac95edea"
+    }
+  ],
+  "created_at": "2026-11-06T21:23:30Z",
+  "deletions": 5,
+  "diff": "diff --git a/.mailmap b/.mailmap\nindex 892be90192df..08788efa61ed 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -328,6 +328,7 @@ Amit Kumar <dtu.amit@gmail.com> <dtu.amit+gh@gmail.com>\n Amit Manchanda <amitdelhi1995@gmail.com>\n Amit Saha <amitsaha.in@gmail.com> <asaha@redhat.com>\n Amit Singh <singhamitchs19@gmail.com>\n+Anandhu Sathyan <anandhu6aestn@gmail.com>\n Ananya H <ananyaha93@gmail.com>\n Anas <anas23khan083@gmail.com>\n Anatolii Koval <weralwolf@gmail.com>\ndiff --git a/doc/src/contributing/new-contributors-guide/workflow-process.md b/doc/src/contributing/new-contributors-guide/workflow-process.md\nindex f52f10be3950..64f12a28a610 100644\n--- a/doc/src/contributing/new-contributors-guide/workflow-process.md\n+++ b/doc/src/contributing/new-contributors-guide/workflow-process.md\n@@ -3,7 +3,7 @@\n \n \n ```{note}\n-This guide is intended for people are already familiar with contributing to\n+This guide is intended for people who are already familiar with contributing to\n open source projects on GitHub. If you are new to GitHub, read the\n [](./dev-setup.md) guide first.\n ```\n@@ -149,7 +149,7 @@ add-simplify-tests\n ```\n \n Ultimately the branch name is not that important, so don't spend too much time\n-thinking about it. It's only function is to distinguish the code for this\n+thinking about it. Its only function is to distinguish the code for this\n contribution from other contributions you may make.\n \n ## Modify code\n@@ -229,7 +229,7 @@ One important thing that should be included in every docstring is examples.\n Examples are also called *doctests*, because they are tested with the\n `bin/doctest` script to ensure they output is correct.\n \n-Doctests need to include imports for every function used define any symbols\n+Doctests need to include imports for every function used and define any symbols\n that are used. Users should be able to copy and paste the example inputs into\n their own Python session and get the exact same outputs. `from sympy import *`\n is not allowed in doctests, as this would make it unclear which functions come\n@@ -548,7 +548,7 @@ for instructions on each section. This includes adding cross-references to any r\n   - \"Modified solvers\\.py\"\n   - \"Fix issue #12345\"\n \n-  These do indicate to reviewers what is actually changed in the pull request,\n+  These do not indicate to reviewers what is actually changed in the pull request,\n   and hence, they are likely to just pass it over instead of reviewing it.\n   An example of a better pull request title is\n \n@@ -703,7 +703,7 @@ Sometimes a commit will be made with an incorrect name or email address or an au\n Joe Bloggs <joe@bloggs.com> joeb <wrong@email.com>\n ```\n \n-A common reason that this can happen is if making commits with the GitHub web UI which always recorded the name as github username and the email as something like `1785690389+joeb@users.noreply.github.com`. In this case a line will need to be added to .mailmap like:\n+A common reason that this can happen is if making commits with the GitHub web UI which always records the name as github username and the email as something like `1785690389+joeb@users.noreply.github.com`. In this case a line will need to be added to .mailmap like:\n \n ```\n Joe Bloggs <joe@bloggs.com> joeb <1785690389+joeb@users.noreply.github.com>\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\n* No release notes entry will be added for this pull request.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\r\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\n    Local source: doc/src/contributing/pull-request-guidelines.rst\r\n    Keep all section headings below. -->\r\n\r\n    #### References to other Issues or PRs\r\n    None\r\n\r\n    #### Brief description of what is fixed or changed\r\n    This PR fixes some typos and grammar mistakes in Development Workflow Process.\r\n    ( `doc/src/contributing/new-contributors-guide/workflow-process.md` )  :-\r\n\r\n    - \"intended for people are already familiar\" -> \"intended for people **who** are already familiar\"\r\n    - \"It's only function is to distinguish\" -> \"**Its** only function is to distinguish\"\r\n    - \"need to include imports for every function used define any symbols that are used\" -> \"need to include imports for every function used **and** define any symbols\r\n     that are used\"\r\n    - \"These do indicate to reviewers\" -> \"These do **not** indicate to reviewers\"\r\n    - \"which always recorded the name\" -> \"which always **records** the name\"\r\n\r\n    #### Other comments\r\n    First contribution\r\n\r\n    #### AI Generation Disclosure\r\n    Used Gemini 3.6 Flash to make sure of the errors and error corrections\r\n\r\n    #### Release Notes\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    NO ENTRY\r\n    <!-- END RELEASE NOTES -->\r\n\n\n</details><p>\n",
+      "created_at": "2026-11-06T21:23:38Z"
+    },
+    {
+      "author": "smichr",
+      "body": "You beat me to issue...I think this got lost in my todo list. Glad to see these fixed!\r\n\r\nThanks.",
+      "created_at": "2026-11-07T18:00:27Z"
+    }
+  ],
+  "labels": [],
+  "linked": [],
+  "merge_commit_sha": "9d59e9d6ecb96a767c90b3266b611a288c07d9b9",
+  "merged_at": "2026-11-07T18:00:41Z",
+  "number": 30975,
+  "review_comments": [],
+  "reviews": [],
+  "title": "DOC: Fix typos and grammar in Development Workflow Process"
+}

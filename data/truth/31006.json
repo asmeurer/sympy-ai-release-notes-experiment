@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "I used an AI assistant (Antigravity) to help brainstorm edge cases and draft code. I worked through the mathematical derivation myself, verified the sentinel encoding against Lean 4 proofs and Python slicing semantics, and tested all edge cases locally.",
+  "author": "ish1416",
+  "entries": [
+    {
+      "submodule": "matrices",
+      "text": "Implemented complete symbolic formula for `MatrixSlice` supporting negative steps, out-of-bounds clipping, and negative index normalization. However, because symbolic expressions are allowed to handle generic cases, the expression can be complicated for matrix shape for generic matrices without sufficient assumptions. Users are encouraged to use assumptions (such as is_integer, is_positive, is_nonnegative) such that evaluation of shape, or MatrixElement can simplify better."
+    }
+  ],
+  "merged_at": "2026-11-10T07:40:21Z",
+  "number": 31006,
+  "overlap": {
+    "title_similarity": 0.13553113553113552,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* matrices\n  * Implemented complete symbolic formula for `MatrixSlice` supporting negative steps, out-of-bounds clipping, and negative index normalization. However, because symbolic expressions are allowed to handle generic cases, the expression can be complicated for matrix shape for generic matrices without sufficient assumptions. Users are encouraged to use assumptions (such as is_integer, is_positive, is_nonnegative) such that evaluation of shape, or MatrixElement can simplify better.",
+  "status": "entry",
+  "title": "feat(matrices): complete symbolic formula for matrix slicing (fixes #30999, fixes #18411)"
+}

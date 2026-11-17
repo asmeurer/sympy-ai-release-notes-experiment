@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "OpenAI Codex (GPT-6 Astra) generated all changes in `sympy/combinatorics/fp_groups.py`, `sympy/combinatorics/tests/test_fp_groups.py`, and `.mailmap`. This PR description was also written by the AI agent at the account owner's request.",
+  "author": "raman118",
+  "entries": [
+    {
+      "submodule": "combinatorics",
+      "text": "Fixed `FpSubgroup.to_FpGroup()` raising `TypeError` when converting subgroups of finitely presented groups, with or without a cached coset table."
+    }
+  ],
+  "merged_at": "2026-11-05T19:14:40Z",
+  "number": 30955,
+  "overlap": {
+    "title_similarity": 0.5340314136125655,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* combinatorics\n  * Fixed `FpSubgroup.to_FpGroup()` raising `TypeError` when converting subgroups of finitely presented groups, with or without a cached coset table.",
+  "status": "entry",
+  "title": "Fix FpSubgroup conversion to finitely presented groups"
+}

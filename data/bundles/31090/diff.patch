@@ -1,0 +1,45 @@
+diff --git a/sympy/solvers/solvers.py b/sympy/solvers/solvers.py
+index 89bec42b6c7c..28b0745db192 100644
+--- a/sympy/solvers/solvers.py
++++ b/sympy/solvers/solvers.py
+@@ -21,6 +21,7 @@
+                                  Function, expand_power_exp, _mexpand, expand,
+                                  expand_func)
+ from sympy.core.logic import fuzzy_not, fuzzy_and
++from sympy.core.evalf import pure_complex
+ from sympy.core.numbers import Float, Rational, _illegal
+ from sympy.core.intfunc import integer_log, ilcm
+ from sympy.core.power import Pow
+@@ -3108,6 +3109,14 @@ def nsolve(*args, dict=False, **kwargs):
+         f = Matrix(f).T
+     if iterable(x0):
+         x0 = list(x0)
++
++    for i in (x0 if isinstance(x0, list) else [x0]):
++        if isinstance(i, Expr) and pure_complex(i, or_real=True) is None:
++            raise TypeError(
++                "You must evaluate numeric initial guesses; "
++                "e.g. use pi.n() instead of pi"
++            )
++
+     if not isinstance(f, Matrix):
+         # assume it's a SymPy expression
+         if isinstance(f, Eq):
+diff --git a/sympy/solvers/tests/test_numeric.py b/sympy/solvers/tests/test_numeric.py
+index 5e6f4d7158e3..cf56b67e8bf0 100644
+--- a/sympy/solvers/tests/test_numeric.py
++++ b/sympy/solvers/tests/test_numeric.py
+@@ -138,3 +138,13 @@ def test_issue_14950():
+     eqn = x + x0
+     assert nsolve(eqn, x, x0) == nfloat(-x0)
+     assert nsolve(eqn.T, x.T, x0.T) == nfloat(-x0)
++
++def test_issue_31039():
++    x, y = symbols('x y')
++    raises(TypeError, lambda: nsolve(sin(x), x, pi))
++    raises(TypeError, lambda: nsolve(sin(x), x, (3, pi)))
++    raises(TypeError, lambda: nsolve([sin(x), y - 1], [x, y], [pi, 1]))
++    assert abs(nsolve(sin(x), x, pi.n(2)) - pi) < 1e-15
++    assert nsolve(x - 1 + I, x, 1 - I/2) == 1.0 - 1.0*I
++    assert nsolve(x - 1 + I, x, '42') == 1.0 - 1.0*I
++    assert nsolve(x - 1 + I, x, 42) == 1.0 - 1.0*I

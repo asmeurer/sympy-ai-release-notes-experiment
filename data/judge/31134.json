@@ -1,0 +1,129 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 11594,
+  "human_is": "B",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 7522,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 7522,
+      "cacheReadInputTokens": 15228,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0853376,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1105,
+      "provider": "firstParty",
+      "thinkingTokens": 361,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31134,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"accurate\",\"overall\":5,\"problems\":[]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":3,\"problems\":[\"Phrased abstractly (\\\"one open endpoint is known to belong to the other set but membership of the opposite endpoint is undecidable\\\"); users can't easily tell whether it applies to them\",\"No concrete example; does not mention the typical trigger, a FiniteSet with a symbolic element\"]},\"same_substance\":true,\"preferred\":\"A\",\"strength\":\"slight\",\"rationale\":\"The diff changes the Interval\u2013Set union handler. It now reuses the endpoint-membership checks it has already made instead of re-testing with Python `in`. Before, that `in` test raised a TypeError when membership of the other open endpoint couldn't be decided, for example `Union(Interval.open(-1, 1), FiniteSet(x, 1))`. This is a user-visible bug fix and needs an entry. Both candidates describe it correctly. A gives the concrete triggering example, so users will recognize the bug. B states the general condition accurately, but in abstract terms that are harder for an end user to map onto their own code.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "accurate",
+      "overall": 5,
+      "problems": []
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 3,
+      "problems": [
+        "Phrased abstractly (\"one open endpoint is known to belong to the other set but membership of the opposite endpoint is undecidable\"); users can't easily tell whether it applies to them",
+        "No concrete example; does not mention the typical trigger, a FiniteSet with a symbolic element"
+      ]
+    },
+    "preferred": "A",
+    "rationale": "The diff changes the Interval\u2013Set union handler. It now reuses the endpoint-membership checks it has already made instead of re-testing with Python `in`. Before, that `in` test raised a TypeError when membership of the other open endpoint couldn't be decided, for example `Union(Interval.open(-1, 1), FiniteSet(x, 1))`. This is a user-visible bug fix and needs an entry. Both candidates describe it correctly. A gives the concrete triggering example, so users will recognize the bug. B states the general condition accurately, but in abstract terms that are harder for an end user to map onto their own code.",
+    "same_substance": true,
+    "should_have_entry": "yes",
+    "strength": "slight"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31134/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31134/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "accurate",
+          "overall": 5,
+          "problems": []
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 3,
+          "problems": [
+            "Phrased abstractly (\"one open endpoint is known to belong to the other set but membership of the opposite endpoint is undecidable\"); users can't easily tell whether it applies to them",
+            "No concrete example; does not mention the typical trigger, a FiniteSet with a symbolic element"
+          ]
+        },
+        "preferred": "A",
+        "rationale": "The diff changes the Interval\u2013Set union handler. It now reuses the endpoint-membership checks it has already made instead of re-testing with Python `in`. Before, that `in` test raised a TypeError when membership of the other open endpoint couldn't be decided, for example `Union(Interval.open(-1, 1), FiniteSet(x, 1))`. This is a user-visible bug fix and needs an entry. Both candidates describe it correctly. A gives the concrete triggering example, so users will recognize the bug. B states the general condition accurately, but in abstract terms that are harder for an end user to map onto their own code.",
+        "same_substance": true,
+        "should_have_entry": "yes",
+        "strength": "slight"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0853376,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 7522,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 7522,
+    "cache_read_input_tokens": 15228,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 2028,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 2028,
+        "cache_read_input_tokens": 10361,
+        "input_tokens": 2,
+        "output_tokens": 905,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1105,
+    "output_tokens_details": {
+      "thinking_tokens": 361
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

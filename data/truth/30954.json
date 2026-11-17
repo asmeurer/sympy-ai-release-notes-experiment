@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "OpenAI Codex (GPT-6 Astra) generated all changes in `sympy/vector/vector.py`, `sympy/vector/tests/test_vector.py`, and `.mailmap`. This PR description was also written by the AI agent at the account owner's request.",
+  "author": "raman118",
+  "entries": [
+    {
+      "submodule": "vector",
+      "text": "Direct construction of `Vector` now raises a helpful `TypeError` instead of creating an invalid object that can cause infinite recursion during scalar multiplication."
+    }
+  ],
+  "merged_at": "2026-11-05T17:03:41Z",
+  "number": 30954,
+  "overlap": {
+    "title_similarity": 0.29441624365482233,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* vector\n  * Direct construction of `Vector` now raises a helpful `TypeError` instead of creating an invalid object that can cause infinite recursion during scalar multiplication.",
+  "status": "entry",
+  "title": "Reject direct construction of Vector"
+}

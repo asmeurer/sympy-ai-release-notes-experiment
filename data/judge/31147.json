@@ -1,0 +1,135 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 9922,
+  "human_is": "A",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 13303,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 13303,
+      "cacheReadInputTokens": 15249,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.12986979999999998,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1019,
+      "provider": "firstParty",
+      "thinkingTokens": 243,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31147,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"Doesn't name `ask` or which predicates, so users may not recognise whether it affects them.\",\"The phrase \\\"symbolic components evaluate to complex expressions\\\" describes internals that users wouldn't know about.\",\"Doesn't say what is returned now (`None`).\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"Two sentences and somewhat long, which works against the guide's advice to keep entries short.\"]},\"same_substance\":true,\"preferred\":\"B\",\"strength\":\"slight\",\"rationale\":\"This is a user-visible bug fix. In the assumptions handlers, `ask(Q.real/positive/negative/imaginary/nonzero(...))` used to raise `AttributeError` when `evalf(2)` returned an `Add` with no `_prec`. The merged version returns `None` in those cases instead, so it deserves an entry. Both candidates describe this accurately. B is clearer for users because it names `ask`, lists the affected predicates, and states the new `None` result, though it runs to two sentences. A is shorter but uses wording about internals (\\\"symbolic components evaluate to complex expressions\\\") and leaves out what users will now get back.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "Doesn't name `ask` or which predicates, so users may not recognise whether it affects them.",
+        "The phrase \"symbolic components evaluate to complex expressions\" describes internals that users wouldn't know about.",
+        "Doesn't say what is returned now (`None`)."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "Two sentences and somewhat long, which works against the guide's advice to keep entries short."
+      ]
+    },
+    "preferred": "B",
+    "rationale": "This is a user-visible bug fix. In the assumptions handlers, `ask(Q.real/positive/negative/imaginary/nonzero(...))` used to raise `AttributeError` when `evalf(2)` returned an `Add` with no `_prec`. The merged version returns `None` in those cases instead, so it deserves an entry. Both candidates describe this accurately. B is clearer for users because it names `ask`, lists the affected predicates, and states the new `None` result, though it runs to two sentences. A is shorter but uses wording about internals (\"symbolic components evaluate to complex expressions\") and leaves out what users will now get back.",
+    "same_substance": true,
+    "should_have_entry": "yes",
+    "strength": "slight"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31147/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31147/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "Doesn't name `ask` or which predicates, so users may not recognise whether it affects them.",
+            "The phrase \"symbolic components evaluate to complex expressions\" describes internals that users wouldn't know about.",
+            "Doesn't say what is returned now (`None`)."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "Two sentences and somewhat long, which works against the guide's advice to keep entries short."
+          ]
+        },
+        "preferred": "B",
+        "rationale": "This is a user-visible bug fix. In the assumptions handlers, `ask(Q.real/positive/negative/imaginary/nonzero(...))` used to raise `AttributeError` when `evalf(2)` returned an `Add` with no `_prec`. The merged version returns `None` in those cases instead, so it deserves an entry. Both candidates describe this accurately. B is clearer for users because it names `ask`, lists the affected predicates, and states the new `None` result, though it runs to two sentences. A is shorter but uses wording about internals (\"symbolic components evaluate to complex expressions\") and leaves out what users will now get back.",
+        "same_substance": true,
+        "should_have_entry": "yes",
+        "strength": "slight"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.12986979999999998,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 13303,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 13303,
+    "cache_read_input_tokens": 15249,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 7788,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 7788,
+        "cache_read_input_tokens": 10382,
+        "input_tokens": 2,
+        "output_tokens": 819,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1019,
+    "output_tokens_details": {
+      "thinking_tokens": 243
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

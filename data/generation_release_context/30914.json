@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4736,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 10559,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 10559,
+      "cacheReadInputTokens": 17114,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0502154,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 626,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 30914,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"series\",\"text\":\"Added the `bound_symbols` property to `Limit`, so `Limit(x + y, x, 0).bound_symbols` now gives `(x,)` instead of raising an `AttributeError`. This also makes `Limit.as_dummy()`, `Limit.dummy_eq()` and `Limit.canonical_variables` work with the limit variable.\"}],\"reasoning\":\"The PR adds a public `bound_symbols` property to `Limit`. Before this, accessing it raised an AttributeError, and the change also enables `as_dummy`, `dummy_eq` and `canonical_variables` on limits. Nothing suggests the problem is new since 1.14, so this is a user-visible change that needs an entry.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "series",
+        "text": "Added the `bound_symbols` property to `Limit`, so `Limit(x + y, x, 0).bound_symbols` now gives `(x,)` instead of raising an `AttributeError`. This also makes `Limit.as_dummy()`, `Limit.dummy_eq()` and `Limit.canonical_variables` work with the limit variable."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The PR adds a public `bound_symbols` property to `Limit`. Before this, accessing it raised an AttributeError, and the change also enables `as_dummy`, `dummy_eq` and `canonical_variables` on limits. Nothing suggests the problem is new since 1.14, so this is a user-visible change that needs an entry."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30914/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30914/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30914/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "series",
+            "text": "Added the `bound_symbols` property to `Limit`, so `Limit(x + y, x, 0).bound_symbols` now gives `(x,)` instead of raising an `AttributeError`. This also makes `Limit.as_dummy()`, `Limit.dummy_eq()` and `Limit.canonical_variables` work with the limit variable."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The PR adds a public `bound_symbols` property to `Limit`. Before this, accessing it raised an AttributeError, and the change also enables `as_dummy`, `dummy_eq` and `canonical_variables` on limits. Nothing suggests the problem is new since 1.14, so this is a user-visible change that needs an entry."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0502154,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 10559,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 10559,
+    "cache_read_input_tokens": 17114,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 3031,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 3031,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 337,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 626,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

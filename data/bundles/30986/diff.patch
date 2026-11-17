@@ -1,0 +1,576 @@
+diff --git a/sympy/core/exprtools.py b/sympy/core/exprtools.py
+index 5cbfdf644366..d401dc968684 100644
+--- a/sympy/core/exprtools.py
++++ b/sympy/core/exprtools.py
+@@ -8,7 +8,7 @@
+ from .basic import Basic
+ from .expr import Expr
+ from .function import expand_power_exp
+-from .sympify import sympify
++from .sympify import sympify, _sympify
+ from .numbers import Rational, Integer, Number, I, equal_valued
+ from .singleton import S
+ from .sorting import default_sort_key, ordered
+@@ -26,6 +26,106 @@
+ _eps = Dummy('eps', positive=True)
+ 
+ 
++class NonlinearError(ValueError):
++    """Raised when unexpectedly encountering nonlinear equations"""
++    pass
++
++
++def linear_coeffs(eq, *syms, dict=False):
++    """Return a list whose elements are the coefficients of the
++    corresponding symbols in the sum of terms in  ``eq``.
++    The additive constant is returned as the last element of the
++    list.
++
++    Raises
++    ======
++
++    NonlinearError
++        The equation contains a nonlinear term
++    ValueError
++        duplicate or unordered symbols are passed
++
++    Parameters
++    ==========
++
++    dict - (default False) when True, return coefficients as a
++        dictionary with coefficients keyed to syms that were present;
++        key 1 gives the constant term
++
++    Examples
++    ========
++
++    >>> from sympy.core.exprtools import linear_coeffs
++    >>> from sympy.abc import x, y, z
++    >>> linear_coeffs(3*x + 2*y - 1, x, y)
++    [3, 2, -1]
++
++    It is not necessary to expand the expression:
++
++        >>> linear_coeffs(x + y*(z*(x*3 + 2) + 3), x)
++        [3*y*z + 1, y*(2*z + 3)]
++
++    When nonlinear is detected, an error will be raised:
++
++        * even if they would cancel after expansion (so the
++        situation does not pass silently past the caller's
++        attention)
++
++        >>> eq = 1/x*(x - 1) + 1/x
++        >>> linear_coeffs(eq.expand(), x)
++        [0, 1]
++        >>> linear_coeffs(eq, x)
++        Traceback (most recent call last):
++        ...
++        NonlinearError:
++        nonlinear in given generators
++
++        * when there are cross terms
++
++        >>> linear_coeffs(x*(y + 1), x, y)
++        Traceback (most recent call last):
++        ...
++        NonlinearError:
++        symbol-dependent cross-terms encountered
++
++        * when there are terms that contain an expression
++        dependent on the symbols that is not linear
++
++        >>> linear_coeffs(x**2, x)
++        Traceback (most recent call last):
++        ...
++        NonlinearError:
++        nonlinear in given generators
++    """
++    eq = _sympify(eq)
++    if len(syms) == 1 and iterable(syms[0]) and not isinstance(syms[0], Basic):
++        raise ValueError('expecting unpacked symbols, *syms')
++    symset = set(syms)
++    if len(symset) != len(syms):
++        raise ValueError('duplicate symbols given')
++    # Deferred imports avoid loading the polynomial machinery when
++    # exprtools itself is imported.
++    from sympy.polys.matrices.linsolve import _linear_eq_to_dict
++    from sympy.polys.solvers import PolyNonlinearError
++    try:
++        d, c = _linear_eq_to_dict([eq], symset)
++        d = d[0]
++        c = c[0]
++    except PolyNonlinearError as err:
++        raise NonlinearError(str(err))
++    if dict:
++        if c:
++            d[S.One] = c
++        return d
++    rv = [S.Zero]*(len(syms) + 1)
++    rv[-1] = c
++    for i, k in enumerate(syms):
++        if k not in d:
++            continue
++        rv[i] = d[k]
++    return rv
++
++
+ def _isnumber(i):
+     return isinstance(i, (SYMPY_INTS, float)) or i.is_Number
+ 
+@@ -46,8 +146,9 @@ def _monotonic_sign(self):
+       of values for the variables.
+     - M(x, y, ...) + A: a monomial M whose factors are all signed and a constant, A.
+     - A/M(x, y, ...) + B: the inverse of a monomial and constants A and B.
+-    - F(x): a univariate expression that is monotonic over the known range of x,
+-      or a polynomial whose extrema can be determined.
++    - F(x): a univariate polynomial with determinable extrema, or an affine
++      transformation of exp, log, or sqrt with an affine argument and a
++      justified real domain.
+ 
+     Examples
+     ========
+@@ -155,34 +256,53 @@ def _monotonic_sign(self):
+         else:
+             x = next(iter(free))
+             x0 = _monotonic_sign(x)
+-
+             if x0 not in (None, _eps, -_eps):
+-                d = self.diff(x)
+-                y = self.subs(x, x0)
+-
+-                if x.is_nonnegative:
+-                    if d.is_positive:
+-                        if y.is_positive:
+-                            return y
+-                        if y.is_zero:
+-                            return Dummy('nneg', nonnegative=True)
+-                    elif d.is_negative:
+-                        if y.is_negative:
+-                            return y
+-                        if y.is_zero:
+-                            return Dummy('npos', nonpositive=True)
+-
+-                elif x.is_nonpositive:
+-                    if d.is_positive:
+-                        if y.is_negative:
+-                            return y
+-                        if y.is_zero:
+-                            return Dummy('npos', nonpositive=True)
+-                    elif d.is_negative:
+-                        if y.is_positive:
+-                            return y
+-                        if y.is_zero:
+-                            return Dummy('nneg', nonnegative=True)
++                # Only use endpoint inference for known monotonic functions
++                # with affine arguments. A derivative sign at integer points
++                # does not imply monotonicity between them.
++                from sympy.functions.elementary.exponential import exp, log
++                c, term = self.as_independent(x, as_Add=True)
++                a, f = term.as_independent(x, as_Add=False)
++                is_sqrt = f.is_Pow and f.exp == S.Half
++                if f.func in (exp, log) or is_sqrt:
++                    u = f.base if is_sqrt else f.args[0]
++                    # Extract affine coefficients without expansion.
++                    try:
++                        slope, _ = linear_coeffs(u, x)
++                    except NonlinearError:
++                        pass
++                    else:
++                        increasing = (a*slope).is_positive
++                        decreasing = (a*slope).is_negative
++                        if increasing or decreasing:
++                            domain_ok = True
++                            if f.func == log or is_sqrt:
++                                # The argument must stay in the real domain
++                                # on the entire interval from the endpoint.
++                                domain_ok = (
++                                    (x.is_nonnegative and slope.is_positive)
++                                    or (x.is_nonpositive and slope.is_negative)
++                                )
++                                if domain_ok:
++                                    u0 = u.subs(x, x0)
++                                    domain_ok = (
++                                        u0.is_nonnegative is True if is_sqrt
++                                        else u0.is_positive is True
++                                    )
++                            if domain_ok:
++                                y = self.subs(x, x0)
++                                if ((x.is_nonnegative and increasing)
++                                        or (x.is_nonpositive and decreasing)):
++                                    if y.is_positive:
++                                        return y
++                                    if y.is_zero:
++                                        return Dummy('nneg', nonnegative=True)
++                                elif ((x.is_nonnegative and decreasing)
++                                        or (x.is_nonpositive and increasing)):
++                                    if y.is_negative:
++                                        return y
++                                    if y.is_zero:
++                                        return Dummy('npos', nonpositive=True)
+ 
+             n, d = self.as_numer_denom()
+             den = None
+diff --git a/sympy/core/tests/test_exprtools.py b/sympy/core/tests/test_exprtools.py
+index ec1786d985cd..b1ab5ea546ac 100644
+--- a/sympy/core/tests/test_exprtools.py
++++ b/sympy/core/tests/test_exprtools.py
+@@ -8,8 +8,10 @@
+ from sympy.core.function import Function
+ from sympy.core.mul import Mul
+ from sympy.core.numbers import (I, Rational, oo)
++from sympy.core.power import Pow
+ from sympy.core.singleton import S
+ from sympy.core.symbol import (Dummy, Symbol, symbols)
++from sympy.functions.elementary.complexes import Abs
+ from sympy.functions.elementary.exponential import (exp, log)
+ from sympy.functions.elementary.miscellaneous import (root, sqrt)
+ from sympy.functions.elementary.trigonometric import (cos, sin)
+@@ -425,6 +427,7 @@ def test_issue_7903():
+     t = exp(I*cos(a)) + exp(-I*sin(a))
+     assert t.simplify()
+ 
++
+ def test_issue_8263():
+     F, G = symbols('F, G', commutative=False, cls=Function)
+     x, y = symbols('x, y')
+@@ -433,6 +436,7 @@ def test_issue_8263():
+         assert not v.is_commutative
+     assert not expr.is_zero
+ 
++
+ def test_monotonic_sign():
+     F = _monotonic_sign
+     x = symbols('x')
+@@ -517,8 +521,6 @@ def test_monotonic_sign():
+ 
+     # issue 9154
+     p = Dummy(prime=True, odd=True)
+-    assert F(log(p) - 1) == log(3) - 1
+-    assert F(sqrt(p) - sqrt(2)) == sqrt(3) - sqrt(2)
+     assert log(p) >= 1
+     assert (sqrt(p) - sqrt(2)).is_positive is True
+ 
+@@ -526,23 +528,17 @@ def test_monotonic_sign():
+     nn = Dummy(integer=True, nonnegative=True)
+ 
+     r = F(exp(nn) - 1)
+-    assert r.is_nonnegative is True
+     assert r.is_positive is None
+ 
+     r = F(exp(-nn) - 1)
+-    assert r.is_nonpositive is True
+     assert r.is_negative is None
+ 
+     np = Dummy(integer=True, nonpositive=True)
+ 
+-    assert F(exp(np) - 2) == -1
+-
+     r = F(exp(np) - 1)
+     assert r.is_nonpositive is True
+     assert r.is_negative is None
+ 
+-    assert F(exp(-np) - S.Half) == S.Half
+-
+     r = F(exp(-np) - 1)
+     assert r.is_nonnegative is True
+     assert r.is_positive is None
+@@ -551,6 +547,70 @@ def test_monotonic_sign():
+     assert F(exp(-nn) - 2) == -1
+ 
+ 
++def test_monotonic_sign_discontinuous_integer_domain():
++    n = Dummy(integer=True, nonnegative=True)
++    t = 2*n - 1
++    f = Mul(t, Pow(t, -2, evaluate=False), evaluate=False)
++
++    # The denominator is positive at every integer.
++    assert f.as_numer_denom()[1].is_extended_positive is True
++    assert f.diff(n).is_negative is True
++
++    # Yet the function changes sign between consecutive integers.
++    assert f.subs(n, 0) == -1
++    assert f.subs(n, 1) == 1
++
++    # A negative derivative at integer values is insufficient.
++    assert _monotonic_sign(f) is None
++    assert f.is_negative is None
++
++    # Incorrect inference must not corrupt subsequent evaluation.
++    assert Abs(f).subs(n, 1) == 1
++    assert sqrt(f**2).subs(n, 1) == 1
++
++
++def test_monotonic_sign_safe_functions():
++    from sympy.functions.elementary.complexes import Abs, sign
++
++    F = _monotonic_sign
++    nn = Dummy(integer=True, nonnegative=True)
++    np = Dummy(integer=True, nonpositive=True)
++    p = Dummy(prime=True, odd=True)
++
++    # The endpoint method remains available for known monotonic functions.
++    assert F(log(p) - 1) == log(3) - 1
++    assert F(sqrt(p) - sqrt(2)) == sqrt(3) - sqrt(2)
++    assert F(exp(nn) - 1).is_nonnegative is True
++    assert F(exp(-nn) - 1).is_nonpositive is True
++    assert F(exp(np) - 2) == -1
++    assert F(exp(-np) - S.Half) == S.Half
++
++    # Affine argument and constant scaling.
++    assert F(2*exp(3*nn + 2) - 1) == 2*exp(2) - 1
++    assert F(2*log(nn + 1) + 1) == 1
++    assert F(-2*sqrt(nn + 1) - 3) == -5
++    assert F(exp(nn**2) - 2) is None
++
++    # Derivative signs do not establish monotonicity across poles or
++    # discontinuities between integers.
++    assert F(1/(2*nn - 1)) is None
++    assert F(1/(4*nn - 1)) is None
++    f = nn - 2*sign(nn - S.Half)
++    assert F(f) is None
++    assert f.subs(nn, 0) == 2
++    assert f.subs(nn, 1) == -1
++
++    # A logarithmic argument must remain positive throughout the
++    # relevant interval; a square root must remain nonnegative.
++    assert F(log(1 - nn) - 2) is None
++    assert F(sqrt(1 - nn) - 2) is None
++
++    bad = 1/(2*nn - 1) - S.Half
++    assert bad.is_negative is None
++    assert Abs(bad).subs(nn, 1) == S.Half
++
++
++
+ def test_issue_17256():
+     from sympy.sets.fancysets import Range
+     x = Symbol('x')
+@@ -568,7 +628,40 @@ def test_issue_17256():
+     r2 = s2.xreplace({x:a})
+     assert r1 == r2
+ 
++
+ def test_issue_21623():
+     from sympy.matrices.expressions.matexpr import MatrixSymbol
+     M = MatrixSymbol('X', 2, 2)
+     assert gcd_terms(M[0,0], 1) == M[0,0]
++
++
++def test_linear_coeffs():
++    from sympy.solvers.solveset import linear_coeffs, NonlinearError
++    from sympy.core.exprtools import (
++        NonlinearError as CoreNonlinearError,
++        linear_coeffs as core_linear_coeffs,
++    )
++    from sympy.core.mul import Mul
++    from sympy.core.relational import Eq
++
++    assert linear_coeffs is core_linear_coeffs
++    assert NonlinearError is CoreNonlinearError
++
++    # Nested affine terms need no expansion.
++    assert linear_coeffs(Mul(5, 2*x + 3, evaluate=False) + 7, x) == [10, 22]
++    assert linear_coeffs(0, x) == [0, 0]
++    assert all(i is S.Zero for i in linear_coeffs(0, x))
++    assert linear_coeffs(x + 2*y + 3, x, y) == [1, 2, 3]
++    assert linear_coeffs(x + 2*y + 3, y, x) == [2, 1, 3]
++    assert linear_coeffs(x + 2*x**2 + 3, x, x**2) == [1, 2, 3]
++    raises(ValueError, lambda:
++        linear_coeffs(x + 2*x**2 + x**3, x, x**2))
++    raises(ValueError, lambda:
++        linear_coeffs(1/x*(x - 1) + 1/x, x))
++    raises(ValueError, lambda:
++        linear_coeffs(x, x, x))
++    assert linear_coeffs(a*(x + y), x, y) == [a, a, 0]
++    assert linear_coeffs(1.0, x, y) == [0, 0, 1.0]
++    # don't include coefficients of 0
++    assert linear_coeffs(Eq(x, x + y), x, y, dict=True) == {y: -1}
++    assert linear_coeffs(0, x, y, dict=True) == {}
+diff --git a/sympy/logic/boolalg.py b/sympy/logic/boolalg.py
+index 4299da8e4b03..5ef7cbd055f9 100644
+--- a/sympy/logic/boolalg.py
++++ b/sympy/logic/boolalg.py
+@@ -670,7 +670,7 @@ def _eval_subs(self, old, new):
+ 
+     def _eval_simplify(self, **kwargs):
+         from sympy.core.relational import Equality, Relational
+-        from sympy.solvers.solveset import linear_coeffs
++        from sympy.core.exprtools import linear_coeffs
+         # standard simplify
+         rv = super()._eval_simplify(**kwargs)
+         if not isinstance(rv, And):
+diff --git a/sympy/solvers/solveset.py b/sympy/solvers/solveset.py
+index bcceaeb88240..ff0395aaad28 100644
+--- a/sympy/solvers/solveset.py
++++ b/sympy/solvers/solveset.py
+@@ -12,8 +12,7 @@
+ """
+ from __future__ import annotations
+ from sympy.core.sympify import sympify
+-from sympy.core import (S, Pow, Dummy, pi, Expr, Wild, Mul,
+-                        Add, Basic)
++from sympy.core import (S, Pow, Dummy, pi, Expr, Wild, Mul, Add)
+ from sympy.core.containers import Tuple
+ from sympy.core.function import (Lambda, expand_complex, AppliedUndef,
+                                 expand_log, _mexpand, expand_trig, nfloat)
+@@ -25,6 +24,10 @@
+ from sympy.core.symbol import Symbol, _uniquely_named_symbol
+ from sympy.core.sympify import _sympify
+ from sympy.core.traversal import preorder_traversal
++from sympy.core.exprtools import (
++    linear_coeffs as linear_coeffs,
++    NonlinearError as NonlinearError,
++)
+ from sympy.external.gmpy import gcd as number_gcd, lcm as number_lcm
+ from sympy.polys.matrices.linsolve import _linear_eq_to_dict
+ from sympy.polys.polyroots import UnsolvableFactorError
+@@ -59,18 +62,13 @@
+ from sympy.solvers.polysys import solve_poly_system
+ from sympy.utilities import filldedent
+ from sympy.utilities.iterables import (numbered_symbols, has_dups,
+-                                       is_sequence, iterable)
++                                       is_sequence)
+ from sympy.calculus.util import periodicity, continuous_domain, function_range
+ 
+ 
+ from types import GeneratorType
+ 
+ 
+-class NonlinearError(ValueError):
+-    """Raised when unexpectedly encountering nonlinear equations"""
+-    pass
+-
+-
+ def _masked(f, *atoms):
+     """Return ``f``, with all objects given by ``atoms`` replaced with
+     Dummy symbols, ``d``, and the list of replacements, ``(d, e)``,
+@@ -2686,97 +2684,6 @@ def solvify(f, symbol, domain):
+ ###############################################################################
+ 
+ 
+-def linear_coeffs(eq, *syms, dict=False):
+-    """Return a list whose elements are the coefficients of the
+-    corresponding symbols in the sum of terms in  ``eq``.
+-    The additive constant is returned as the last element of the
+-    list.
+-
+-    Raises
+-    ======
+-
+-    NonlinearError
+-        The equation contains a nonlinear term
+-    ValueError
+-        duplicate or unordered symbols are passed
+-
+-    Parameters
+-    ==========
+-
+-    dict - (default False) when True, return coefficients as a
+-        dictionary with coefficients keyed to syms that were present;
+-        key 1 gives the constant term
+-
+-    Examples
+-    ========
+-
+-    >>> from sympy.solvers.solveset import linear_coeffs
+-    >>> from sympy.abc import x, y, z
+-    >>> linear_coeffs(3*x + 2*y - 1, x, y)
+-    [3, 2, -1]
+-
+-    It is not necessary to expand the expression:
+-
+-        >>> linear_coeffs(x + y*(z*(x*3 + 2) + 3), x)
+-        [3*y*z + 1, y*(2*z + 3)]
+-
+-    When nonlinear is detected, an error will be raised:
+-
+-        * even if they would cancel after expansion (so the
+-        situation does not pass silently past the caller's
+-        attention)
+-
+-        >>> eq = 1/x*(x - 1) + 1/x
+-        >>> linear_coeffs(eq.expand(), x)
+-        [0, 1]
+-        >>> linear_coeffs(eq, x)
+-        Traceback (most recent call last):
+-        ...
+-        NonlinearError:
+-        nonlinear in given generators
+-
+-        * when there are cross terms
+-
+-        >>> linear_coeffs(x*(y + 1), x, y)
+-        Traceback (most recent call last):
+-        ...
+-        NonlinearError:
+-        symbol-dependent cross-terms encountered
+-
+-        * when there are terms that contain an expression
+-        dependent on the symbols that is not linear
+-
+-        >>> linear_coeffs(x**2, x)
+-        Traceback (most recent call last):
+-        ...
+-        NonlinearError:
+-        nonlinear in given generators
+-    """
+-    eq = _sympify(eq)
+-    if len(syms) == 1 and iterable(syms[0]) and not isinstance(syms[0], Basic):
+-        raise ValueError('expecting unpacked symbols, *syms')
+-    symset = set(syms)
+-    if len(symset) != len(syms):
+-        raise ValueError('duplicate symbols given')
+-    try:
+-        d, c = _linear_eq_to_dict([eq], symset)
+-        d = d[0]
+-        c = c[0]
+-    except PolyNonlinearError as err:
+-        raise NonlinearError(str(err))
+-    if dict:
+-        if c:
+-            d[S.One] = c
+-        return d
+-    rv = [S.Zero]*(len(syms) + 1)
+-    rv[-1] = c
+-    for i, k in enumerate(syms):
+-        if k not in d:
+-            continue
+-        rv[i] = d[k]
+-    return rv
+-
+-
+ def linear_eq_to_matrix(equations, *symbols):
+     r"""
+     Converts a given System of Equations into Matrix form. Here ``equations``
+diff --git a/sympy/solvers/tests/test_solveset.py b/sympy/solvers/tests/test_solveset.py
+index c8204a4177c3..9fc50bc7b0ee 100644
+--- a/sympy/solvers/tests/test_solveset.py
++++ b/sympy/solvers/tests/test_solveset.py
+@@ -3291,26 +3291,6 @@ def test_is_lambert():
+ # end of lambert tests
+ 
+ 
+-def test_linear_coeffs():
+-    from sympy.solvers.solveset import linear_coeffs
+-    assert linear_coeffs(0, x) == [0, 0]
+-    assert all(i is S.Zero for i in linear_coeffs(0, x))
+-    assert linear_coeffs(x + 2*y + 3, x, y) == [1, 2, 3]
+-    assert linear_coeffs(x + 2*y + 3, y, x) == [2, 1, 3]
+-    assert linear_coeffs(x + 2*x**2 + 3, x, x**2) == [1, 2, 3]
+-    raises(ValueError, lambda:
+-        linear_coeffs(x + 2*x**2 + x**3, x, x**2))
+-    raises(ValueError, lambda:
+-        linear_coeffs(1/x*(x - 1) + 1/x, x))
+-    raises(ValueError, lambda:
+-        linear_coeffs(x, x, x))
+-    assert linear_coeffs(a*(x + y), x, y) == [a, a, 0]
+-    assert linear_coeffs(1.0, x, y) == [0, 0, 1.0]
+-    # don't include coefficients of 0
+-    assert linear_coeffs(Eq(x, x + y), x, y, dict=True) == {y: -1}
+-    assert linear_coeffs(0, x, y, dict=True) == {}
+-
+-
+ def test_is_modular():
+     assert _is_modular(y, x) is False
+     assert _is_modular(Mod(x, 3) - 1, x) is True

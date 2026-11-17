@@ -1,0 +1,16 @@
+{
+  "ai_disclosure": "Codex wrote the test.",
+  "author": "oscarbenjamin",
+  "entries": [],
+  "merged_at": "2026-11-16T19:20:32Z",
+  "number": 31135,
+  "overlap": {
+    "title_similarity": null,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "NO ENTRY",
+  "status": "no_entry",
+  "title": "fix(core): keep args in argset when evaluate=False"
+}

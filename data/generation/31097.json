@@ -1,0 +1,108 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4220,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 14890,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 14890,
+      "cacheReadInputTokens": 11919,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.06507990000000001,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 432,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31097,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"matrices\",\"text\":\"Fixed `QRsolve` and `inv(method='QR')` returning incorrect results for matrices with complex entries.\"}],\"reasoning\":\"The diff changes `_QRsolve` to use the conjugate transpose `Q.H` instead of `Q.T`. This fixes wrong solutions and inverses for complex matrices, which is a user-visible bug fix. Real matrices behave the same as before.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "matrices",
+        "text": "Fixed `QRsolve` and `inv(method='QR')` returning incorrect results for matrices with complex entries."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The diff changes `_QRsolve` to use the conjugate transpose `Q.H` instead of `Q.T`. This fixes wrong solutions and inverses for complex matrices, which is a user-visible bug fix. Real matrices behave the same as before."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31097/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31097/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "matrices",
+            "text": "Fixed `QRsolve` and `inv(method='QR')` returning incorrect results for matrices with complex entries."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The diff changes `_QRsolve` to use the conjugate transpose `Q.H` instead of `Q.T`. This fixes wrong solutions and inverses for complex matrices, which is a user-visible bug fix. Real matrices behave the same as before."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.06507990000000001,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 14890,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 14890,
+    "cache_read_input_tokens": 11919,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 2971,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 2971,
+        "cache_read_input_tokens": 11919,
+        "input_tokens": 2,
+        "output_tokens": 238,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 432,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

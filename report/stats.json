@@ -1,0 +1,498 @@
+{
+  "ai": {
+    "entry": 72,
+    "no_entry": 28
+  },
+  "ai_flag": {
+    "disclosure": {
+      "ai_assist": 51,
+      "ai_wrote_text": 20,
+      "no_ai": 8
+    },
+    "entry_looks_ai_written": {
+      "cannot_tell": 19,
+      "likely": 40,
+      "unlikely": 20
+    },
+    "n": 79,
+    "preference_by_disclosure": {
+      "ai_assist": {
+        "ai": 45,
+        "human": 5,
+        "tie": 1
+      },
+      "ai_wrote_text": {
+        "ai": 18,
+        "human": 1,
+        "tie": 1
+      },
+      "blank_or_unclear": {},
+      "no_ai": {
+        "ai": 7,
+        "human": 1
+      }
+    },
+    "preference_by_look": {
+      "cannot_tell": {
+        "ai": 18,
+        "human": 1
+      },
+      "likely": {
+        "ai": 33,
+        "human": 5,
+        "tie": 2
+      },
+      "unlikely": {
+        "ai": 19,
+        "human": 1
+      }
+    }
+  },
+  "ai_note_title_similarity_over_0.8": 0,
+  "audit": {
+    "mcp_servers": [],
+    "permission_denials": 0,
+    "reads_of_sympy_checkout": 3,
+    "tool_calls_outside_sandbox": [],
+    "tools_available": [
+      "Glob",
+      "Grep",
+      "Read",
+      "StructuredOutput"
+    ]
+  },
+  "both_entry": 67,
+  "decision_matrix": {
+    "human_entry/ai_entry": 67,
+    "human_entry/ai_no_entry": 12,
+    "human_no_entry/ai_entry": 5,
+    "human_no_entry/ai_no_entry": 16
+  },
+  "entry_counts": {
+    "ai": {
+      "1": 58,
+      "2": 6,
+      "3": 3
+    },
+    "human": {
+      "1": 60,
+      "2": 6,
+      "3": 1
+    }
+  },
+  "extrapolation": {
+    "cost_usd": 25.06363555,
+    "release_cycle_prs": 835,
+    "release_cycle_prs_with_entry": 494,
+    "tokens": 24818128.85
+  },
+  "harness_overhead_tokens": 5234,
+  "human": {
+    "entry": 79,
+    "no_entry": 21
+  },
+  "human_note_equals_title": 1,
+  "human_note_title_similarity_over_0.8": 3,
+  "judge": {
+    "accuracy": {
+      "ai": {
+        "accurate": 62,
+        "minor_inaccuracy": 9,
+        "not_applicable": 28,
+        "wrong": 1
+      },
+      "human": {
+        "accurate": 54,
+        "minor_inaccuracy": 23,
+        "not_applicable": 21,
+        "wrong": 2
+      }
+    },
+    "all": {
+      "ai": 73,
+      "clear_ai": 45,
+      "clear_human": 2,
+      "human": 9,
+      "mean_score_ai": 4.44,
+      "mean_score_human": 3.35,
+      "n": 100,
+      "sign_test_p": 1.3767370902215938e-13,
+      "tie": 18
+    },
+    "both_entry": {
+      "ai": 58,
+      "clear_ai": 34,
+      "clear_human": 0,
+      "human": 7,
+      "mean_score_ai": 4.3283582089552235,
+      "mean_score_human": 3.208955223880597,
+      "n": 67,
+      "sign_test_p": 4.270521620792361e-11,
+      "tie": 2
+    },
+    "both_no_entry": {
+      "ai": 0,
+      "clear_ai": 0,
+      "clear_human": 0,
+      "human": 0,
+      "mean_score_ai": 5,
+      "mean_score_human": 5,
+      "n": 16,
+      "sign_test_p": null,
+      "tie": 16
+    },
+    "decision_vs_judge": {
+      "ai": {
+        "judge_borderline/ai_entry": 3,
+        "judge_borderline/ai_no_entry": 3,
+        "judge_no/ai_entry": 1,
+        "judge_no/ai_no_entry": 25,
+        "judge_yes/ai_entry": 68
+      },
+      "human": {
+        "judge_borderline/human_entry": 4,
+        "judge_borderline/human_no_entry": 2,
+        "judge_no/human_entry": 9,
+        "judge_no/human_no_entry": 17,
+        "judge_yes/human_entry": 66,
+        "judge_yes/human_no_entry": 2
+      }
+    },
+    "human_entry_ai_none": {
+      "ai": 12,
+      "clear_ai": 9,
+      "clear_human": 0,
+      "human": 0,
+      "mean_score_ai": 4.75,
+      "mean_score_human": 2.0833333333333335,
+      "n": 12,
+      "sign_test_p": 0.00048828125,
+      "tie": 0
+    },
+    "human_none_ai_entry": {
+      "ai": 3,
+      "clear_ai": 2,
+      "clear_human": 2,
+      "human": 2,
+      "mean_score_ai": 3.4,
+      "mean_score_human": 3,
+      "n": 5,
+      "sign_test_p": 1.0,
+      "tie": 0
+    },
+    "human_was_a": 47,
+    "preferred_position": {
+      "A": 48,
+      "B": 34
+    },
+    "same_substance": 54,
+    "score_distribution": {
+      "ai": {
+        "2": 2,
+        "3": 2,
+        "4": 46,
+        "5": 50
+      },
+      "human": {
+        "1": 5,
+        "2": 22,
+        "3": 27,
+        "4": 25,
+        "5": 21
+      }
+    },
+    "should_have_entry": {
+      "borderline": 6,
+      "no": 26,
+      "yes": 68
+    }
+  },
+  "judged": 100,
+  "mechanical": {
+    "ai": {
+      "ends_with_period": 85,
+      "entries": 85,
+      "invalid_header": 0,
+      "mentions_issue_number": 0,
+      "multi_line": 0,
+      "starts_capitalized": 85
+    },
+    "human": {
+      "ends_with_period": 67,
+      "entries": 91,
+      "invalid_header": 0,
+      "mentions_issue_number": 1,
+      "multi_line": 0,
+      "starts_capitalized": 73
+    }
+  },
+  "n": 100,
+  "release_context_variant": {
+    "changed": [
+      {
+        "human": "NO ENTRY",
+        "judge_should_have_entry": "no",
+        "main_run": "entry",
+        "number": 30930,
+        "title": "fix(matrices): restore default Frobenius norm",
+        "variant": "NO ENTRY",
+        "variant_reasoning": "This PR fixes a regression in the default `Matrix.norm()` (Frobenius became spectral). The regression came from the typing PR #27373, merged 2025-06-29, after 1.14.0, and issue #30900 notes that 1.14.0 is fine. Users of released versions never saw the bug, so no entry is needed.",
+        "variant_text": "NO ENTRY"
+      },
+      {
+        "human": "entry",
+        "judge_should_have_entry": "yes",
+        "main_run": "entry",
+        "number": 30940,
+        "title": "Remove setup.py and use pyproject.toml",
+        "variant": "NO ENTRY",
+        "variant_reasoning": "The PR only migrates packaging metadata from setup.py to pyproject.toml, leaving the license expression, dependencies and installed files unchanged. The removed setup.py commands (test, antlr), bin/ helper scripts and sdist exclusions (AGENTS.md, CLAUDE.md) affect only developers and release managers, not SymPy users.",
+        "variant_text": "NO ENTRY"
+      },
+      {
+        "human": "entry",
+        "judge_should_have_entry": "borderline",
+        "main_run": "NO ENTRY",
+        "number": 30997,
+        "title": "output checker checks for `...` before literal floats",
+        "variant": "entry",
+        "variant_reasoning": "The change fixes how SymPy's doctest output checker (sympy/testing/runtests.py) treats ellipses alongside floats, and it extends the separators recognized for approximate float matching. This behavior existed in 1.14, so the fix counts as a user-visible change in sympy.testing. The entry is based on the diff.",
+        "variant_text": "* testing\n  * Fixed the doctest output checker so that `...` in expected output can hide floating-point numbers; visible floats next to `...` must now match exactly. Floats next to brackets and `:`, `=`, and `/` are now also recognized for approximate matching."
+      },
+      {
+        "human": "entry",
+        "judge_should_have_entry": "borderline",
+        "main_run": "entry",
+        "number": 31027,
+        "title": "\ud83e\udd16 Declare the set singletons on SingletonRegistry",
+        "variant": "NO ENTRY",
+        "variant_reasoning": "The change only adds type annotations (set singletons on SingletonRegistry, StochasticProcess signatures). The diff shows no runtime behavior change, so there is no user-visible effect beyond static type checking.",
+        "variant_text": "NO ENTRY"
+      },
+      {
+        "human": "NO ENTRY",
+        "judge_should_have_entry": "borderline",
+        "main_run": "entry",
+        "number": 31135,
+        "title": "fix(core): keep args in argset when evaluate=False",
+        "variant": "NO ENTRY",
+        "variant_reasoning": "The fix corrects a regression (`atoms()` on `And`/`Or` with `evaluate=False`) introduced after 1.14.0. The issue reports it working in 1.14.0 and broken in 1.15.0rc2, so no released version had the bug and no entry is needed.",
+        "variant_text": "NO ENTRY"
+      }
+    ],
+    "matrix": {
+      "human_entry/ai_entry": 66,
+      "human_entry/ai_no_entry": 13,
+      "human_no_entry/ai_entry": 3,
+      "human_no_entry/ai_no_entry": 18
+    },
+    "n": 100,
+    "tokens": {
+      "all_tokens": {
+        "max": 99497,
+        "mean": 32440.08,
+        "median": 30155.5,
+        "total": 3244008
+      },
+      "cache_creation_input_tokens": {
+        "max": 25569,
+        "mean": 7035.73,
+        "median": 5966.5,
+        "total": 703573
+      },
+      "cache_read_input_tokens": {
+        "max": 87549,
+        "mean": 24800.79,
+        "median": 24201.0,
+        "total": 2480079
+      },
+      "cost_usd": {
+        "max": 0.1137641,
+        "mean": 0.036625479,
+        "median": 0.0322041,
+        "total": 3.6625479000000003
+      },
+      "duration_s": {
+        "max": 13.36,
+        "mean": 4.82038
+      },
+      "input_tokens": {
+        "max": 10,
+        "mean": 4.14,
+        "median": 4.0,
+        "total": 414
+      },
+      "models": [
+        "claude-sonnet-5-5"
+      ],
+      "output_tokens": {
+        "max": 1743,
+        "mean": 599.42,
+        "median": 573.5,
+        "total": 59942
+      },
+      "runs": 100,
+      "turns": {
+        "max": 9,
+        "mean": 4.84
+      }
+    }
+  },
+  "same_headers": 60,
+  "tokens_ai_flag": {
+    "all_tokens": {
+      "max": 5423,
+      "mean": 4522.949367088608,
+      "median": 4455,
+      "total": 357313
+    },
+    "cache_creation_input_tokens": {
+      "max": 4135,
+      "mean": 1929.0632911392406,
+      "median": 1787,
+      "total": 152396
+    },
+    "cache_read_input_tokens": {
+      "max": 2260,
+      "mean": 2202.784810126582,
+      "median": 2260,
+      "total": 174020
+    },
+    "cost_usd": {
+      "max": 0.042067999999999994,
+      "mean": 0.023663088607594935,
+      "median": 0.022956,
+      "total": 1.8693840000000002
+    },
+    "duration_s": {
+      "max": 9.057,
+      "mean": 4.493645569620253
+    },
+    "input_tokens": {
+      "max": 2,
+      "mean": 2,
+      "median": 2,
+      "total": 158
+    },
+    "models": [
+      "claude-opus-5-5"
+    ],
+    "output_tokens": {
+      "max": 844,
+      "mean": 389.1012658227848,
+      "median": 394,
+      "total": 30739
+    },
+    "runs": 79,
+    "turns": {
+      "max": 2,
+      "mean": 2
+    }
+  },
+  "tokens_generation": {
+    "all_tokens": {
+      "max": 85784,
+      "mean": 29722.31,
+      "median": 27586.0,
+      "total": 2972231
+    },
+    "cache_creation_input_tokens": {
+      "max": 32460,
+      "mean": 5706.64,
+      "median": 3894.5,
+      "total": 570664
+    },
+    "cache_read_input_tokens": {
+      "max": 71663,
+      "mean": 23528.7,
+      "median": 23397.0,
+      "total": 2352870
+    },
+    "cost_usd": {
+      "max": 0.1382165,
+      "mean": 0.03001633,
+      "median": 0.0228817,
+      "total": 3.0016330000000004
+    },
+    "duration_s": {
+      "max": 10.271,
+      "mean": 4.40235
+    },
+    "input_tokens": {
+      "max": 8,
+      "mean": 4.1,
+      "median": 4.0,
+      "total": 410
+    },
+    "models": [
+      "claude-sonnet-5-5"
+    ],
+    "output_tokens": {
+      "max": 1289,
+      "mean": 482.87,
+      "median": 465.5,
+      "total": 48287
+    },
+    "runs": 100,
+    "turns": {
+      "max": 7,
+      "mean": 4.06
+    }
+  },
+  "tokens_judge": {
+    "all_tokens": {
+      "max": 97108,
+      "mean": 32406.38,
+      "median": 25450.5,
+      "total": 3240638
+    },
+    "cache_creation_input_tokens": {
+      "max": 24296,
+      "mean": 9767.06,
+      "median": 9086.0,
+      "total": 976706
+    },
+    "cache_read_input_tokens": {
+      "max": 76851,
+      "mean": 21573.13,
+      "median": 15235.0,
+      "total": 2157313
+    },
+    "cost_usd": {
+      "max": 0.2265318,
+      "mean": 0.103699066,
+      "median": 0.0983568,
+      "total": 10.369906599999993
+    },
+    "duration_s": {
+      "max": 26.122,
+      "mean": 10.67782
+    },
+    "input_tokens": {
+      "max": 12,
+      "mean": 4.74,
+      "median": 4.0,
+      "total": 474
+    },
+    "models": [
+      "claude-opus-5-5"
+    ],
+    "output_tokens": {
+      "max": 2320,
+      "mean": 1061.45,
+      "median": 992.5,
+      "total": 106145
+    },
+    "runs": 100,
+    "turns": {
+      "max": 9,
+      "mean": 4.42
+    }
+  },
+  "words": {
+    "ai_mean": 27.764705882352942,
+    "ai_median": 27,
+    "human_mean": 14.582417582417582,
+    "human_median": 13
+  }
+}

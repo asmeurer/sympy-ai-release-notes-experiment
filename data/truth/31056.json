@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "I used an AI assistant to explore test cases. I reviewed the change, ran the tests and doctests locally, and I can explain the code and the reasoning behind it.",
+  "author": "ish1416",
+  "entries": [
+    {
+      "submodule": "matrices",
+      "text": "Decoupled `MatrixExpr._eval_derivative` by defining independent derivative methods in `MatAdd` and `MatMul`."
+    }
+  ],
+  "merged_at": "2026-11-13T11:19:47Z",
+  "number": 31056,
+  "overlap": {
+    "title_similarity": 0.8,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* matrices\n  * Decoupled `MatrixExpr._eval_derivative` by defining independent derivative methods in `MatAdd` and `MatMul`.",
+  "status": "entry",
+  "title": "refactor(matrices): decouple MatrixExpr._eval_derivative by defining independently in MatAdd and MatMul"
+}

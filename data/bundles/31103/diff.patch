@@ -1,0 +1,392 @@
+diff --git a/sympy/printing/codeprinter.py b/sympy/printing/codeprinter.py
+index ad89b112c017..7b15d666b32e 100644
+--- a/sympy/printing/codeprinter.py
++++ b/sympy/printing/codeprinter.py
+@@ -3,7 +3,7 @@
+ 
+ from functools import wraps
+ 
+-from sympy.core import Add, Mul, Pow, S, sympify, Float
++from sympy.core import Add, Mul, sympify, Float
+ from sympy.core.basic import Basic
+ from sympy.core.expr import Expr, UnevaluatedExpr
+ from sympy.core.function import Lambda
+@@ -559,26 +559,12 @@ def _print_Mul(self, expr):
+         else:
+             sign = ""
+ 
+-        a = []  # items in the numerator
+-        b = []  # items that are in the denominator (if any)
+-
+         if self.order not in ('old', 'none'):
+             args = expr.as_ordered_factors()
+         else:
+-            # use make_args in case expr was something like -x -> x
+             args = Mul.make_args(expr)
+ 
+-        # Gather args for numerator/denominator
+-        for item in args:
+-            if item.is_commutative and item.is_Pow and item.exp.is_Rational and item.exp.is_negative:
+-                if item.exp != -1:
+-                    b.append(Pow(item.base, -item.exp, evaluate=False))
+-                else:
+-                    b.append(Pow(item.base, -item.exp))
+-            else:
+-                a.append(item)
+-
+-        a = a or [S.One]
++        a, b, _ = self._mul_factors(args)
+ 
+         if len(a) == 1 and sign == "-":
+             # Unary minus does not have a SymPy class, and hence there's no
+@@ -593,6 +579,7 @@ def _print_Mul(self, expr):
+         if not b:
+             return sign + '*'.join(a_str)
+         elif len(b) == 1:
++            b_str[0] = self._parenthesize_mul_denominator(b[0], b_str[0])
+             return sign + '*'.join(a_str) + "/" + b_str[0]
+         else:
+             return sign + '*'.join(a_str) + "/(%s)" % '*'.join(b_str)
+diff --git a/sympy/printing/julia.py b/sympy/printing/julia.py
+index 3ab815add4d8..3c1fa24b5036 100644
+--- a/sympy/printing/julia.py
++++ b/sympy/printing/julia.py
+@@ -12,7 +12,7 @@
+ from __future__ import annotations
+ from typing import Any
+ 
+-from sympy.core import Mul, Pow, S, Rational
++from sympy.core import Mul, S
+ from sympy.core.mul import _keep_coeff
+ from sympy.core.numbers import equal_valued
+ from sympy.printing.codeprinter import CodePrinter
+@@ -130,37 +130,12 @@ def _print_Mul(self, expr):
+         else:
+             sign = ""
+ 
+-        a = []  # items in the numerator
+-        b = []  # items that are in the denominator (if any)
+-
+-        pow_paren = []  # Will collect all pow with more than one base element and exp = -1
+-
+         if self.order not in ('old', 'none'):
+             args = expr.as_ordered_factors()
+         else:
+-            # use make_args in case expr was something like -x -> x
+             args = Mul.make_args(expr)
+ 
+-        # Gather args for numerator/denominator
+-        for item in args:
+-            if (item.is_commutative and item.is_Pow and item.exp.is_Rational
+-                    and item.exp.is_negative):
+-                if item.exp != -1:
+-                    b.append(Pow(item.base, -item.exp, evaluate=False))
+-                else:
+-                    if len(item.args[0].args) != 1 and isinstance(item.base, Mul):   # To avoid situations like #14160
+-                        pow_paren.append(item)
+-                    b.append(Pow(item.base, -item.exp))
+-            elif item.is_Rational and item is not S.Infinity and item.p == 1:
+-                # Save the Rational type in julia Unless the numerator is 1.
+-                # For example:
+-                # julia_code(Rational(3, 7)*x) --> (3 // 7) * x
+-                # julia_code(x/3) --> x / 3 but not x * (1 // 3)
+-                b.append(Rational(item.q))
+-            else:
+-                a.append(item)
+-
+-        a = a or [S.One]
++        a, b, pow_paren = self._mul_factors(args, rational='unit')
+ 
+         a_str = [self.parenthesize(x, prec) for x in a]
+         b_str = [self.parenthesize(x, prec) for x in b]
+@@ -182,6 +157,7 @@ def multjoin(a, a_str):
+         if not b:
+             return sign + multjoin(a, a_str)
+         elif len(b) == 1:
++            b_str[0] = self._parenthesize_mul_denominator(b[0], b_str[0])
+             divsym = '/' if b[0].is_number else './'
+             return "%s %s %s" % (sign+multjoin(a, a_str), divsym, b_str[0])
+         else:
+@@ -208,7 +184,7 @@ def _print_Pow(self, expr):
+                 return "1 %s sqrt(%s)" % (sym, self._print(expr.base))
+             if equal_valued(expr.exp, -1):
+                 sym = '/' if expr.base.is_number else './'
+-                return  "1 %s %s" % (sym, self.parenthesize(expr.base, PREC))
++                return "1 %s %s" % (sym, self.parenthesize(expr.base, PREC))
+ 
+         return '%s %s %s' % (self.parenthesize(expr.base, PREC), powsymbol,
+                            self.parenthesize(expr.exp, PREC))
+diff --git a/sympy/printing/octave.py b/sympy/printing/octave.py
+index 2cf2d6a57546..c9c0c8e03947 100644
+--- a/sympy/printing/octave.py
++++ b/sympy/printing/octave.py
+@@ -13,7 +13,7 @@
+ from __future__ import annotations
+ from typing import Any
+ 
+-from sympy.core import Mul, Pow, S, Rational
++from sympy.core import Mul, S
+ from sympy.core.mul import _keep_coeff
+ from sympy.core.numbers import equal_valued
+ from sympy.printing.codeprinter import CodePrinter
+@@ -148,36 +148,12 @@ def _print_Mul(self, expr):
+         else:
+             sign = ""
+ 
+-        a = []  # items in the numerator
+-        b = []  # items that are in the denominator (if any)
+-
+-        pow_paren = []  # Will collect all pow with more than one base element and exp = -1
+-
+         if self.order not in ('old', 'none'):
+             args = expr.as_ordered_factors()
+         else:
+-            # use make_args in case expr was something like -x -> x
+             args = Mul.make_args(expr)
+ 
+-        # Gather args for numerator/denominator
+-        for item in args:
+-            if (item.is_commutative and item.is_Pow and item.exp.is_Rational
+-                    and item.exp.is_negative):
+-                if item.exp != -1:
+-                    b.append(Pow(item.base, -item.exp, evaluate=False))
+-                else:
+-                    if len(item.args[0].args) != 1 and isinstance(item.base, Mul):   # To avoid situations like #14160
+-                        pow_paren.append(item)
+-                    b.append(Pow(item.base, -item.exp))
+-            elif item.is_Rational and item is not S.Infinity:
+-                if item.p != 1:
+-                    a.append(Rational(item.p))
+-                if item.q != 1:
+-                    b.append(Rational(item.q))
+-            else:
+-                a.append(item)
+-
+-        a = a or [S.One]
++        a, b, pow_paren = self._mul_factors(args, rational='split')
+ 
+         a_str = [self.parenthesize(x, prec) for x in a]
+         b_str = [self.parenthesize(x, prec) for x in b]
+@@ -199,6 +175,7 @@ def multjoin(a, a_str):
+         if not b:
+             return sign + multjoin(a, a_str)
+         elif len(b) == 1:
++            b_str[0] = self._parenthesize_mul_denominator(b[0], b_str[0])
+             divsym = '/' if b[0].is_number else './'
+             return sign + multjoin(a, a_str) + divsym + b_str[0]
+         else:
+diff --git a/sympy/printing/str.py b/sympy/printing/str.py
+index a703b89d1888..28b068f7a12d 100644
+--- a/sympy/printing/str.py
++++ b/sympy/printing/str.py
+@@ -51,6 +51,61 @@ def parenthesize(self, item, level, strict=False):
+     def stringify(self, args, sep, level=0):
+         return sep.join([self.parenthesize(item, level) for item in args])
+ 
++    def _mul_factors(self, args, *, rational='none', symbolic=False):
++        """Stage ordered Mul factors without evaluating reciprocal powers.
++
++        Rational factors are kept by code printers, split by the string and
++        Octave printers, or split only for unit numerators by Julia.
++        The string printer also recognizes negative symbolic exponents.
++        """
++        a, b, pow_paren = [], [], []
++        for item in args:
++            if (item.is_commutative and isinstance(item, Pow) and
++                    (bool(item.exp.as_coeff_Mul()[0] < 0) if symbolic else
++                     item.exp.is_Rational and item.exp.is_negative)):
++                if item.exp is S.NegativeOne:
++                    b.append(item.base)
++                    if (len(item.base.args) != 1 and
++                            isinstance(item.base, (Mul, Pow) if symbolic else Mul)):
++                        pow_paren.append(item)
++                else:
++                    if symbolic:
++                        eargs = list(Mul.make_args(item.exp))
++                        if eargs[0] is S.NegativeOne:
++                            eargs = eargs[1:]
++                        else:
++                            eargs[0] = -eargs[0]
++                        exp = Mul._from_args(eargs)
++                    else:
++                        exp = -item.exp
++                    b.append(Pow(item.base, exp, evaluate=False))
++            elif rational == 'split' and item.is_Rational and item is not S.Infinity:
++                if item.p != 1:
++                    a.append(Rational(item.p))
++                if item.q != 1:
++                    b.append(Rational(item.q))
++            elif (rational == 'unit' and item.is_Rational and
++                    item is not S.Infinity and item.p == 1):
++                b.append(Rational(item.q))
++            else:
++                a.append(item)
++        return a or [S.One], b, pow_paren
++
++    def _parenthesize_mul_denominator(self, factor, rendered):
++        # A Pow can print as a division, depending on the target language.
++        # Inspect the rendered expression rather than guessing from its
++        # exponent: an interior slash in pow(x, 1.0/2.0) needs no grouping.
++        if factor.is_Pow and '/' in rendered:
++            depth = 0
++            for char in rendered:
++                if char in '([{':
++                    depth += 1
++                elif char in ')]}':
++                    depth -= 1
++                elif char == '/' and depth == 0:
++                    return "(%s)" % rendered
++        return rendered
++
+     def emptyPrinter(self, expr):
+         if isinstance(expr, str):
+             return expr
+@@ -331,59 +386,29 @@ def _print_Mul(self, expr):
+         else:
+             sign = ""
+ 
+-        a = []  # items in the numerator
+-        b = []  # items that are in the denominator (if any)
+-
+-        pow_paren = []  # Will collect all pow with more than one base element and exp = -1
+-
+         if self.order not in ('old', 'none'):
+             args = expr.as_ordered_factors()
+         else:
+-            # use make_args in case expr was something like -x -> x
+             args = Mul.make_args(expr)
+ 
+-        # Gather args for numerator/denominator
+-        def apow(i):
+-            b, e = i.as_base_exp()
+-            eargs = list(Mul.make_args(e))
+-            if eargs[0] is S.NegativeOne:
+-                eargs = eargs[1:]
+-            else:
+-                eargs[0] = -eargs[0]
+-            e = Mul._from_args(eargs)
+-            if isinstance(i, Pow):
+-                return i.func(b, e, evaluate=False)
+-            return i.func(e, evaluate=False)
+-
+-        for item in args:
+-            if (item.is_commutative and
+-                    isinstance(item, Pow) and
+-                    bool(item.exp.as_coeff_Mul()[0] < 0)):
+-                if item.exp is not S.NegativeOne:
+-                    b.append(apow(item))
+-                else:
+-                    if (len(item.args[0].args) != 1 and
+-                            isinstance(item.base, (Mul, Pow))):
+-                        # To avoid situations like #14160
+-                        pow_paren.append(item)
+-                    b.append(item.base)
+-            elif item.is_Rational and item is not S.Infinity:
+-                if item.p != 1:
+-                    a.append(Rational(item.p))
+-                if item.q != 1:
+-                    b.append(Rational(item.q))
+-            else:
+-                a.append(item)
+-
+-        a = a or [S.One]
++        a, b, pow_paren = self._mul_factors(args, rational='split', symbolic=True)
+ 
+         a_str = [self.parenthesize(x, prec, strict=False) for x in a]
+-        b_str = [self.parenthesize(x, PRECEDENCE["Mul"], strict=False) for x in b]
++        b_str = [self.parenthesize(x, PRECEDENCE["Mul"], strict=False)
++                 for x in b]
+ 
+-        # To parenthesize Pow with exp = -1 and having more than one Symbol
+         for item in pow_paren:
+-            if item.base in b:
+-                b_str[b.index(item.base)] = "(%s)" % self._print(item.base)
++            if item.base.is_Pow and item.base in b:
++                index = b.index(item.base)
++                # Preserve the original grouping for symbolic/positive powers,
++                # but avoid redundant parentheses on negative numeric powers
++                # that print with exponentiation rather than division.
++                if not (item.base.exp.is_Number and
++                        item.base.exp.is_negative):
++                    b_str[index] = "(%s)" % b_str[index]
++
++        b_str = [self._parenthesize_mul_denominator(x, printed)
++                 for x, printed in zip(b, b_str)]
+ 
+         if not b:
+             return sign + '*'.join(a_str)
+diff --git a/sympy/printing/tests/test_mul_factor_staging.py b/sympy/printing/tests/test_mul_factor_staging.py
+new file mode 100644
+index 000000000000..d88aec1da160
+--- /dev/null
++++ b/sympy/printing/tests/test_mul_factor_staging.py
+@@ -0,0 +1,69 @@
++"""Regression tests for staged numerator and denominator factors in printers."""
++
++from __future__ import annotations
++
++from sympy import Float, Mul, Pow, S
++from sympy.printing import (ccode, fcode, glsl_code, jscode, julia_code,
++                            maple_code, octave_code, pycode, rcode, sstr)
++from sympy.abc import x, y
++
++
++def _nested_reciprocal(exponent):
++    inner = Pow(y, exponent, evaluate=False)
++    outer = Pow(inner, -1, evaluate=False)
++    return Mul(x, outer, evaluate=False)
++
++
++def test_nested_reciprocal_in_code_printers():
++    expr = _nested_reciprocal(-1)
++    assert sstr(expr) == 'x/(1/y)'
++    assert pycode(expr) == 'x/(1/y)'
++    assert ccode(expr) == 'x/(1.0/y)'
++    assert julia_code(expr) == 'x ./ (1 ./ y)'
++    assert octave_code(expr) == 'x./(1./y)'
++    assert pycode(-expr) == '-x/(1/y)'
++    assert eval(pycode(expr), {'x': 3.0, 'y': 4.0}) == 12.0
++    assert eval(pycode(-expr), {'x': 3.0, 'y': 4.0}) == -12.0
++
++
++def test_nested_reciprocal_in_other_code_printers():
++    # Root cause 2 in gh-30844 affects all of these CodePrinter subclasses.
++    expr = _nested_reciprocal(-1)
++    assert jscode(expr) == 'x/(1/y)'
++    assert rcode(expr) == 'x/(1.0/y)'
++    assert glsl_code(expr) == 'x/(1.0/y)'
++    assert fcode(expr).strip() == 'x/(1d0/y)'
++    assert maple_code(expr) == 'x/(1/y)'
++
++
++def test_nested_reciprocal_sqrt():
++    expr = _nested_reciprocal(-S.Half)
++    assert pycode(expr) == 'x/(1/math.sqrt(y))'
++    assert julia_code(expr) == 'x ./ (1 ./ sqrt(y))'
++    assert octave_code(expr) == 'x./(1./sqrt(y))'
++
++
++def test_float_reciprocal_grouping():
++    expr = _nested_reciprocal(Float(-1))
++    assert sstr(expr) == 'x/y**(-1.0)'
++    assert pycode(expr) == 'x/y**(-1.0)'
++    assert ccode(expr) == 'x/(1.0/y)'
++    assert julia_code(expr) == 'x ./ (1 ./ y)'
++    assert octave_code(expr) == 'x./(1./y)'
++
++
++def test_float_half_reciprocal_grouping():
++    expr = _nested_reciprocal(Float(-0.5))
++    assert pycode(expr) == 'x/y**(-0.5)'
++    assert ccode(expr) == 'x/pow(y, -0.5)'
++    assert julia_code(expr) == 'x ./ (1 ./ sqrt(y))'
++    assert octave_code(expr) == 'x./(1./sqrt(y))'
++
++
++def test_nonspecial_negative_powers_remain_powers():
++    expr = _nested_reciprocal(-2)
++    assert sstr(expr) == 'x/y**(-2)'
++    assert pycode(expr) == 'x/y**(-2)'
++    assert ccode(expr) == 'x/pow(y, -2)'
++    assert julia_code(expr) == 'x ./ y .^ (-2)'
++    assert octave_code(expr) == 'x./y.^(-2)'

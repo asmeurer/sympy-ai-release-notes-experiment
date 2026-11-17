@@ -1,0 +1,131 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 11473,
+  "human_is": "B",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 7698,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 7698,
+      "cacheReadInputTokens": 15128,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.08684560000000001,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1111,
+      "provider": "firstParty",
+      "thinkingTokens": 326,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30947,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"borderline\",\"candidate_a\":{\"accuracy\":\"not_applicable\",\"overall\":4,\"problems\":[]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":3,\"problems\":[\"Written in the imperative ('Annotate ... declare') rather than the past tense.\",\"Does not say what users gain, for example that `tuple(M)` or iterating over a matrix now passes type checking, or that `LUsolve` now returns the type of `rhs`.\",\"\\\"Declare `__iter__`\\\" is jargon about how the change was made, not about what users see.\"]},\"same_substance\":false,\"preferred\":\"A\",\"strength\":\"slight\",\"rationale\":\"The merged diff only adds type annotations. It annotates `LUsolve` (the return type now follows `rhs`) and adds an `__iter__` declaration that exists only for type checkers (under `TYPE_CHECKING`), plus a .mailmap entry. Nothing changes at runtime. SymPy usually gives small typing-only PRs like this no entry, but users who run mypy on their code do see a small benefit, so the decision is borderline. Candidate B is accurate but written in the imperative, not the past tense, and it describes the mechanics instead of the user-visible effect. Candidate A's NO ENTRY is the more conventional and slightly better choice.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "not_applicable",
+      "overall": 4,
+      "problems": []
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 3,
+      "problems": [
+        "Written in the imperative ('Annotate ... declare') rather than the past tense.",
+        "Does not say what users gain, for example that `tuple(M)` or iterating over a matrix now passes type checking, or that `LUsolve` now returns the type of `rhs`.",
+        "\"Declare `__iter__`\" is jargon about how the change was made, not about what users see."
+      ]
+    },
+    "preferred": "A",
+    "rationale": "The merged diff only adds type annotations. It annotates `LUsolve` (the return type now follows `rhs`) and adds an `__iter__` declaration that exists only for type checkers (under `TYPE_CHECKING`), plus a .mailmap entry. Nothing changes at runtime. SymPy usually gives small typing-only PRs like this no entry, but users who run mypy on their code do see a small benefit, so the decision is borderline. Candidate B is accurate but written in the imperative, not the past tense, and it describes the mechanics instead of the user-visible effect. Candidate A's NO ENTRY is the more conventional and slightly better choice.",
+    "same_substance": false,
+    "should_have_entry": "borderline",
+    "strength": "slight"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30947/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30947/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "not_applicable",
+          "overall": 4,
+          "problems": []
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 3,
+          "problems": [
+            "Written in the imperative ('Annotate ... declare') rather than the past tense.",
+            "Does not say what users gain, for example that `tuple(M)` or iterating over a matrix now passes type checking, or that `LUsolve` now returns the type of `rhs`.",
+            "\"Declare `__iter__`\" is jargon about how the change was made, not about what users see."
+          ]
+        },
+        "preferred": "A",
+        "rationale": "The merged diff only adds type annotations. It annotates `LUsolve` (the return type now follows `rhs`) and adds an `__iter__` declaration that exists only for type checkers (under `TYPE_CHECKING`), plus a .mailmap entry. Nothing changes at runtime. SymPy usually gives small typing-only PRs like this no entry, but users who run mypy on their code do see a small benefit, so the decision is borderline. Candidate B is accurate but written in the imperative, not the past tense, and it describes the mechanics instead of the user-visible effect. Candidate A's NO ENTRY is the more conventional and slightly better choice.",
+        "same_substance": false,
+        "should_have_entry": "borderline",
+        "strength": "slight"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.08684560000000001,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 7698,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 7698,
+    "cache_read_input_tokens": 15128,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 2304,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 2304,
+        "cache_read_input_tokens": 10261,
+        "input_tokens": 2,
+        "output_tokens": 911,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1111,
+    "output_tokens_details": {
+      "thinking_tokens": 326
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

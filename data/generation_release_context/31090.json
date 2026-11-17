@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4311,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 4435,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 4435,
+      "cacheReadInputTokens": 24201,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0257081,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 554,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 31090,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"solvers\",\"text\":\"`nsolve` now raises a `TypeError` with a clear message when an unevaluated symbolic initial guess such as `pi` is given, instead of failing with `cannot create mpf from pi`; use `pi.n()` instead.\"}],\"reasoning\":\"User-visible change to nsolve: symbolic non-numeric initial guesses now raise a clear TypeError instead of an obscure mpmath error. The problem existed in released versions, and the entry is based on the diff in solvers.py.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "solvers",
+        "text": "`nsolve` now raises a `TypeError` with a clear message when an unevaluated symbolic initial guess such as `pi` is given, instead of failing with `cannot create mpf from pi`; use `pi.n()` instead."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "User-visible change to nsolve: symbolic non-numeric initial guesses now raise a clear TypeError instead of an obscure mpmath error. The problem existed in released versions, and the entry is based on the diff in solvers.py."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31090/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31090/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31090/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "solvers",
+            "text": "`nsolve` now raises a `TypeError` with a clear message when an unevaluated symbolic initial guess such as `pi` is given, instead of failing with `cannot create mpf from pi`; use `pi.n()` instead."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "User-visible change to nsolve: symbolic non-numeric initial guesses now raise a clear TypeError instead of an obscure mpmath error. The problem existed in released versions, and the entry is based on the diff in solvers.py."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0257081,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 4435,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 4435,
+    "cache_read_input_tokens": 24201,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 3994,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 3994,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 265,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 554,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

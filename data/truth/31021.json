@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "I used an AI assistant (Antigravity) to help explore the architectural design and draft the patch. I have personally verified the math and tests myself and understand the code.",
+  "author": "ish1416",
+  "entries": [
+    {
+      "submodule": "matrices",
+      "text": "Implemented `Conjugate(MatrixExpr)` for complex matrix conjugation, resolving #16498 and fixing regression #30900."
+    }
+  ],
+  "merged_at": "2026-11-12T08:34:27Z",
+  "number": 31021,
+  "overlap": {
+    "title_similarity": 0.7281553398058253,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* matrices\n  * Implemented `Conjugate(MatrixExpr)` for complex matrix conjugation, resolving #16498 and fixing regression #30900.",
+  "status": "entry",
+  "title": "feat(matrices): implement Conjugate(MatrixExpr) for matrix complex conjugation (fixes #16498, fixes #30900)"
+}

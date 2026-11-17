@@ -1,0 +1,160 @@
+{
+  "additions": 28,
+  "author": "aarav570",
+  "base": "master",
+  "body": "<!-- DO NOT DELETE OR REPLACE THIS TEMPLATE or the PR will be closed.\n\nRead our Policy on AI Generated Code and Communication at\nhttps://docs.sympy.org/dev/contributing/ai-generated-code-policy.html.\n\nAs required in the policy do not use AI-generated text to complete the PR\ndescription below or the PR will be closed. Follow the instructions in the\ntemplate below and keep all section headings or the PR will be closed.\n\nThe PR title above should be a short description of what was changed. Do not\ninclude the issue number in the title. -->\n\n#### References to other Issues or PRs\n\nFixes #26504\n\n\n#### Brief description of what is fixed or changed\n\nWhen `_solve_system` is called on a system with no symbols to solve for (i.e. `symbols` is empty `()`), `g.as_poly(*symbols)` auto-detects generators from any non-algebraic terms (such as `(log(2), log(3))`). Because the linear system matrix was created with `len(symbols) + 1 == 1` column, assigning coefficients to `matrix[i, j]` for subsequent generators raised `IndexError: Index out of range: a[1]`.\n\nThis caused `integrate(2**(2+3*x)*3**(5+7*x), x)` to fail in `heurisch_wrapper` when inspecting the poles of the candidate denominator `3*log(2) + 7*log(3)`.\n\nThis change adds an early check in `_solve_system` when `symbols` is empty:\n- If all equations evaluate to zero, it returns the consistent trivial solution `[{}]`.\n- If any equation is a non-zero constant, it returns `[]` directly.\n\nRegression tests have been added to `test_solvers.py` and `test_heurisch.py`.\n\n\n#### Other comments\n\n\n#### AI Generation Disclosure\n\nAssisted by Google Antigravity / Gemini coding assistant to diagnose the IndexError in `_solve_system` and draft the empty symbols check in `sympy/solvers/solvers.py`. Verified and tested locally using pytest.\n\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* solvers\n  * Fixed `IndexError` in `_solve_system` when solving constant systems with empty `symbols`.\n* integrals\n  * Fixed crash when calling `integrate` on products of exponentials with transcendental bases.\n<!-- END RELEASE NOTES -->",
+  "changed_files": 4,
+  "commits": [
+    {
+      "author": "Aarav",
+      "message": "solvers: avoid IndexError in _solve_system when symbols is empty\n\n# Conflicts:\n#\tsympy/solvers/tests/test_solvers.py",
+      "sha": "fc1091e13338ca4261074e4beee1e334fe0a524b"
+    },
+    {
+      "author": "Aarav",
+      "message": "mailmap: add Aarav Malde",
+      "sha": "12020a50f18e947e10532bb14b53a89d34157138"
+    },
+    {
+      "author": "Aarav",
+      "message": "mailmap: add aliases for aarav570 and aarav.malde@iitgn.ac.in",
+      "sha": "ea26e2641eaae2e001ee2699e731a4e6914fd379"
+    },
+    {
+      "author": "aarav570",
+      "message": "Update sympy/solvers/solvers.py\n\nCo-authored-by: Christopher Smith <smichr@gmail.com>",
+      "sha": "7b4109f9828f86fc914fb5fc15643612c4aad4af"
+    },
+    {
+      "author": "Aarav",
+      "message": "solvers: use checksol instead of equals(0) for empty symbols check",
+      "sha": "9292bada239e0671dce346dd381e6340ff249b42"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "remove redundant .mailmap entry",
+      "sha": "ab3df223d163ca4d2967a063aca758075399bfca"
+    }
+  ],
+  "created_at": "2026-10-29T14:31:49Z",
+  "deletions": 1,
+  "diff": "diff --git a/.mailmap b/.mailmap\nindex 8cb2cc06a13c..a8809fc94e2f 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -192,6 +192,12 @@\n 2torus <boris.ettinger@gmail.com>\n Aadit Kamat <aadit.k12@gmail.com>\n Aaditya Nair <aadityanair6494@gmail.com>\n+Aarav Malde <aarav458@gmail.com> <aarav.malde@iitgn.ac.in>\n+Aarav Malde <aarav458@gmail.com> <aaravmalde458@gmail.com>\n+Aarav Malde <aarav458@gmail.com> Aarav <aarav458@gmail.com>\n+Aarav Malde <aarav458@gmail.com> Aarav Malde <aarav.malde@iitgn.ac.in>\n+Aarav Malde <aarav458@gmail.com> aarav570 <aarav.malde@iitgn.ac.in>\n+Aarav Malde <aarav458@gmail.com> aarav570 <aaravmalde458@gmail.com>\n Aaron Gokaslan <aaronGokaslan@gmail.com>\n Aaron Meurer <asmeurer@gmail.com>\n Aaron Miller <acmiller273@gmail.com> <78561124+aaron-skydio@users.noreply.github.com>\ndiff --git a/sympy/integrals/tests/test_heurisch.py b/sympy/integrals/tests/test_heurisch.py\nindex 73903f9d475b..697426cbabca 100644\n--- a/sympy/integrals/tests/test_heurisch.py\n+++ b/sympy/integrals/tests/test_heurisch.py\n@@ -416,3 +416,10 @@ def test_heurisch_issue_26922():\n     )\n \n     assert i.doit(heurisch=False).expand() == res\n+\n+\n+def test_heurisch_issue_26504():\n+    f = 2**(2 + 3*x)*3**(5 + 7*x)\n+    ans = 972*2**(3*x)*3**(7*x)/(3*log(2) + 7*log(3))\n+    assert heurisch(f, x) == ans\n+    assert integrate(f, x) == ans\ndiff --git a/sympy/solvers/solvers.py b/sympy/solvers/solvers.py\nindex 6f10c3b5872e..6b2247157831 100644\n--- a/sympy/solvers/solvers.py\n+++ b/sympy/solvers/solvers.py\n@@ -1794,12 +1794,18 @@ def _remove_duplicate_solutions(solutions: list[dict[Expr, Expr]]\n \n def _solve_system(exprs, symbols, **flags):\n     \"\"\"return ``(linear, solution)`` where ``linear`` is True\n-    if the system was linear, else False; ``solution``\n+    if the system was linear or if no symbols were provided, else False; ``solution``\n     is a list of dictionaries giving solutions for the symbols\n     \"\"\"\n     if not exprs:\n         return False, []\n \n+    if not symbols:\n+        u = Dummy()\n+        if all(e.is_zero or checksol(u, u, e) for e in exprs):\n+            return True, [{}]\n+        return True, []\n+\n     if flags.pop('_split', True):\n         # Split the system into connected components\n         V = exprs\ndiff --git a/sympy/solvers/tests/test_solvers.py b/sympy/solvers/tests/test_solvers.py\nindex 031ed420598d..d3f3dae3464f 100644\n--- a/sympy/solvers/tests/test_solvers.py\n+++ b/sympy/solvers/tests/test_solvers.py\n@@ -2773,3 +2773,11 @@ def test_issue_26503():\n     assert integrate((a**x)/(b**x), x) == Piecewise((a**x/(b**x*log(a) - b**x*log(b)), Ne(a, b)), (x, True))\n     pw = Piecewise((x - 1, x > 0), (S.NaN, True))\n     assert checksol(pw, x, 1) is True\n+\n+\n+def test_issue_26504_solve_empty_symbols():\n+    assert solve([log(2) + log(3)]) == []\n+    assert solve([log(2) + log(3)], exclude=(x,)) == []\n+    assert solve([log(2) + log(3) - log(6)]) == {}\n+    assert solve([x - 1, cos(1)**2 + sin(1)**2 - 1], x) == {x: 1}\n+    assert solve([x - 1, cos(1)**2 + sin(1)**2 - 2], x) == []\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* integrals\n  * Fixed crash when calling `integrate` on products of exponentials with transcendental bases. ([#30886](https://github.com/sympy/sympy/pull/30886) by [@aarav570](https://github.com/aarav570) and [@smichr](https://github.com/smichr))\n\n* solvers\n  * Fixed `IndexError` in `_solve_system` when solving constant systems with empty `symbols`. ([#30886](https://github.com/sympy/sympy/pull/30886) by [@aarav570](https://github.com/aarav570) and [@smichr](https://github.com/smichr))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- DO NOT DELETE OR REPLACE THIS TEMPLATE or the PR will be closed.\n\n    Read our Policy on AI Generated Code and Communication at\n    https://docs.sympy.org/dev/contributing/ai-generated-code-policy.html.\n\n    As required in the policy do not use AI-generated text to complete the PR\n    description below or the PR will be closed. Follow the instructions in the\n    template below and keep all section headings or the PR will be closed.\n\n    The PR title above should be a short description of what was changed. Do not\n    include the issue number in the title. -->\n\n    #### References to other Issues or PRs\n\n    Fixes #26504\n\n\n    #### Brief description of what is fixed or changed\n\n    When `_solve_system` is called on a system with no symbols to solve for (i.e. `symbols` is empty `()`), `g.as_poly(*symbols)` auto-detects generators from any non-algebraic terms (such as `(log(2), log(3))`). Because the linear system matrix was created with `len(symbols) + 1 == 1` column, assigning coefficients to `matrix[i, j]` for subsequent generators raised `IndexError: Index out of range: a[1]`.\n\n    This caused `integrate(2**(2+3*x)*3**(5+7*x), x)` to fail in `heurisch_wrapper` when inspecting the poles of the candidate denominator `3*log(2) + 7*log(3)`.\n\n    This change adds an early check in `_solve_system` when `symbols` is empty:\n    - If all equations evaluate to zero, it returns the consistent trivial solution `[{}]`.\n    - If any equation is a non-zero constant, it returns `[]` directly.\n\n    Regression tests have been added to `test_solvers.py` and `test_heurisch.py`.\n\n\n    #### Other comments\n\n\n    #### AI Generation Disclosure\n\n    Assisted by Google Antigravity / Gemini coding assistant to diagnose the IndexError in `_solve_system` and draft the empty symbols check in `sympy/solvers/solvers.py`. Verified and tested locally using pytest.\n\n\n    #### Release Notes\n\n    <!-- BEGIN RELEASE NOTES -->\n    * solvers\n      * Fixed `IndexError` in `_solve_system` when solving constant systems with empty `symbols`.\n    * integrals\n      * Fixed crash when calling `integrate` on products of exponentials with transcendental bases.\n    <!-- END RELEASE NOTES -->\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-10-29T14:31:54Z"
+    },
+    {
+      "author": "knowprasad",
+      "body": "I tested this locally against `sympy/solvers/solvers.py`. The early exit in `_solve_system` directly handles the problem reported in #26504.\n\nWhen `symbols` is empty, calling `g.as_poly(*symbols)` fell back to auto-detected generators for transcendental terms like `log(2)` and `log(3)`. Because the linear system matrix only had 1 column allocated (`len(symbols) + 1`), writing coefficients for those generators raised an `IndexError`.\n\nEvaluating `checksol(u, u, e)` correctly separates true zeros like `log(2) + log(3) - log(6)` from non-zero constants, returning `True, [{}]` for consistent systems and `True, []` for inconsistent systems. Tested the regression cases in `test_solvers.py` and `test_heurisch.py`, and the integration of `2**(2+3*x)*3**(5+7*x)` resolves cleanly.\n\nOne minor point in `.mailmap`:\nThe entry `Aarav Malde <aarav458@gmail.com> <aarav458@gmail.com>` maps the primary address to itself and can be removed.\n\nOverall, this is a clean, targeted fix that stops the solver crash without touching unrelated solver paths.\n",
+      "created_at": "2026-11-03T11:53:40Z"
+    },
+    {
+      "author": "aarav570",
+      "body": "@smichr @knowprasad \r\nA merge conflict was resolved .\r\nCould you approve the updated PR?",
+      "created_at": "2026-11-05T11:26:31Z"
+    },
+    {
+      "author": "knowprasad",
+      "body": "I tested the rebased branch locally against latest main. The merge conflict resolution in `test_solvers.py` is clean and all solver tests pass without regressions. LGTM.\n",
+      "created_at": "2026-11-05T12:46:30Z"
+    },
+    {
+      "author": "smichr",
+      "body": "Thanks. I corrected mailmap and set to merge.",
+      "created_at": "2026-11-05T17:29:31Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "nasser1",
+      "body": "I do not know if this is known or reported before. Feel free to close if so.\r\n\r\nI see some exceptions TypeError: Invalid NaN comparison. Here is just one example \r\n\r\n```\r\nfrom sympy import *\r\nx=symbols('x')\r\nintegrand=\"2**(2+3*x)*3**(5+7*x)\"\r\nintegrate( sympify(integrand), x)\r\n\r\n```\r\ngives\r\n\r\n\r\n```\r\nTraceback (most recent call last):\r\n  File \"<stdin>\", line 1, in <module>\r\n  File \"/usr/lib/python3.11/site-packages/sympy/integrals/integrals.py\", line 1567, in integrate\r\n    return integral.doit(**doit_flags)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/usr/lib/python3.11/site-packages/sympy/integrals/integrals.py\", line 612, in doit\r\n    antideriv = self._eval_integral(\r\n                ^^^^^^^^^^^^^^^^^^^^\r\n  File \"/usr/lib/python3.11/site-packages/sympy/integrals/integrals.py\", line 1084, in _eval_integral\r\n    h = heurisch_wrapper(g, x, hints=[])\r\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/usr/lib/python3.11/site-packages/sympy/integrals/heurisch.py\", line 158, in heurisch_wrapper\r\n    slns += solve([d], dict=True, exclude=(x,))\r\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/usr/lib/python3.11/site-packages/sympy/solvers/solvers.py\", line 1147, in solve\r\n    linear, solution = _solve_system(f, symbols, **flags)\r\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/usr/lib/python3.11/site-packages/sympy/solvers/solvers.py\", line 1815, in _solve_system\r\n    matrix[i, j] = coeff\r\n    ~~~~~~^^^^^^\r\n  File \"/usr/lib/python3.11/site-packages/sympy/matrices/repmatrix.py\", line 400, in __setitem__\r\n    rv = self._setitem(key, value)\r\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/usr/lib/python3.11/site-packages/sympy/matrices/matrices.py\", line 1157, in _setitem\r\n    i, j = key = self.key2ij(key)\r\n                 ^^^^^^^^^^^^^^^^\r\n  File \"/usr/lib/python3.11/site-packages/sympy/matrices/matrices.py\", line 1810, in key2ij\r\n    return [a2idx(i, n) if not isinstance(i, slice) else i\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/usr/lib/python3.11/site-packages/sympy/matrices/matrices.py\", line 1810, in <listcomp>\r\n    return [a2idx(i, n) if not isinstance(i, slice) else i\r\n            ^^^^^^^^^^^\r\n  File \"/usr/lib/python3.11/site-packages/sympy/matrices/common.py\", line 3189, in a2idx\r\n    raise IndexError(\"Index out of range: a[%s]\" % (j,))\r\nIndexError: Index out of range: a[1]\r\n>>> \r\n\r\n\r\n```\r\n\r\nVersion info\r\n\r\n```\r\n>>> import sympy\r\n>>> sympy.__version__\r\n'1.12'\r\n\r\n>python --version\r\nPython 3.11.8\r\n>\r\n\r\n```\r\n\r\nFor reference the result should be\r\n\r\n```\r\nIntegrate[2^(2+3*x)*3^(5+7*x),x]\r\n\r\n   (2^(2+3 x) 3^(5+7 x))/Log[17496]\r\n\r\n```\r\n\r\n",
+      "is_pull_request": false,
+      "number": 26504,
+      "state": "open",
+      "title": "IndexError: Index out of range:   calling integrate in sympy 1.12"
+    }
+  ],
+  "merge_commit_sha": "954a05a454985048b6fa3ec9768fe1f72e2b3b9f",
+  "merged_at": "2026-11-05T18:44:29Z",
+  "number": 30886,
+  "review_comments": [
+    {
+      "author": "smichr",
+      "body": "```suggestion\n    if the system was linear or if no symbols were provided, else False; ``solution``\n```",
+      "created_at": "2026-10-30T06:44:59Z",
+      "path": "sympy/solvers/solvers.py"
+    },
+    {
+      "author": "smichr",
+      "body": "Why return [{}] for a consistent zero-variable system when _solve_system normally removes empty solution dictionaries? Could we use return True, [] here, or is there a caller that requires distinguishing the two cases? Why is `equals(0)` needed instead of a cheaper zero check using `checksol(x, x, e)`?",
+      "created_at": "2026-10-30T06:50:37Z",
+      "path": "sympy/solvers/solvers.py"
+    },
+    {
+      "author": "aarav570",
+      "body": "1. `_solve_system` itself requires distinguishing the two cases when splitting equations into connected components(`flags.pop('_split', True)` at line 1816). If we used True, [] for consistent subsytems then any valid system containing a consistent constant/parameter equation would receive `subsols = [[{x: 1}], []]`, causing `product(*subsols)` to return [] , falsely claiming that no solution exists.\r\n2. Yeah, using equals(0) is redundant and incurs a lot of overhead. I'll update the check to \r\n    ```python\r\n    if not symbols:\r\n        u = Dummy()\r\n        if all(e.is_zero or checksol(u, u, e) for e in exprs):\r\n            return True, [{}]\r\n        return True, []\r\n    ```",
+      "created_at": "2026-10-30T10:43:30Z",
+      "path": "sympy/solvers/solvers.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "If there are no equations then `[{}]` is the correct result. I opened an issue somewhere about this. This is incorrect:\r\n```python\r\nIn [25]: solve([])\r\nOut[25]: []\r\n```",
+      "created_at": "2026-10-30T11:07:07Z",
+      "path": "sympy/solvers/solvers.py"
+    },
+    {
+      "author": "aarav570",
+      "body": "Yess , for zero variables, the domain consists of the empty maping `{}` ,making `[{}]` the mathematically consistent result. `[]` would treat the system as inconsistent.\r\nPlease let me know if there are any further adjustments needed for this PR!",
+      "created_at": "2026-10-30T17:59:37Z",
+      "path": "sympy/solvers/solvers.py"
+    },
+    {
+      "author": "smichr",
+      "body": "```suggestion\n```",
+      "created_at": "2026-11-05T17:28:17Z",
+      "path": ".mailmap"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-10-30T06:44:59Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-10-30T06:50:37Z"
+    },
+    {
+      "author": "aarav570",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-10-30T10:43:31Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-10-30T11:07:07Z"
+    },
+    {
+      "author": "aarav570",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-10-30T17:59:38Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-05T17:28:17Z"
+    }
+  ],
+  "title": "solvers: avoid IndexError in _solve_system when symbols is empty"
+}

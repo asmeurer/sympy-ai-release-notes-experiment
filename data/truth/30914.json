@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "Used ChatGPT for improving PR. Since all changes were instructed by @smichr no AI required for code.",
+  "author": "Nabhag2507",
+  "entries": [
+    {
+      "submodule": "series",
+      "text": "Added `bound_symbols` property to `Limit`."
+    }
+  ],
+  "merged_at": "2026-11-03T06:43:49Z",
+  "number": 30914,
+  "overlap": {
+    "title_similarity": 0.6575342465753424,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "- series\n  - Added `bound_symbols` property to `Limit`.",
+  "status": "entry",
+  "title": "series: define bound_symbols on Limit"
+}

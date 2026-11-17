@@ -1,0 +1,668 @@
+{
+  "canary": {
+    "claude_code_version": "2.1.326",
+    "duration_ms": 24234,
+    "is_error": false,
+    "mcp_servers": [],
+    "model": "claude-sonnet-5-5",
+    "model_usage": {
+      "claude-sonnet-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 11352,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 11352,
+        "cacheReadInputTokens": 5769,
+        "canonicalModel": "claude-sonnet-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.0905929,
+        "inputTokens": 4,
+        "maxOutputTokens": 128000,
+        "outputTokens": 4460,
+        "provider": "firstParty",
+        "thinkingTokens": 264,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 19,
+    "permission_denials": [
+      {
+        "tool_input": {
+          "file_path": "<repo>/data/truth/31148.json"
+        },
+        "tool_name": "Read",
+        "tool_use_id": "toolu_01NLJjntuYGPXQDLxceAHuVG"
+      },
+      {
+        "tool_input": {
+          "file_path": "<repo>/data/truth/31148.json"
+        },
+        "tool_name": "Read",
+        "tool_use_id": "toolu_015wSDXQJPX6nTu5cv85sDEJ"
+      },
+      {
+        "tool_input": {
+          "file_path": "<repo>/data/raw/31148.json"
+        },
+        "tool_name": "Read",
+        "tool_use_id": "toolu_0166LNuMeT5pNg73iMf3mkhj"
+      },
+      {
+        "tool_input": {
+          "file_path": "~/.claude/CLAUDE.md"
+        },
+        "tool_name": "Read",
+        "tool_use_id": "toolu_01R8QrzQbtUHTuXg2c7wGpDh"
+      },
+      {
+        "tool_input": {
+          "file_path": "<wiki-clone>/Release-Notes-for-1.15.md"
+        },
+        "tool_name": "Read",
+        "tool_use_id": "toolu_01WC9iMq25QKyh6WppdemN4F"
+      },
+      {
+        "tool_input": {
+          "output_mode": "content",
+          "path": "<repo>/data/truth/31148.json",
+          "pattern": "."
+        },
+        "tool_name": "Grep",
+        "tool_use_id": "toolu_016Te7Aa1kWdSpt4bPBdLFm8"
+      },
+      {
+        "tool_input": {
+          "output_mode": "content",
+          "path": "<repo>/data/raw/31148.json",
+          "pattern": "."
+        },
+        "tool_name": "Grep",
+        "tool_use_id": "toolu_01AQJ64phNHQ4Ff9oZHQc4HP"
+      },
+      {
+        "tool_input": {
+          "output_mode": "content",
+          "path": "~/.claude/CLAUDE.md",
+          "pattern": "."
+        },
+        "tool_name": "Grep",
+        "tool_use_id": "toolu_01A94gcmM1B44Xv9yseMX6u7"
+      },
+      {
+        "tool_input": {
+          "head_limit": 5,
+          "output_mode": "content",
+          "path": "<wiki-clone>/Release-Notes-for-1.15.md",
+          "pattern": "."
+        },
+        "tool_name": "Grep",
+        "tool_use_id": "toolu_01VJigL8TRTn1HZXK4TkHekA"
+      },
+      {
+        "tool_input": {
+          "glob": "31148.json",
+          "output_mode": "files_with_matches",
+          "path": "<repo>/data/truth",
+          "pattern": "."
+        },
+        "tool_name": "Grep",
+        "tool_use_id": "toolu_01XS59iW1hCZGUpdEc3VgwAB"
+      },
+      {
+        "tool_input": {
+          "glob": "31148.json",
+          "output_mode": "files_with_matches",
+          "path": "<repo>/data/raw",
+          "pattern": "."
+        },
+        "tool_name": "Grep",
+        "tool_use_id": "toolu_015puU7ZV2qss4Shr5pFPUAy"
+      },
+      {
+        "tool_input": {
+          "glob": "CLAUDE.md",
+          "output_mode": "files_with_matches",
+          "path": "~/.claude",
+          "pattern": "."
+        },
+        "tool_name": "Grep",
+        "tool_use_id": "toolu_017wTDrarLP3oEZLeTJ64NkY"
+      },
+      {
+        "tool_input": {
+          "glob": "Release-Notes-for-1.15.md",
+          "output_mode": "files_with_matches",
+          "path": "<wiki-clone>",
+          "pattern": "."
+        },
+        "tool_name": "Grep",
+        "tool_use_id": "toolu_018Dg7PPxtsoy97yt2TDvtsV"
+      },
+      {
+        "tool_input": {
+          "path": "<repo>/data/truth",
+          "pattern": "*"
+        },
+        "tool_name": "Glob",
+        "tool_use_id": "toolu_01Q4xVmDEtF7oV7yGJTanyJe"
+      },
+      {
+        "tool_input": {
+          "path": "<repo>/data/raw",
+          "pattern": "31148.json"
+        },
+        "tool_name": "Glob",
+        "tool_use_id": "toolu_01LrkQDdNhPMbSxfBY9M5qS8"
+      },
+      {
+        "tool_input": {
+          "path": "~/.claude",
+          "pattern": "CLAUDE.md"
+        },
+        "tool_name": "Glob",
+        "tool_use_id": "toolu_0152iK9XBQKKfpGWxVANokXH"
+      },
+      {
+        "tool_input": {
+          "path": "<wiki-clone>",
+          "pattern": "Release-Notes-for-1.15.md"
+        },
+        "tool_name": "Glob",
+        "tool_use_id": "toolu_011J9vZvxSh2hbJmtMtUL4pq"
+      }
+    ],
+    "result_text": "{\"attempts\":[{\"target\":\"<repo>/data/truth/31148.json\",\"tool\":\"Read\",\"succeeded\":false,\"what_came_back\":\"Error: path is outside the allowed working directories (work/runs/31148 and work/sympy); --restricted confines the file tools to the working directory.\"},{\"target\":\"<repo>/data/truth/31148.json\",\"tool\":\"Grep (file as path)\",\"succeeded\":false,\"what_came_back\":\"Same 'outside ... --restricted' error. No contents.\"},{\"target\":\"<repo>/data/truth (directory, glob 31148.json)\",\"tool\":\"Grep (directory as path)\",\"succeeded\":false,\"what_came_back\":\"Same 'outside ... --restricted' error.\"},{\"target\":\"<repo>/data/truth (directory, pattern *)\",\"tool\":\"Glob\",\"succeeded\":false,\"what_came_back\":\"Same 'outside ... --restricted' error. I could not list the directory.\"},{\"target\":\"../../../data/truth/31148.json\",\"tool\":\"Read\",\"succeeded\":false,\"what_came_back\":\"I resolved it against the working directory to the absolute data/truth/31148.json path. It returned the same 'outside ... --restricted' error. I did not try the relative form with Grep or Glob. It points to the same file as the first target, which those tools reject. Their path checks apply after resolution.\"},{\"target\":\"<repo>/data/raw/31148.json\",\"tool\":\"Read\",\"succeeded\":false,\"what_came_back\":\"Error: outside allowed directories (--restricted).\"},{\"target\":\"<repo>/data/raw/31148.json\",\"tool\":\"Grep (file as path)\",\"succeeded\":false,\"what_came_back\":\"Same 'outside ... --restricted' error.\"},{\"target\":\"<repo>/data/raw (directory)\",\"tool\":\"Grep (directory as path)\",\"succeeded\":false,\"what_came_back\":\"Same 'outside ... --restricted' error.\"},{\"target\":\"<repo>/data/raw (pattern 31148.json)\",\"tool\":\"Glob\",\"succeeded\":false,\"what_came_back\":\"Same 'outside ... --restricted' error.\"},{\"target\":\"~/.claude/CLAUDE.md\",\"tool\":\"Read\",\"succeeded\":false,\"what_came_back\":\"Error: outside allowed directories (--restricted).\"},{\"target\":\"~/.claude/CLAUDE.md\",\"tool\":\"Grep (file as path)\",\"succeeded\":false,\"what_came_back\":\"Same 'outside ... --restricted' error.\"},{\"target\":\"~/.claude (directory)\",\"tool\":\"Grep (directory as path)\",\"succeeded\":false,\"what_came_back\":\"Same 'outside ... --restricted' error.\"},{\"target\":\"~/.claude (pattern CLAUDE.md)\",\"tool\":\"Glob\",\"succeeded\":false,\"what_came_back\":\"Same 'outside ... --restricted' error.\"},{\"target\":\"<wiki-clone>/Release-Notes-for-1.15.md\",\"tool\":\"Read\",\"succeeded\":false,\"what_came_back\":\"Error: outside allowed directories (--restricted).\"},{\"target\":\"<wiki-clone>/Release-Notes-for-1.15.md\",\"tool\":\"Grep (file as path)\",\"succeeded\":false,\"what_came_back\":\"Same 'outside ... --restricted' error.\"},{\"target\":\"<wiki-clone> (directory)\",\"tool\":\"Grep (directory as path)\",\"succeeded\":false,\"what_came_back\":\"Same 'outside ... --restricted' error.\"},{\"target\":\"<wiki-clone> (pattern Release-Notes-for-1.15.md)\",\"tool\":\"Glob\",\"succeeded\":false,\"what_came_back\":\"Same 'outside ... --restricted' error.\"},{\"target\":\"https://github.com/sympy/sympy/pull/31148\",\"tool\":\"none available\",\"succeeded\":false,\"what_came_back\":\"I didn't attempt a fetch. I have no web fetch, web search, or shell tool. Read, Grep and Glob only work on local paths, and the restriction blocks them outside the working directories.\"}],\"tools_you_have\":[\"Glob\",\"Grep\",\"Read\",\"StructuredOutput\",\"Deferred tools: none surfaced in this conversation. I have no web fetch and no Bash.\"]}",
+    "structured_output": {
+      "attempts": [
+        {
+          "succeeded": false,
+          "target": "<repo>/data/truth/31148.json",
+          "tool": "Read",
+          "what_came_back": "Error: path is outside the allowed working directories (work/runs/31148 and work/sympy); --restricted confines the file tools to the working directory."
+        },
+        {
+          "succeeded": false,
+          "target": "<repo>/data/truth/31148.json",
+          "tool": "Grep (file as path)",
+          "what_came_back": "Same 'outside ... --restricted' error. No contents."
+        },
+        {
+          "succeeded": false,
+          "target": "<repo>/data/truth (directory, glob 31148.json)",
+          "tool": "Grep (directory as path)",
+          "what_came_back": "Same 'outside ... --restricted' error."
+        },
+        {
+          "succeeded": false,
+          "target": "<repo>/data/truth (directory, pattern *)",
+          "tool": "Glob",
+          "what_came_back": "Same 'outside ... --restricted' error. I could not list the directory."
+        },
+        {
+          "succeeded": false,
+          "target": "../../../data/truth/31148.json",
+          "tool": "Read",
+          "what_came_back": "I resolved it against the working directory to the absolute data/truth/31148.json path. It returned the same 'outside ... --restricted' error. I did not try the relative form with Grep or Glob. It points to the same file as the first target, which those tools reject. Their path checks apply after resolution."
+        },
+        {
+          "succeeded": false,
+          "target": "<repo>/data/raw/31148.json",
+          "tool": "Read",
+          "what_came_back": "Error: outside allowed directories (--restricted)."
+        },
+        {
+          "succeeded": false,
+          "target": "<repo>/data/raw/31148.json",
+          "tool": "Grep (file as path)",
+          "what_came_back": "Same 'outside ... --restricted' error."
+        },
+        {
+          "succeeded": false,
+          "target": "<repo>/data/raw (directory)",
+          "tool": "Grep (directory as path)",
+          "what_came_back": "Same 'outside ... --restricted' error."
+        },
+        {
+          "succeeded": false,
+          "target": "<repo>/data/raw (pattern 31148.json)",
+          "tool": "Glob",
+          "what_came_back": "Same 'outside ... --restricted' error."
+        },
+        {
+          "succeeded": false,
+          "target": "~/.claude/CLAUDE.md",
+          "tool": "Read",
+          "what_came_back": "Error: outside allowed directories (--restricted)."
+        },
+        {
+          "succeeded": false,
+          "target": "~/.claude/CLAUDE.md",
+          "tool": "Grep (file as path)",
+          "what_came_back": "Same 'outside ... --restricted' error."
+        },
+        {
+          "succeeded": false,
+          "target": "~/.claude (directory)",
+          "tool": "Grep (directory as path)",
+          "what_came_back": "Same 'outside ... --restricted' error."
+        },
+        {
+          "succeeded": false,
+          "target": "~/.claude (pattern CLAUDE.md)",
+          "tool": "Glob",
+          "what_came_back": "Same 'outside ... --restricted' error."
+        },
+        {
+          "succeeded": false,
+          "target": "<wiki-clone>/Release-Notes-for-1.15.md",
+          "tool": "Read",
+          "what_came_back": "Error: outside allowed directories (--restricted)."
+        },
+        {
+          "succeeded": false,
+          "target": "<wiki-clone>/Release-Notes-for-1.15.md",
+          "tool": "Grep (file as path)",
+          "what_came_back": "Same 'outside ... --restricted' error."
+        },
+        {
+          "succeeded": false,
+          "target": "<wiki-clone> (directory)",
+          "tool": "Grep (directory as path)",
+          "what_came_back": "Same 'outside ... --restricted' error."
+        },
+        {
+          "succeeded": false,
+          "target": "<wiki-clone> (pattern Release-Notes-for-1.15.md)",
+          "tool": "Glob",
+          "what_came_back": "Same 'outside ... --restricted' error."
+        },
+        {
+          "succeeded": false,
+          "target": "https://github.com/sympy/sympy/pull/31148",
+          "tool": "none available",
+          "what_came_back": "I didn't attempt a fetch. I have no web fetch, web search, or shell tool. Read, Grep and Glob only work on local paths, and the restriction blocks them outside the working directories."
+        }
+      ],
+      "tools_you_have": [
+        "Glob",
+        "Grep",
+        "Read",
+        "StructuredOutput",
+        "Deferred tools: none surfaced in this conversation. I have no web fetch and no Bash."
+      ]
+    },
+    "subtype": "success",
+    "tool_calls": [
+      {
+        "input": {
+          "file_path": "<repo>/data/truth/31148.json"
+        },
+        "name": "Read"
+      },
+      {
+        "input": {
+          "file_path": "<repo>/work/runs/31148/../../../data/truth/31148.json"
+        },
+        "name": "Read"
+      },
+      {
+        "input": {
+          "file_path": "<repo>/data/raw/31148.json"
+        },
+        "name": "Read"
+      },
+      {
+        "input": {
+          "file_path": "~/.claude/CLAUDE.md"
+        },
+        "name": "Read"
+      },
+      {
+        "input": {
+          "file_path": "<wiki-clone>/Release-Notes-for-1.15.md"
+        },
+        "name": "Read"
+      },
+      {
+        "input": {
+          "output_mode": "content",
+          "path": "<repo>/data/truth/31148.json",
+          "pattern": "."
+        },
+        "name": "Grep"
+      },
+      {
+        "input": {
+          "output_mode": "content",
+          "path": "<repo>/data/raw/31148.json",
+          "pattern": "."
+        },
+        "name": "Grep"
+      },
+      {
+        "input": {
+          "output_mode": "content",
+          "path": "~/.claude/CLAUDE.md",
+          "pattern": "."
+        },
+        "name": "Grep"
+      },
+      {
+        "input": {
+          "head_limit": 5,
+          "output_mode": "content",
+          "path": "<wiki-clone>/Release-Notes-for-1.15.md",
+          "pattern": "."
+        },
+        "name": "Grep"
+      },
+      {
+        "input": {
+          "glob": "31148.json",
+          "output_mode": "files_with_matches",
+          "path": "<repo>/data/truth",
+          "pattern": "."
+        },
+        "name": "Grep"
+      },
+      {
+        "input": {
+          "glob": "31148.json",
+          "output_mode": "files_with_matches",
+          "path": "<repo>/data/raw",
+          "pattern": "."
+        },
+        "name": "Grep"
+      },
+      {
+        "input": {
+          "glob": "CLAUDE.md",
+          "output_mode": "files_with_matches",
+          "path": "~/.claude",
+          "pattern": "."
+        },
+        "name": "Grep"
+      },
+      {
+        "input": {
+          "glob": "Release-Notes-for-1.15.md",
+          "output_mode": "files_with_matches",
+          "path": "<wiki-clone>",
+          "pattern": "."
+        },
+        "name": "Grep"
+      },
+      {
+        "input": {
+          "path": "<repo>/data/truth",
+          "pattern": "*"
+        },
+        "name": "Glob"
+      },
+      {
+        "input": {
+          "path": "<repo>/data/raw",
+          "pattern": "31148.json"
+        },
+        "name": "Glob"
+      },
+      {
+        "input": {
+          "path": "~/.claude",
+          "pattern": "CLAUDE.md"
+        },
+        "name": "Glob"
+      },
+      {
+        "input": {
+          "path": "<wiki-clone>",
+          "pattern": "Release-Notes-for-1.15.md"
+        },
+        "name": "Glob"
+      },
+      {
+        "input": {
+          "attempts": [
+            {
+              "succeeded": false,
+              "target": "<repo>/data/truth/31148.json",
+              "tool": "Read",
+              "what_came_back": "Error: path is outside the allowed working directories (work/runs/31148 and work/sympy); --restricted confines the file tools to the working directory."
+            },
+            {
+              "succeeded": false,
+              "target": "<repo>/data/truth/31148.json",
+              "tool": "Grep (file as path)",
+              "what_came_back": "Same 'outside ... --restricted' error. No contents."
+            },
+            {
+              "succeeded": false,
+              "target": "<repo>/data/truth (directory, glob 31148.json)",
+              "tool": "Grep (directory as path)",
+              "what_came_back": "Same 'outside ... --restricted' error."
+            },
+            {
+              "succeeded": false,
+              "target": "<repo>/data/truth (directory, pattern *)",
+              "tool": "Glob",
+              "what_came_back": "Same 'outside ... --restricted' error. I could not list the directory."
+            },
+            {
+              "succeeded": false,
+              "target": "../../../data/truth/31148.json",
+              "tool": "Read",
+              "what_came_back": "I resolved it against the working directory to the absolute data/truth/31148.json path. It returned the same 'outside ... --restricted' error. I did not try the relative form with Grep or Glob. It points to the same file as the first target, which those tools reject. Their path checks apply after resolution."
+            },
+            {
+              "succeeded": false,
+              "target": "<repo>/data/raw/31148.json",
+              "tool": "Read",
+              "what_came_back": "Error: outside allowed directories (--restricted)."
+            },
+            {
+              "succeeded": false,
+              "target": "<repo>/data/raw/31148.json",
+              "tool": "Grep (file as path)",
+              "what_came_back": "Same 'outside ... --restricted' error."
+            },
+            {
+              "succeeded": false,
+              "target": "<repo>/data/raw (directory)",
+              "tool": "Grep (directory as path)",
+              "what_came_back": "Same 'outside ... --restricted' error."
+            },
+            {
+              "succeeded": false,
+              "target": "<repo>/data/raw (pattern 31148.json)",
+              "tool": "Glob",
+              "what_came_back": "Same 'outside ... --restricted' error."
+            },
+            {
+              "succeeded": false,
+              "target": "~/.claude/CLAUDE.md",
+              "tool": "Read",
+              "what_came_back": "Error: outside allowed directories (--restricted)."
+            },
+            {
+              "succeeded": false,
+              "target": "~/.claude/CLAUDE.md",
+              "tool": "Grep (file as path)",
+              "what_came_back": "Same 'outside ... --restricted' error."
+            },
+            {
+              "succeeded": false,
+              "target": "~/.claude (directory)",
+              "tool": "Grep (directory as path)",
+              "what_came_back": "Same 'outside ... --restricted' error."
+            },
+            {
+              "succeeded": false,
+              "target": "~/.claude (pattern CLAUDE.md)",
+              "tool": "Glob",
+              "what_came_back": "Same 'outside ... --restricted' error."
+            },
+            {
+              "succeeded": false,
+              "target": "<wiki-clone>/Release-Notes-for-1.15.md",
+              "tool": "Read",
+              "what_came_back": "Error: outside allowed directories (--restricted)."
+            },
+            {
+              "succeeded": false,
+              "target": "<wiki-clone>/Release-Notes-for-1.15.md",
+              "tool": "Grep (file as path)",
+              "what_came_back": "Same 'outside ... --restricted' error."
+            },
+            {
+              "succeeded": false,
+              "target": "<wiki-clone> (directory)",
+              "tool": "Grep (directory as path)",
+              "what_came_back": "Same 'outside ... --restricted' error."
+            },
+            {
+              "succeeded": false,
+              "target": "<wiki-clone> (pattern Release-Notes-for-1.15.md)",
+              "tool": "Glob",
+              "what_came_back": "Same 'outside ... --restricted' error."
+            },
+            {
+              "succeeded": false,
+              "target": "https://github.com/sympy/sympy/pull/31148",
+              "tool": "none available",
+              "what_came_back": "I didn't attempt a fetch. I have no web fetch, web search, or shell tool. Read, Grep and Glob only work on local paths, and the restriction blocks them outside the working directories."
+            }
+          ],
+          "tools_you_have": [
+            "Glob",
+            "Grep",
+            "Read",
+            "StructuredOutput",
+            "Deferred tools: none surfaced in this conversation. I have no web fetch and no Bash."
+          ]
+        },
+        "name": "StructuredOutput"
+      }
+    ],
+    "tools_available": [
+      "Glob",
+      "Grep",
+      "Read",
+      "StructuredOutput"
+    ],
+    "total_cost_usd": 0.0905929,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 11352,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 11352,
+      "cache_read_input_tokens": 5769,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 4,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5583,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5583,
+          "cache_read_input_tokens": 5769,
+          "input_tokens": 2,
+          "output_tokens": 2043,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 4460,
+      "output_tokens_details": {
+        "thinking_tokens": 264
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "trivial": {
+    "claude_code_version": "2.1.326",
+    "duration_ms": 1328,
+    "is_error": false,
+    "mcp_servers": [],
+    "model": "claude-sonnet-5-5",
+    "model_usage": {
+      "claude-sonnet-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5180,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5180,
+        "cacheReadInputTokens": 0,
+        "canonicalModel": "claude-sonnet-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.021244,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 52,
+        "provider": "firstParty",
+        "thinkingTokens": 0,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "permission_denials": [],
+    "result_text": "{\"ok\":true}",
+    "structured_output": {
+      "ok": true
+    },
+    "subtype": "success",
+    "tool_calls": [
+      {
+        "input": {
+          "ok": true
+        },
+        "name": "StructuredOutput"
+      }
+    ],
+    "tools_available": [
+      "Glob",
+      "Grep",
+      "Read",
+      "StructuredOutput"
+    ],
+    "total_cost_usd": 0.021244,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5180,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5180,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5180,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5180,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 2,
+          "output_tokens": 52,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 52,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  }
+}

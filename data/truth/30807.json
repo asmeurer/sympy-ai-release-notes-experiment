@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "I identified the issue and discussed the proposed solution. Code and tests written by ChatGPT.",
+  "author": "smichr",
+  "entries": [
+    {
+      "submodule": "polys",
+      "text": "evaluating a PurePoly at one of its roots, expressed as RootOf, yields 0"
+    }
+  ],
+  "merged_at": "2026-11-02T21:18:06Z",
+  "number": 30807,
+  "overlap": {
+    "title_similarity": 0.36893203883495146,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* polys\n  * evaluating a PurePoly at one of its roots, expressed as RootOf, yields 0",
+  "status": "entry",
+  "title": "PurePoly(rootof) has fastpath to 0"
+}

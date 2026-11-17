@@ -1,0 +1,271 @@
+diff --git a/sympy/core/basic.py b/sympy/core/basic.py
+index 018f06d09caf..901fc4773f7a 100644
+--- a/sympy/core/basic.py
++++ b/sympy/core/basic.py
+@@ -404,7 +404,7 @@ def compare(self, other):
+         comparison is based on the class name.
+         If the names are the same then a comparison is made
+         on the length of the hashable content.
+-        Items of the equal-lengthed contents are then
++        Items of the equal-length contents are then
+         successively compared using the same rules. If there
+         is never a difference then 0 is returned.
+ 
+@@ -1372,7 +1372,7 @@ def _eval_subs(self, old: Basic, new: Basic) -> Basic | None:
+         """
+         return None
+ 
+-    def xreplace(self, rule):
++    def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic:
+         """
+         Replace occurrences of objects within the expression.
+ 
+@@ -1439,14 +1439,14 @@ def xreplace(self, rule):
+         value, _ = self._xreplace(rule)
+         return value
+ 
+-    def _xreplace(self, rule):
++    def _xreplace(self, rule: Mapping[Any, Basic]) -> tuple[Basic, bool]:
+         """
+         Helper for xreplace. Tracks whether a replacement actually occurred.
+         """
+         if self in rule:
+             return rule[self], True
+         elif rule:
+-            args = []
++            args: list[Basic] = []
+             changed = False
+             for a in self.args:
+                 a, achanged = a._xreplace(rule)
+@@ -2261,7 +2261,7 @@ def _exec_constructor_postprocessors(cls, obj):
+         # WARNING: This API is experimental.
+ 
+         # This is an experimental API that introduces constructor
+-        # postprosessors for SymPy Core elements. If an argument of a SymPy
++        # postprocessors for SymPy Core elements. If an argument of a SymPy
+         # expression has a `_constructor_postprocessor_mapping` attribute, it will
+         # be interpreted as a dictionary containing lists of postprocessing
+         # functions for matching expression node names.
+@@ -2403,8 +2403,10 @@ def matches(self, expr, repl_dict=None, old=False):
+                 return {}
+             return repl_dict.copy()
+ 
+-    def xreplace(self, rule, hack2=False):
+-        return rule.get(self, self)
++    def _xreplace(self, rule: Mapping[Any, Basic]) -> tuple[Basic, bool]:
++        if self in rule:
++            return rule[self], True
++        return self, False
+ 
+     def doit(self, **hints):
+         return self
+diff --git a/sympy/core/expr.py b/sympy/core/expr.py
+index a58216ddacf5..6e38bb28f899 100644
+--- a/sympy/core/expr.py
++++ b/sympy/core/expr.py
+@@ -22,11 +22,14 @@
+ 
+ 
+ if TYPE_CHECKING:
+-    from typing import Any, Hashable
++    from typing import Any, Hashable, TypeVar
+     from typing_extensions import Self
+     from .numbers import Number
++    from sympy.core.basic import Tbasic
+     from sympy.logic.boolalg import Boolean
+ 
++    Texpr = TypeVar("Texpr", bound='Expr')
++
+ from collections import defaultdict
+ 
+ 
+@@ -91,6 +94,14 @@ def subs(self, arg1: Mapping[Basic | complex, Basic | complex] | Basic | complex
+                  arg2: Basic | complex | None = None, **kwargs: Any) -> Basic:
+             ...
+ 
++        @overload
++        def xreplace(self, rule: Mapping[Tbasic, Expr]) -> Expr: ...
++        @overload
++        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic: ...
++
++        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic:
++            ...
++
+         def simplify(self, **kwargs) -> Expr:
+             ...
+ 
+@@ -3359,7 +3370,7 @@ def lseries(self, x=None, x0=0, dir='+', logx=None, cdir=0):
+         Wrapper for series yielding an iterator of the terms of the series.
+ 
+         Note: an infinite series will yield an infinite iterator. The following,
+-        for exaxmple, will never terminate. It will just keep printing terms
++        for example, will never terminate. It will just keep printing terms
+         of the sin(x) series::
+ 
+           for term in sin(x).lseries(x):
+diff --git a/sympy/logic/boolalg.py b/sympy/logic/boolalg.py
+index 5ef7cbd055f9..b57242ab6375 100644
+--- a/sympy/logic/boolalg.py
++++ b/sympy/logic/boolalg.py
+@@ -24,8 +24,9 @@
+ from sympy.utilities.misc import filldedent
+ 
+ if TYPE_CHECKING:
+-    from collections.abc import Iterable
+-    from sympy.core.basic import _SupportsItems
++    from collections.abc import Iterable, Mapping
++    from sympy.core.basic import _SupportsItems, Tbasic
++    from sympy.core.expr import Expr, Texpr
+ 
+ 
+ def as_Boolean(e):
+@@ -100,6 +101,16 @@ def subs(self, arg1: _SupportsItems[Basic | complex, Basic | complex] | Basic |
+                  arg2: Basic | complex | None = None, **kwargs: Any) -> Basic:
+             ...
+ 
++        @overload
++        def xreplace(self, rule: Mapping[Texpr, Expr]) -> Boolean: ...
++        @overload
++        def xreplace(self, rule: Mapping[Tbasic, Boolean]) -> Boolean: ...
++        @overload
++        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic: ...
++
++        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic:
++            ...
++
+         def simplify(self, **kwargs) -> Boolean:
+             ...
+ 
+diff --git a/sympy/matrices/matrixbase.py b/sympy/matrices/matrixbase.py
+index 5443995866d5..13410d212b56 100644
+--- a/sympy/matrices/matrixbase.py
++++ b/sympy/matrices/matrixbase.py
+@@ -2801,7 +2801,7 @@ def C(self) -> Self:
+         return self.conjugate()
+ 
+     # should mirror core.basic.xreplace
+-    def xreplace(self, rule: Mapping[SBasic, SBasic]) -> Self:
++    def xreplace(self, rule: Mapping[Tbasic, Expr]) -> Self:
+         """Return a new matrix with xreplace applied to each entry.
+ 
+         Examples
+diff --git a/sympy/polys/polytools.py b/sympy/polys/polytools.py
+index c85713f1e42e..d99f1124fbdd 100644
+--- a/sympy/polys/polytools.py
++++ b/sympy/polys/polytools.py
+@@ -64,8 +64,10 @@
+ 
+ 
+ if TYPE_CHECKING:
++    from sympy.core.basic import Tbasic
++    from sympy.core.expr import Texpr
+     from sympy.polys.domains.domain import Domain
+-    from collections.abc import Iterator
++    from collections.abc import Iterator, Mapping
+     from typing import Self
+ 
+ 
+@@ -227,6 +229,16 @@ def args(self):
+     def _hashable_content(self):
+         return (self.rep,) + self.gens
+ 
++    if TYPE_CHECKING:
++
++        @overload
++        def xreplace(self, rule: Mapping[Texpr, Expr]) -> Self: ...
++        @overload
++        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic: ...
++
++        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic:
++            ...
++
+     @classmethod
+     def from_dict(cls, rep: dict[tuple[int, ...], Any] | dict[int, Any], *gens, **args):
+         """Construct a polynomial from a ``dict``. """
+diff --git a/sympy/sets/sets.py b/sympy/sets/sets.py
+index 69bd213dc86a..bb338fc32a2a 100644
+--- a/sympy/sets/sets.py
++++ b/sympy/sets/sets.py
+@@ -35,6 +35,8 @@
+ 
+ if TYPE_CHECKING:
+     from collections.abc import Mapping, Iterable
++    from sympy.core.basic import Tbasic
++    from sympy.core.expr import Texpr
+ 
+ 
+ tfn: dict[bool | Boolean | None, Boolean | None] = defaultdict(lambda: None, {
+@@ -112,6 +114,16 @@ def subs(self, arg1: Mapping[Basic | complex, Basic | complex] | Basic | complex
+                  arg2: Basic | complex | None = None, **kwargs: Any) -> Basic:
+             ...
+ 
++        @overload
++        def xreplace(self, rule: Mapping[Texpr, Expr]) -> Set: ...
++        @overload
++        def xreplace(self, rule: Mapping[Tbasic, Set]) -> Set: ...
++        @overload
++        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic: ...
++
++        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic:
++            ...
++
+         def simplify(self, **kwargs) -> Set:
+             assert False
+ 
+diff --git a/sympy/tensor/tensor.py b/sympy/tensor/tensor.py
+index 42cf2c9a4d82..65f931b7d35f 100644
+--- a/sympy/tensor/tensor.py
++++ b/sympy/tensor/tensor.py
+@@ -30,7 +30,7 @@
+ """
+ 
+ from __future__ import annotations
+-from typing import Any
++from typing import TYPE_CHECKING, Any, overload
+ from functools import reduce
+ from math import prod
+ 
+@@ -60,6 +60,10 @@
+ from sympy.utilities.decorator import memoize_property, deprecated
+ from sympy.utilities.iterables import sift
+ 
++if TYPE_CHECKING:
++    from collections.abc import Mapping
++    from sympy.core.basic import Tbasic
++
+ 
+ def deprecate_data():
+     sympy_deprecation_warning(
+@@ -2011,6 +2015,18 @@ class TensExpr(Expr, ABC):
+     _op_priority = 12.0
+     is_commutative = False
+ 
++    if TYPE_CHECKING:
++
++        @overload # type: ignore[override]
++        def xreplace(self, rule: Mapping[TensorIndex, TensorIndex]) -> TensExpr: ...
++        @overload
++        def xreplace(self, rule: Mapping[Tbasic, Expr]) -> Expr: ...
++        @overload
++        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic: ...
++
++        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic:
++            ...
++
+     def __neg__(self):
+         return self*S.NegativeOne
+ 
+diff --git a/sympy/tensor/tests/test_tensor.py b/sympy/tensor/tests/test_tensor.py
+index 500bc09295c8..4ebd7504d255 100644
+--- a/sympy/tensor/tests/test_tensor.py
++++ b/sympy/tensor/tests/test_tensor.py
+@@ -1338,6 +1338,9 @@ def subs():
+         def simplify():
+             pass
+ 
++        def xreplace():
++            pass
++
+     Lorentz = TensorIndexType('Lorentz', dim=4, dummy_name='L')
+     a = tensor_indices('a', Lorentz)
+     p = tensor_heads('p', [Lorentz])

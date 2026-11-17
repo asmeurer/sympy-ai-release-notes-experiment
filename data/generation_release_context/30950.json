@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 5878,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 4687,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 4687,
+      "cacheReadInputTokens": 24201,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0285661,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 739,
+      "provider": "firstParty",
+      "thinkingTokens": 91,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 30950,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"core\",\"text\":\"Fixed infinite recursion when numerically evaluating the `Abs` of a complex number with `evalf` while evaluation is disabled, for example `Abs(1 + I, evaluate=False).evalf()` inside `with evaluate(False)`.\"}],\"reasoning\":\"The diff changes `get_abs` in `sympy/core/evalf.py` to compute the magnitude directly from the evaluated real and imaginary parts. This fixes an infinite recursion in `evalf` of an unevaluated `Abs` under `evaluate(False)`. The old `evalf(abs(N(expr)))` code is long-standing, and nothing links the problem to a post-1.14 change, so I treated it as a bug users have seen. The `.mailmap` change and the test need no entry.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "core",
+        "text": "Fixed infinite recursion when numerically evaluating the `Abs` of a complex number with `evalf` while evaluation is disabled, for example `Abs(1 + I, evaluate=False).evalf()` inside `with evaluate(False)`."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The diff changes `get_abs` in `sympy/core/evalf.py` to compute the magnitude directly from the evaluated real and imaginary parts. This fixes an infinite recursion in `evalf` of an unevaluated `Abs` under `evaluate(False)`. The old `evalf(abs(N(expr)))` code is long-standing, and nothing links the problem to a post-1.14 change, so I treated it as a bug users have seen. The `.mailmap` change and the test need no entry."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30950/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30950/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30950/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "core",
+            "text": "Fixed infinite recursion when numerically evaluating the `Abs` of a complex number with `evalf` while evaluation is disabled, for example `Abs(1 + I, evaluate=False).evalf()` inside `with evaluate(False)`."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The diff changes `get_abs` in `sympy/core/evalf.py` to compute the magnitude directly from the evaluated real and imaginary parts. This fixes an infinite recursion in `evalf` of an unevaluated `Abs` under `evaluate(False)`. The old `evalf(abs(N(expr)))` code is long-standing, and nothing links the problem to a post-1.14 change, so I treated it as a bug users have seen. The `.mailmap` change and the test need no entry."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0285661,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 4687,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 4687,
+    "cache_read_input_tokens": 24201,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 4246,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 4246,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 450,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 739,
+    "output_tokens_details": {
+      "thinking_tokens": 91
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

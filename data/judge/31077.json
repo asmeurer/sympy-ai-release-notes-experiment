@@ -1,0 +1,137 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 14274,
+  "human_is": "A",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 11813,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 11813,
+      "cacheReadInputTokens": 15353,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.1270506,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1473,
+      "provider": "firstParty",
+      "thinkingTokens": 614,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31077,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"accurate\",\"overall\":3,\"problems\":[\"Does not say that `refine` of a unitary inverse used to give a wrong result (the elementwise Conjugate), so it reads like a new feature rather than a bug fix.\",\"\\\"Refined unitary matrix inverse to `Adjoint`\\\" is jargon-heavy and doesn't name the `refine` function clearly.\",\"Leaves out the wrong identity size for rectangular orthogonal products and the new assumption propagation through Adjoint/Conjugate.\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"The second bullet is long and combines two separate fixes in a single run-on sentence.\",\"Three bullets is more than the guide's preference for very short entries.\"]},\"same_substance\":false,\"preferred\":\"B\",\"strength\":\"clear\",\"rationale\":\"The diff fixes `refine(U.I)` for unitary U, which used to return the elementwise conjugate and now returns Adjoint(U). It makes `refine` simplify U*U.adjoint() and U.adjoint()*U to the identity, fixes the identity size for rectangular orthogonal products, and registers Adjoint/Conjugate in four matrix assumption handlers. Candidate B describes all of these accurately, says the old results were wrong, and files the assumption change under the right header, though it is wordy. Candidate A is not false, but it is vague, never says a wrong result was fixed, and leaves out the rectangular-size fix and the assumption changes.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "accurate",
+      "overall": 3,
+      "problems": [
+        "Does not say that `refine` of a unitary inverse used to give a wrong result (the elementwise Conjugate), so it reads like a new feature rather than a bug fix.",
+        "\"Refined unitary matrix inverse to `Adjoint`\" is jargon-heavy and doesn't name the `refine` function clearly.",
+        "Leaves out the wrong identity size for rectangular orthogonal products and the new assumption propagation through Adjoint/Conjugate."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "The second bullet is long and combines two separate fixes in a single run-on sentence.",
+        "Three bullets is more than the guide's preference for very short entries."
+      ]
+    },
+    "preferred": "B",
+    "rationale": "The diff fixes `refine(U.I)` for unitary U, which used to return the elementwise conjugate and now returns Adjoint(U). It makes `refine` simplify U*U.adjoint() and U.adjoint()*U to the identity, fixes the identity size for rectangular orthogonal products, and registers Adjoint/Conjugate in four matrix assumption handlers. Candidate B describes all of these accurately, says the old results were wrong, and files the assumption change under the right header, though it is wordy. Candidate A is not false, but it is vague, never says a wrong result was fixed, and leaves out the rectangular-size fix and the assumption changes.",
+    "same_substance": false,
+    "should_have_entry": "yes",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31077/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31077/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "accurate",
+          "overall": 3,
+          "problems": [
+            "Does not say that `refine` of a unitary inverse used to give a wrong result (the elementwise Conjugate), so it reads like a new feature rather than a bug fix.",
+            "\"Refined unitary matrix inverse to `Adjoint`\" is jargon-heavy and doesn't name the `refine` function clearly.",
+            "Leaves out the wrong identity size for rectangular orthogonal products and the new assumption propagation through Adjoint/Conjugate."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "The second bullet is long and combines two separate fixes in a single run-on sentence.",
+            "Three bullets is more than the guide's preference for very short entries."
+          ]
+        },
+        "preferred": "B",
+        "rationale": "The diff fixes `refine(U.I)` for unitary U, which used to return the elementwise conjugate and now returns Adjoint(U). It makes `refine` simplify U*U.adjoint() and U.adjoint()*U to the identity, fixes the identity size for rectangular orthogonal products, and registers Adjoint/Conjugate in four matrix assumption handlers. Candidate B describes all of these accurately, says the old results were wrong, and files the assumption change under the right header, though it is wordy. Candidate A is not false, but it is vague, never says a wrong result was fixed, and leaves out the rectangular-size fix and the assumption changes.",
+        "same_substance": false,
+        "should_have_entry": "yes",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.1270506,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 11813,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 11813,
+    "cache_read_input_tokens": 15353,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 6194,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 6194,
+        "cache_read_input_tokens": 10486,
+        "input_tokens": 2,
+        "output_tokens": 1273,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1473,
+    "output_tokens_details": {
+      "thinking_tokens": 614
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

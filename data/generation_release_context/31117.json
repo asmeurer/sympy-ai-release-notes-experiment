@@ -1,0 +1,116 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 7377,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 12218,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 12218,
+      "cacheReadInputTokens": 24187,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.059498699999999995,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 820,
+      "provider": "firstParty",
+      "thinkingTokens": 303,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31117,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"external\",\"text\":\"Added python-flint versions 0.10, 0.11 and 0.12 to the versions that SymPy will use automatically, and removed versions 0.6, 0.7 and 0.8.\"},{\"submodule\":\"other\",\"text\":\"The package now requires mpmath older than 1.5 (`mpmath>=1.1.0,<1.5`).\"}],\"reasoning\":\"The PR is mostly release CI/workflow and developer tooling (no entry needed), but it also changes the mpmath dependency cap in pyproject.toml and the python-flint versions SymPy accepts in sympy/external/gmpy.py, both of which affect users. Entries are based on those diff hunks.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "external",
+        "text": "Added python-flint versions 0.10, 0.11 and 0.12 to the versions that SymPy will use automatically, and removed versions 0.6, 0.7 and 0.8."
+      },
+      {
+        "submodule": "other",
+        "text": "The package now requires mpmath older than 1.5 (`mpmath>=1.1.0,<1.5`)."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The PR is mostly release CI/workflow and developer tooling (no entry needed), but it also changes the mpmath dependency cap in pyproject.toml and the python-flint versions SymPy accepts in sympy/external/gmpy.py, both of which affect users. Entries are based on those diff hunks."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31117/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31117/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "external",
+            "text": "Added python-flint versions 0.10, 0.11 and 0.12 to the versions that SymPy will use automatically, and removed versions 0.6, 0.7 and 0.8."
+          },
+          {
+            "submodule": "other",
+            "text": "The package now requires mpmath older than 1.5 (`mpmath>=1.1.0,<1.5`)."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The PR is mostly release CI/workflow and developer tooling (no entry needed), but it also changes the mpmath dependency cap in pyproject.toml and the python-flint versions SymPy accepts in sympy/external/gmpy.py, both of which affect users. Entries are based on those diff hunks."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.059498699999999995,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 12218,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 12218,
+    "cache_read_input_tokens": 24187,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 11777,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 11777,
+        "cache_read_input_tokens": 12314,
+        "input_tokens": 2,
+        "output_tokens": 626,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 820,
+    "output_tokens_details": {
+      "thinking_tokens": 303
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

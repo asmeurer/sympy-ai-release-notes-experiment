@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4383,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 2463,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 2463,
+      "cacheReadInputTokens": 24201,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0178701,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 559,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 30961,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"sets\",\"text\":\"Fixed adding `oo` or `-oo` to a `SetExpr` of an `Interval`, which previously returned a nested set such as `SetExpr(FiniteSet(FiniteSet(oo)))` instead of `SetExpr(FiniteSet(oo))`.\"}],\"reasoning\":\"The diff fixes a user-visible bug where adding infinity to an Interval inside a SetExpr produced a nested FiniteSet. The issue was reported long before 1.14, so users have seen it.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "sets",
+        "text": "Fixed adding `oo` or `-oo` to a `SetExpr` of an `Interval`, which previously returned a nested set such as `SetExpr(FiniteSet(FiniteSet(oo)))` instead of `SetExpr(FiniteSet(oo))`."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The diff fixes a user-visible bug where adding infinity to an Interval inside a SetExpr produced a nested FiniteSet. The issue was reported long before 1.14, so users have seen it."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30961/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30961/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30961/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "sets",
+            "text": "Fixed adding `oo` or `-oo` to a `SetExpr` of an `Interval`, which previously returned a nested set such as `SetExpr(FiniteSet(FiniteSet(oo)))` instead of `SetExpr(FiniteSet(oo))`."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The diff fixes a user-visible bug where adding infinity to an Interval inside a SetExpr produced a nested FiniteSet. The issue was reported long before 1.14, so users have seen it."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0178701,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 2463,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 2463,
+    "cache_read_input_tokens": 24201,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 2022,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 2022,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 270,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 559,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

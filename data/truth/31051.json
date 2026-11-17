@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "Collaboration with ChatGPT.",
+  "author": "smichr",
+  "entries": [
+    {
+      "submodule": "core",
+      "text": "mod(a,b) with a/b < 0 now correctly computes value for symbolic a and b (and numeric a/b)"
+    }
+  ],
+  "merged_at": "2026-11-12T06:36:21Z",
+  "number": 31051,
+  "overlap": {
+    "title_similarity": 0.36496350364963503,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* core\n  * mod(a,b) with a/b < 0 now correctly computes value for symbolic a and b (and numeric a/b)",
+  "status": "entry",
+  "title": "core: correct Mod evaluation for negative known ratios"
+}

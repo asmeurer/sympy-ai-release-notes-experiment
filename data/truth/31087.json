@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "An AI coding assistant was used during the investigation to help triangulate the source of the issue and suggest possible approaches to fixing it.\n\nThe AI assistant's involvement was limited to investigation and proposing potential solutions. The implementation and regression tests were developed independently.",
+  "author": "Cypher-Monarch",
+  "entries": [
+    {
+      "submodule": "core",
+      "text": "Fixed unintended free symbols introduced when differentiating undefined functions with composite arguments."
+    }
+  ],
+  "merged_at": "2026-11-15T06:54:00Z",
+  "number": 31087,
+  "overlap": {
+    "title_similarity": 0.5847953216374269,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* core\n  * Fixed unintended free symbols introduced when differentiating undefined functions with composite arguments.",
+  "status": "entry",
+  "title": "Fix Subs symbol handling for derivatives with composite arguments"
+}

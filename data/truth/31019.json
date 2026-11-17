@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "Claude Code (Claude Opus 5.5) wrote all of the code and tests in this PR and ran the benchmarks and the old-vs-new comparisons quoted above.",
+  "author": "deadstrobe5",
+  "entries": [
+    {
+      "submodule": "core",
+      "text": "`subs` is faster, up to 5x for substitutions with large dicts, because `Basic.is_same` no longer walks identical or differently typed subtrees."
+    }
+  ],
+  "merged_at": "2026-11-11T02:45:12Z",
+  "number": 31019,
+  "overlap": {
+    "title_similarity": 0.35602094240837695,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* core\n  * `subs` is faster, up to 5x for substitutions with large dicts, because `Basic.is_same` no longer walks identical or differently typed subtrees.",
+  "status": "entry",
+  "title": "core: make subs faster by short-circuiting Basic.is_same"
+}

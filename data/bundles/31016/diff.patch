@@ -1,0 +1,74 @@
+diff --git a/.mailmap b/.mailmap
+index 8cf66f814074..d29591c3c8a0 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -238,6 +238,8 @@ Addison Cugini <ajcugini@gmail.com> <addisonc@pcp065368pcs.dhcp.calpoly.edu>
+ Aditya Jindal <jaditya8889@gmail.com>
+ Aditya Kapoor <aditya.kapoor.apm12@itbhu.ac.in>
+ Aditya Kumar Sinha <adityakumar113141@gmail.com> aditya113141 <adityakumar113141@gmail.com>
++Aditya Nikam <118399608+adityaanikam@users.noreply.github.com>
++Aditya Nikam <118399608+adityaanikam@users.noreply.github.com> adityaanikam <adityanikam9502@gmail.com>
+ Aditya Prakash <prakashaditya2709@gmail.com>
+ Aditya Ravuri <infprobscix@gmail.com> InfProbSciX <infprobscix@gmail.com>
+ Aditya Rohan <riyuzakiiitk@gmail.com>
+diff --git a/sympy/solvers/solveset.py b/sympy/solvers/solveset.py
+index ff0395aaad28..1a279e273d6f 100644
+--- a/sympy/solvers/solveset.py
++++ b/sympy/solvers/solveset.py
+@@ -1538,6 +1538,8 @@ def _invert_modular(modterm, rhs, n, symbol):
+     (x**2 + x + 1, ImageSet(Lambda(_n, 3*_n + 1), Naturals0))
+ 
+     """
++    if not isinstance(modterm, Mod):
++        return modterm, rhs
+     a, m = modterm.args
+ 
+     if rhs.is_integer is False:
+@@ -1575,7 +1577,9 @@ def _invert_modular(modterm, rhs, n, symbol):
+         if expo.has(symbol) and not base.has(symbol):
+             # remainder -> solution independent of n of equation.
+             # m, rhs are made coprime by dividing number_gcd(m, rhs)
+-            if not m.is_Integer and rhs.is_Integer and a.base.is_Integer:
++            if not (m.is_Integer and rhs.is_Integer and base.is_Integer):
++                return modterm, rhs
++            if number_gcd(m.p, base.p) != 1 or number_gcd(m.p, rhs.p) != 1:
+                 return modterm, rhs
+ 
+             mdiv = m.p // number_gcd(m.p, rhs.p)
+@@ -1653,7 +1657,7 @@ def _solve_modular(f, symbol, domain):
+     >>> solve_modulo(-7 + Mod(x, 5), x, S.Integers)
+     EmptySet
+     >>> solve_modulo(Mod(12**x, 21) - 18, x, S.Integers)
+-    ImageSet(Lambda(_n, 6*_n + 2), Naturals0)
++    ConditionSet(x, Eq(Mod(12**x, 21) - 18, 0), Integers)
+     >>> solve_modulo(Mod(sin(x), 7) - 3, x, S.Integers) # not solvable
+     ConditionSet(x, Eq(Mod(sin(x), 7) - 3, 0), Integers)
+     >>> solve_modulo(3 - Mod(x, 5), x, Intersection(S.Integers, Interval(0, 100)))
+diff --git a/sympy/solvers/tests/test_solveset.py b/sympy/solvers/tests/test_solveset.py
+index 9fc50bc7b0ee..8bc1c0bad523 100644
+--- a/sympy/solvers/tests/test_solveset.py
++++ b/sympy/solvers/tests/test_solveset.py
+@@ -3387,12 +3387,21 @@ def test_solve_modular():
+     # a.is_Pow tests
+     assert dumeq(solveset(Mod(7**x, 41) - 15, x, S.Integers),
+             ImageSet(Lambda(n, 40*n + 3), S.Naturals0))
+-    assert dumeq(solveset(Mod(12**x, 21) - 18, x, S.Integers),
+-            ImageSet(Lambda(n, 6*n + 2), S.Naturals0))
++    # 12 and 21 share a factor so this is left unevaluated
++    assert solveset(Mod(12**x, 21) - 18, x, S.Integers).dummy_eq(
++        ConditionSet(x, Eq(Mod(12**x, 21) - 18, 0), S.Integers))
+     assert dumeq(solveset(Mod(3**x, 4) - 3, x, S.Integers),
+             ImageSet(Lambda(n, 2*n + 1), S.Naturals0))
+     assert dumeq(solveset(Mod(2**x, 7) - 2 , x, S.Integers),
+             ImageSet(Lambda(n, 3*n + 1), S.Naturals0))
++    # base and modulus share a factor, issue 30996: the result is left
++    # unevaluated rather than being wrong
++    for expr in [Mod(2**x, 42), Mod(2**x - 1, 42), Mod(2**x - 22, 42),
++            Mod(2*2**x - 1, 42), Mod(2**x, 12) - 8, Mod(6**x, 12)]:
++        assert solveset(expr, x, S.Integers).dummy_eq(
++            ConditionSet(x, Eq(expr, 0), S.Integers))
++    assert dumeq(solveset(Mod(2*2**x - 2, 42), x, S.Integers),
++            ImageSet(Lambda(n, 6*n), S.Naturals0))
+     assert dumeq(solveset(Mod(3**(3**x), 4) - 3, x, S.Integers),
+             Intersection(ImageSet(Lambda(n, Intersection({log(2*n + 1)/log(3)},
+             S.Integers)), S.Naturals0), S.Integers))

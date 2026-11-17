@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "AI helped find the bug by running edge-case tests.\nAI wrote the first version of the fix and of the test.",
+  "author": "suchishah2807",
+  "entries": [
+    {
+      "submodule": "discrete",
+      "text": "convolution functions no longer return [0] or raise an error when one input is empty."
+    }
+  ],
+  "merged_at": "2026-11-11T02:58:56Z",
+  "number": 31022,
+  "overlap": {
+    "title_similarity": 0.3669724770642202,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* discrete\n  * convolution functions no longer return [0] or raise an error when one input is empty.",
+  "status": "entry",
+  "title": "Fix convolution empty input"
+}

@@ -1,0 +1,158 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 26122,
+  "human_is": "B",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 17768,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 17768,
+      "cacheReadInputTokens": 53593,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.19929460000000002,
+      "inputTokens": 8,
+      "maxOutputTokens": 128000,
+      "outputTokens": 2320,
+      "provider": "firstParty",
+      "thinkingTokens": 928,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 6,
+  "number": 30994,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"minor_inaccuracy\",\"overall\":3,\"problems\":[\"'will now raise errors' overstates it: classes with non-Basic args only fail in some of these methods, so 'may' is the right word.\",\"The tensor bullet describes an internal storage detail (the value of args[3]) and does not say what changed for users, which is essentially nothing visible.\",\"The codegen bullet implies hash/sort_key/doit were broken before; sort_key and doit only became at risk because of this same PR's core change, so calling it a fix relative to the previous release is somewhat overstated.\",\"Overall longer than needed; the important change is the core one.\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"Names internal-ish method details (Basic.sort_key) and leaves out the method names' code formatting; it is somewhat long for a single entry.\",\"Leaves out the small user-visible codegen change: reshape now converts list/tuple arguments to array constructors.\"]},\"same_substance\":false,\"preferred\":\"B\",\"strength\":\"slight\",\"rationale\":\"The main change for users is in core: the merged diff removes the fallbacks in Basic.xreplace, subs, replace, sort_key, doit and Expr._expand_hint that tolerated non-Basic args. That matters to downstream subclasses, and both candidates cover it correctly. Candidate B says such classes \\\"may\\\" now raise errors and tells authors how to fix their classes, which is accurate. Candidate A says they \\\"will\\\" raise errors, which overstates it. A also adds a tensor bullet that only describes how a value is stored internally (comm=None is now kept as Integer 2), which users won't notice. Its codegen bullet is reasonable, but it partly presents a problem this PR itself created as a bug fix. B is more focused and accurate, while A covers slightly more ground, so B is only slightly better.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "minor_inaccuracy",
+      "overall": 3,
+      "problems": [
+        "'will now raise errors' overstates it: classes with non-Basic args only fail in some of these methods, so 'may' is the right word.",
+        "The tensor bullet describes an internal storage detail (the value of args[3]) and does not say what changed for users, which is essentially nothing visible.",
+        "The codegen bullet implies hash/sort_key/doit were broken before; sort_key and doit only became at risk because of this same PR's core change, so calling it a fix relative to the previous release is somewhat overstated.",
+        "Overall longer than needed; the important change is the core one."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "Names internal-ish method details (Basic.sort_key) and leaves out the method names' code formatting; it is somewhat long for a single entry.",
+        "Leaves out the small user-visible codegen change: reshape now converts list/tuple arguments to array constructors."
+      ]
+    },
+    "preferred": "B",
+    "rationale": "The main change for users is in core: the merged diff removes the fallbacks in Basic.xreplace, subs, replace, sort_key, doit and Expr._expand_hint that tolerated non-Basic args. That matters to downstream subclasses, and both candidates cover it correctly. Candidate B says such classes \"may\" now raise errors and tells authors how to fix their classes, which is accurate. Candidate A says they \"will\" raise errors, which overstates it. A also adds a tensor bullet that only describes how a value is stored internally (comm=None is now kept as Integer 2), which users won't notice. Its codegen bullet is reasonable, but it partly presents a problem this PR itself created as a bug fix. B is more focused and accurate, while A covers slightly more ground, so B is only slightly better.",
+    "same_substance": false,
+    "should_have_entry": "yes",
+    "strength": "slight"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30994/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30994/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "-A": 12,
+        "glob": "{codegen/fnodes.py,tensor/tensor.py}",
+        "output_mode": "content",
+        "path": "<repo>/work/sympy/sympy",
+        "pattern": "def _printable|def comm\\b|def commutes_with"
+      },
+      "name": "Grep"
+    },
+    {
+      "input": {
+        "-A": 3,
+        "output_mode": "content",
+        "path": "<repo>/work/sympy/sympy/tensor/tensor.py",
+        "pattern": "_comm_symbols2i|_comm_init|comm=None|comm : "
+      },
+      "name": "Grep"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "minor_inaccuracy",
+          "overall": 3,
+          "problems": [
+            "'will now raise errors' overstates it: classes with non-Basic args only fail in some of these methods, so 'may' is the right word.",
+            "The tensor bullet describes an internal storage detail (the value of args[3]) and does not say what changed for users, which is essentially nothing visible.",
+            "The codegen bullet implies hash/sort_key/doit were broken before; sort_key and doit only became at risk because of this same PR's core change, so calling it a fix relative to the previous release is somewhat overstated.",
+            "Overall longer than needed; the important change is the core one."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "Names internal-ish method details (Basic.sort_key) and leaves out the method names' code formatting; it is somewhat long for a single entry.",
+            "Leaves out the small user-visible codegen change: reshape now converts list/tuple arguments to array constructors."
+          ]
+        },
+        "preferred": "B",
+        "rationale": "The main change for users is in core: the merged diff removes the fallbacks in Basic.xreplace, subs, replace, sort_key, doit and Expr._expand_hint that tolerated non-Basic args. That matters to downstream subclasses, and both candidates cover it correctly. Candidate B says such classes \"may\" now raise errors and tells authors how to fix their classes, which is accurate. Candidate A says they \"will\" raise errors, which overstates it. A also adds a tensor bullet that only describes how a value is stored internally (comm=None is now kept as Integer 2), which users won't notice. Its codegen bullet is reasonable, but it partly presents a problem this PR itself created as a bug fix. B is more focused and accurate, while A covers slightly more ground, so B is only slightly better.",
+        "same_substance": false,
+        "should_have_entry": "yes",
+        "strength": "slight"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.19929460000000002,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 17768,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 17768,
+    "cache_read_input_tokens": 53593,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 8,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 1102,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 1102,
+        "cache_read_input_tokens": 21533,
+        "input_tokens": 2,
+        "output_tokens": 1431,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 2320,
+    "output_tokens_details": {
+      "thinking_tokens": 928
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

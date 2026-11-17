@@ -1,0 +1,83 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 5059,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 1749,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 1749,
+      "cacheReadInputTokens": 2260,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.023592,
+      "inputTokens": 2,
+      "maxOutputTokens": 128000,
+      "outputTokens": 457,
+      "provider": "firstParty",
+      "thinkingTokens": 161,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 2,
+  "number": 31105,
+  "permission_denials": [],
+  "result_text": "{\"disclosure\":\"ai_assist\",\"entry_looks_ai_written\":\"likely\",\"evidence\":\"The disclosure only says AI helped trace the traceback and check edge cases. It also still contains the unfilled template text \\\"[Add details of any AI assistance with code, tests, or PR text, as applicable.]\\\", which hints the disclosure was generated or pasted without editing. The entry is a polished, backtick-formatted condensation of the description's first paragraph, and that paragraph has the same uniform, generated-sounding style (for example \\\"30 tests passed and 1 test was expected to fail (`xfailed`)\\\"), with no shorthand or typos that would suggest a person typed it.\"}",
+  "structured_output": {
+    "disclosure": "ai_assist",
+    "entry_looks_ai_written": "likely",
+    "evidence": "The disclosure only says AI helped trace the traceback and check edge cases. It also still contains the unfilled template text \"[Add details of any AI assistance with code, tests, or PR text, as applicable.]\", which hints the disclosure was generated or pasted without editing. The entry is a polished, backtick-formatted condensation of the description's first paragraph, and that paragraph has the same uniform, generated-sounding style (for example \"30 tests passed and 1 test was expected to fail (`xfailed`)\"), with no shorthand or typos that would suggest a person typed it."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "disclosure": "ai_assist",
+        "entry_looks_ai_written": "likely",
+        "evidence": "The disclosure only says AI helped trace the traceback and check edge cases. It also still contains the unfilled template text \"[Add details of any AI assistance with code, tests, or PR text, as applicable.]\", which hints the disclosure was generated or pasted without editing. The entry is a polished, backtick-formatted condensation of the description's first paragraph, and that paragraph has the same uniform, generated-sounding style (for example \"30 tests passed and 1 test was expected to fail (`xfailed`)\"), with no shorthand or typos that would suggest a person typed it."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.023592,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 1749,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 1749,
+    "cache_read_input_tokens": 2260,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 2,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 1749,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 1749,
+        "cache_read_input_tokens": 2260,
+        "input_tokens": 2,
+        "output_tokens": 457,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 457,
+    "output_tokens_details": {
+      "thinking_tokens": 161
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

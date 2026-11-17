@@ -1,0 +1,141 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 11092,
+  "human_is": "B",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 11075,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 11075,
+      "cacheReadInputTokens": 15310,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.11493800000000001,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1163,
+      "provider": "firstParty",
+      "thinkingTokens": 277,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30971,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"The first bullet runs to two sentences and is somewhat long.\",\"It doesn't mention that the new TypeError for non-Set arguments could break code that used to pass other objects.\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":2,\"problems\":[\"Neither bullet is a complete sentence ending with a period.\",\"\\\"Have been improved\\\" is too vague: it doesn't say that Interval*oo now gives a FiniteSet, possibly including nan.\",\"\\\"Sympifies a passed set\\\" is implementation jargon; it should say that Python sets are converted to FiniteSet.\",\"It omits the new TypeError for non-Set arguments.\",\"The class names aren't in code formatting.\"]},\"same_substance\":false,\"preferred\":\"A\",\"strength\":\"clear\",\"rationale\":\"The diff makes four changes. Multiplying an Interval SetExpr by oo or -oo now gives a FiniteSet of the possible signed infinities, with nan included when the interval contains 0. Operations between a FiniteSet and a scalar now wrap scalar results in a FiniteSet. SetExpr now sympifies its argument, turning Python sets into FiniteSet, and raises TypeError for anything that isn't a Set. Candidate A states each of these concretely and correctly in user terms, though it is a bit wordy. Candidate B is technically true but vague (\\\"have been improved\\\"), uses jargon (\\\"sympifies\\\"), leaves out the nan and TypeError behavior, and its bullets aren't complete sentences.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "The first bullet runs to two sentences and is somewhat long.",
+        "It doesn't mention that the new TypeError for non-Set arguments could break code that used to pass other objects."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 2,
+      "problems": [
+        "Neither bullet is a complete sentence ending with a period.",
+        "\"Have been improved\" is too vague: it doesn't say that Interval*oo now gives a FiniteSet, possibly including nan.",
+        "\"Sympifies a passed set\" is implementation jargon; it should say that Python sets are converted to FiniteSet.",
+        "It omits the new TypeError for non-Set arguments.",
+        "The class names aren't in code formatting."
+      ]
+    },
+    "preferred": "A",
+    "rationale": "The diff makes four changes. Multiplying an Interval SetExpr by oo or -oo now gives a FiniteSet of the possible signed infinities, with nan included when the interval contains 0. Operations between a FiniteSet and a scalar now wrap scalar results in a FiniteSet. SetExpr now sympifies its argument, turning Python sets into FiniteSet, and raises TypeError for anything that isn't a Set. Candidate A states each of these concretely and correctly in user terms, though it is a bit wordy. Candidate B is technically true but vague (\"have been improved\"), uses jargon (\"sympifies\"), leaves out the nan and TypeError behavior, and its bullets aren't complete sentences.",
+    "same_substance": false,
+    "should_have_entry": "yes",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30971/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30971/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "The first bullet runs to two sentences and is somewhat long.",
+            "It doesn't mention that the new TypeError for non-Set arguments could break code that used to pass other objects."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 2,
+          "problems": [
+            "Neither bullet is a complete sentence ending with a period.",
+            "\"Have been improved\" is too vague: it doesn't say that Interval*oo now gives a FiniteSet, possibly including nan.",
+            "\"Sympifies a passed set\" is implementation jargon; it should say that Python sets are converted to FiniteSet.",
+            "It omits the new TypeError for non-Set arguments.",
+            "The class names aren't in code formatting."
+          ]
+        },
+        "preferred": "A",
+        "rationale": "The diff makes four changes. Multiplying an Interval SetExpr by oo or -oo now gives a FiniteSet of the possible signed infinities, with nan included when the interval contains 0. Operations between a FiniteSet and a scalar now wrap scalar results in a FiniteSet. SetExpr now sympifies its argument, turning Python sets into FiniteSet, and raises TypeError for anything that isn't a Set. Candidate A states each of these concretely and correctly in user terms, though it is a bit wordy. Candidate B is technically true but vague (\"have been improved\"), uses jargon (\"sympifies\"), leaves out the nan and TypeError behavior, and its bullets aren't complete sentences.",
+        "same_substance": false,
+        "should_have_entry": "yes",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.11493800000000001,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 11075,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 11075,
+    "cache_read_input_tokens": 15310,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 5499,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 5499,
+        "cache_read_input_tokens": 10443,
+        "input_tokens": 2,
+        "output_tokens": 963,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1163,
+    "output_tokens_details": {
+      "thinking_tokens": 277
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

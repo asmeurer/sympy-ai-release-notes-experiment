@@ -1,0 +1,25 @@
+{
+  "ai_disclosure": "Generated with Claude Code (Claude Opus 5.5), Hunter Hogan, and Predator Energy Drink.\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)",
+  "author": "hunterhogan",
+  "entries": [
+    {
+      "submodule": "core",
+      "text": "Added type annotations for `xreplace`."
+    },
+    {
+      "submodule": "core",
+      "text": "Removed the unused `hack2` keyword argument from `Atom.xreplace`."
+    }
+  ],
+  "merged_at": "2026-11-13T17:21:24Z",
+  "number": 30990,
+  "overlap": {
+    "title_similarity": 0.2857142857142857,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* core\n  * Added type annotations for `xreplace`.\n  * Removed the unused `hack2` keyword argument from `Atom.xreplace`.",
+  "status": "entry",
+  "title": "\ud83e\udd16 Annotate Basic.xreplace"
+}

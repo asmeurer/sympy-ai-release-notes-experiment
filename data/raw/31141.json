@@ -1,0 +1,48 @@
+{
+  "additions": 5,
+  "author": "MajesticSlacks",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\nLocal source: doc/src/contributing/pull-request-guidelines.rst\nKeep all section headings below. -->\n\n#### References to other Issues or PRs\nSee https://github.com/sympy/sympy/issues/31086#issuecomment-6891811101\n\n#### Brief description of what is fixed or changed\nBefore `Ordinal` could accept values in non-canonical ordering.\n```\n>>> from sympy.sets.ordinals import *\n>>> Ordinal(OmegaPower(0,3), OmegaPower(0,2))\n3 + 2\n>>> Ordinal(OmegaPower(0,3), OmegaPower(0,2)) + 1\n3 + 3\n```\nNow it raises `ValueError`.\n\n#### Other comments\nIn the longer term, it may be better to for the `Ordinal` constructor to do the canonicalization itself.\n\n#### AI Generation Disclosure\nNO AI USE\n\n#### Release Notes\n\n\n<!-- BEGIN RELEASE NOTES -->\n* sets\n  * ordinals: fixed a bug where `Ordinal` could produce non-canonical outputs.\n<!-- END RELEASE NOTES -->\n",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "Benjamin Dolata",
+      "message": "enforce canonical ordering on `Ordinal`",
+      "sha": "1b69a9345aa603c38663a1abd8540355ad7535ab"
+    }
+  ],
+  "created_at": "2026-11-16T22:11:51Z",
+  "deletions": 1,
+  "diff": "diff --git a/sympy/sets/ordinals.py b/sympy/sets/ordinals.py\nindex 23780846e26a..da8006f35958 100644\n--- a/sympy/sets/ordinals.py\n+++ b/sympy/sets/ordinals.py\n@@ -87,7 +87,7 @@ def __new__(cls, *terms: OmegaPower):\n \n         obj = super().__new__(cls, *terms)\n         powers = [i.exp for i in obj.args]\n-        if not all(powers[i] >= powers[i+1] for i in range(len(powers) - 1)):\n+        if not all(powers[i] > powers[i+1] for i in range(len(powers) - 1)):\n             raise ValueError(\"powers must be in decreasing order\")\n         return obj\n \ndiff --git a/sympy/sets/tests/test_ordinals.py b/sympy/sets/tests/test_ordinals.py\nindex d87e3e7af824..2ebf485b8990 100644\n--- a/sympy/sets/tests/test_ordinals.py\n+++ b/sympy/sets/tests/test_ordinals.py\n@@ -72,3 +72,7 @@ def test_atomic_classes():\n \n def test_ordinal():\n     assert Ordinal() is ord0\n+\n+def test_ordinal_canonical():\n+    assert raises(ValueError, lambda: Ordinal(OmegaPower(0, 3), OmegaPower(0, 2)))\n+    assert raises(ValueError, lambda: Ordinal(OmegaPower(0, 1), OmegaPower(1, 1)))\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* sets\n  * ordinals: fixed a bug where `Ordinal` could produce non-canonical outputs. ([#31141](https://github.com/sympy/sympy/pull/31141) by [@MajesticSlacks](https://github.com/MajesticSlacks))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\n    Local source: doc/src/contributing/pull-request-guidelines.rst\n    Keep all section headings below. -->\n\n    #### References to other Issues or PRs\n    See https://github.com/sympy/sympy/issues/31086#issuecomment-6891811101\n\n    #### Brief description of what is fixed or changed\n    Before `Ordinal` could accept values in non-canonical ordering.\n    ```\n    >>> from sympy.sets.ordinals import *\n    >>> Ordinal(OmegaPower(0,3), OmegaPower(0,2))\n    3 + 2\n    >>> Ordinal(OmegaPower(0,3), OmegaPower(0,2)) + 1\n    3 + 3\n    ```\n    Now it raises `ValueError`.\n\n    #### Other comments\n    In the longer term, it may be better to for the `Ordinal` constructor to do the canonicalization itself.\n\n    #### AI Generation Disclosure\n    NO AI USE\n\n    #### Release Notes\n\n\n    <!-- BEGIN RELEASE NOTES -->\n    * sets\n      * ordinals: fixed a bug where `Ordinal` could produce non-canonical outputs.\n    <!-- END RELEASE NOTES -->\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-16T22:12:02Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "Looks good.",
+      "created_at": "2026-11-17T11:31:32Z"
+    }
+  ],
+  "labels": [
+    "sets"
+  ],
+  "linked": [
+    {
+      "author": "MajesticSlacks",
+      "body": "This has come up a few times now, most recently in https://github.com/sympy/sympy/pull/29733#discussion_r3178471780.\n```\n>>> from sympy import *\n>>> from sympy.sets.ordinals import *\n>>> S.Zero == ord0\nFalse\n>>> 0 == ord0\nTrue\n>>> S.Zero == 0\nTrue\n>>> sin(ord0)\nAttributeError: 'OrdinalZero' object has no attribute 'as_coefficient'\n>>> sin(0)\n0\n>>> sin(S.Zero)\n0\n>>> \n```\nIn the sense of SymPy, it seems to me that finite ordinals and `int`s could be considered unequal, in that they don't support the same operations.",
+      "is_pull_request": false,
+      "number": 31086,
+      "state": "open",
+      "title": "Should finite `Ordinal`s evaluate as equal to `int`s and `Integer`s?"
+    }
+  ],
+  "merge_commit_sha": "4b7a09b555041a21d15fafbe2e1f381238616362",
+  "merged_at": "2026-11-17T11:31:37Z",
+  "number": 31141,
+  "review_comments": [],
+  "reviews": [],
+  "title": "sets: Fixed a bug where `Ordinal` can produce non-canonical output."
+}

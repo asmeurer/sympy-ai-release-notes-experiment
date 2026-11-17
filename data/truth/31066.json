@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "OpenAI Codex (GPT-6 Astra) generated the changes in  `sympy/printing/pycode.py`, `sympy/printing/tests/test_pycode.py`, and `sympy/utilities/tests/test_lambdify.py`.",
+  "author": "raman118",
+  "entries": [
+    {
+      "submodule": "printing",
+      "text": "Fixed incorrect results for powers and reciprocals of `log2` in generated mpmath code."
+    }
+  ],
+  "merged_at": "2026-11-13T09:35:41Z",
+  "number": 31066,
+  "overlap": {
+    "title_similarity": 0.4426229508196721,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* printing\n  * Fixed incorrect results for powers and reciprocals of `log2` in generated mpmath code.",
+  "status": "entry",
+  "title": "Preserve log2 precedence in mpmath code"
+}

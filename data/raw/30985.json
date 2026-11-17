@@ -1,0 +1,42 @@
+{
+  "additions": 2,
+  "author": "hunterhogan",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\r\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\nLocal source: doc/src/contributing/pull-request-guidelines.rst\r\nKeep all section headings below. -->\r\n\r\n#### References to other Issues or PRs\r\n\r\n#30940\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\nCorrect path to PyDy files\r\n\r\n#### Other comments\r\n\r\n\r\n#### AI Generation Disclosure\r\n\r\nNot used\r\n\r\n#### Release Notes\r\n\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\n* other\r\n    * Fix typo\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 1,
+  "commits": [
+    {
+      "author": "Hunter Hogan",
+      "message": "fix: typo in path",
+      "sha": "644f04c2aec822095366ab2bd14df87957e6ce3c"
+    }
+  ],
+  "created_at": "2026-11-08T05:07:34Z",
+  "deletions": 2,
+  "diff": "diff --git a/LICENSES_BUNDLED.txt b/LICENSES_BUNDLED.txt\nindex 7ff33b3e2d5b..738d28af3e44 100644\n--- a/LICENSES_BUNDLED.txt\n+++ b/LICENSES_BUNDLED.txt\n@@ -67,7 +67,7 @@ DAMAGE.\n \n --------------------------------------------------------------------------------\n \n-The files under the directory sympy/parsing/autolev/tests/pydy-example-repo\n+The files under the directory sympy/parsing/autolev/test-examples/pydy-example-repo\n are directly copied from PyDy project and are licensed as:\n \n Copyright (c) 2009-2023, PyDy Authors\n@@ -98,7 +98,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n \n --------------------------------------------------------------------------------\n \n-The files under the directory sympy/parsing/latex \n+The files under the directory sympy/parsing/latex\n are directly copied from latex2sympy project and are licensed as:\n \n Copyright 2016, latex2sympy\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* other\n  * Fix typo ([#30985](https://github.com/sympy/sympy/pull/30985) by [@hunterhogan](https://github.com/hunterhogan))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\r\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\n    Local source: doc/src/contributing/pull-request-guidelines.rst\r\n    Keep all section headings below. -->\r\n\r\n    #### References to other Issues or PRs\r\n\r\n    #30940\r\n\r\n    #### Brief description of what is fixed or changed\r\n\r\n    Correct path to PyDy files\r\n\r\n    #### Other comments\r\n\r\n\r\n    #### AI Generation Disclosure\r\n\r\n    Not used\r\n\r\n    #### Release Notes\r\n\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    * other\r\n        * Fix typo\r\n    <!-- END RELEASE NOTES -->\r\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-08T05:07:37Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "oscarbenjamin",
+      "body": "#### References to other Issues or PRs\n\nFollws on from gh-30362\nIncludes gh-30939\n\n#### Brief description of what is fixed or changed\n\nRemove setup.py and use pyproject.toml instead.\n\n#### Other comments\n\n\n#### AI Generation Disclosure\n\nUsing codex\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* other\n   * SymPy no longer uses setup.py and now uses pyproject.toml per PEP 517.\n<!-- END RELEASE NOTES -->\n",
+      "is_pull_request": true,
+      "merged_at": "2026-11-10T18:59:37Z",
+      "number": 30940,
+      "state": "closed",
+      "title": "Remove setup.py and use pyproject.toml"
+    }
+  ],
+  "merge_commit_sha": "8a953b841f76fc2f36561065c2bc81012fa94833",
+  "merged_at": "2026-11-08T18:56:50Z",
+  "number": 30985,
+  "review_comments": [],
+  "reviews": [],
+  "title": "fix: typo in path"
+}

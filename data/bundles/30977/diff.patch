@@ -1,0 +1,39 @@
+diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py
+index fe44b0e89ba2..7cf4169a6df6 100644
+--- a/sympy/printing/latex.py
++++ b/sympy/printing/latex.py
+@@ -825,7 +825,7 @@ def _print_Idx(self, expr):
+                 lower = self._print(expr.lower)
+             else:
+                 lower = self._print(S.Zero)
+-            interval = '{lower}\\mathrel{{..}}\\nobreak {upper}'.format(
++            interval = '{lower}\\mathrel{{..}}{upper}'.format(
+                     lower = lower, upper = upper)
+             return '{{{label}}}_{{{interval}}}'.format(
+                 label = label, interval = interval)
+diff --git a/sympy/printing/tests/test_latex.py b/sympy/printing/tests/test_latex.py
+index 31bd0afc79b5..562d9eb47f45 100644
+--- a/sympy/printing/tests/test_latex.py
++++ b/sympy/printing/tests/test_latex.py
+@@ -905,7 +905,7 @@ def test_latex_indexed():
+     assert indexed_latex == r'\overline{{\Psi}_{0}} {\Psi}_{0}'
+ 
+     # Symbol('gamma') gives r'\gamma'
+-    interval = '\\mathrel{..}\\nobreak '
++    interval = r'\mathrel{..}'
+     assert latex(Indexed('x1', Symbol('i'))) == r'{x_{1}}_{i}'
+     assert latex(Indexed('x2', Idx('i'))) == r'{x_{2}}_{i}'
+     assert latex(Indexed('x3', Idx('i', Symbol('N')))) == r'{x_{3}}_{{i}_{0'+interval+'N - 1}}'
+@@ -916,6 +916,12 @@ def test_latex_indexed():
+     assert latex(IndexedBase('a_b')) == r'a_{b}'
+ 
+ 
++def test_latex_Idx():
++    assert latex(Idx('j', 5)) == r'{j}_{0\mathrel{..}4}'
++    assert latex(Idx('j', (-2, 2))) == r'{j}_{-2\mathrel{..}2}'
++    assert latex(Idx('j')) == 'j'
++
++
+ def test_latex_derivatives():
+     # regular "d" for ordinary derivatives
+     assert latex(diff(x**3, x, evaluate=False)) == \

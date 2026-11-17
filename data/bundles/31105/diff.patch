@@ -1,0 +1,38 @@
+diff --git a/sympy/simplify/tests/test_trigsimp.py b/sympy/simplify/tests/test_trigsimp.py
+index 79cf025fa565..0bc17cc2d455 100644
+--- a/sympy/simplify/tests/test_trigsimp.py
++++ b/sympy/simplify/tests/test_trigsimp.py
+@@ -384,6 +384,17 @@ def test_trigsimp_groebner():
+     assert trigsimp((-s + 1)/c + c/(-s + 1),
+                     method='groebner', polynomial=True) == 2/c
+ 
++    assert trigsimp(y + s**2 + c**2, method='groebner') == y + 1
++    assert trigsimp(2*y + 3 + s**2 + c**2,
++                    method='groebner') == 2*y + 4
++    assert trigsimp(y + tan(x)*c, method='groebner') == y + s
++    assert trigsimp(y*s**2 + y*c**2, method='groebner') == y
++
++    assert trigsimp(y + s**2 + c**2, method='combined') == y + 1
++    assert trigsimp(2*y + 3 + s**2 + c**2,
++                    method='combined') == 2*y + 4
++    assert trigsimp(y + tan(x)*c, method='combined') == y + s
++
+     # Test quick=False works
+     assert trigsimp_groebner(ex, hints=[2]) in results
+     assert trigsimp_groebner(ex, hints=[int(2)]) in results
+diff --git a/sympy/simplify/trigsimp.py b/sympy/simplify/trigsimp.py
+index f934dcdd8b59..e3c187370314 100644
+--- a/sympy/simplify/trigsimp.py
++++ b/sympy/simplify/trigsimp.py
+@@ -381,7 +381,10 @@ def analyse_gens(gens, hints):
+         num = Poly(num, gens=gens+freegens).eject(*gens)
+         res = []
+         for monom, coeff in num.terms():
+-            ourgens = set(parallel_poly_from_expr([coeff, denom])[1].gens)
++            try:
++                ourgens = set(parallel_poly_from_expr([coeff, denom])[1].gens)
++            except PolificationFailed:
++                ourgens = set()
+             # We compute the transitive closure of all generators that can
+             # be reached from our generators through relations in the ideal.
+             changed = True

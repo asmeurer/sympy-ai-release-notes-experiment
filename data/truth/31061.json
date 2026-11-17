@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "OpenAI Codex (GPT-6.1 Sol), has been used to assist for the task minimally. All patch changes in `sympy/printing/str.py`, `sympy/printing/tests/test_str.py`, and `.mailmap` were written with the AI's minimal help.",
+  "author": "Shakestein",
+  "entries": [
+    {
+      "submodule": "printing",
+      "text": "Removed duplicate denominator parentheses when printing unevaluated fractions as strings."
+    }
+  ],
+  "merged_at": "2026-11-13T08:36:51Z",
+  "number": 31061,
+  "overlap": {
+    "title_similarity": 0.6438356164383562,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* printing\n  * Removed duplicate denominator parentheses when printing unevaluated fractions as strings.",
+  "status": "entry",
+  "title": "Avoid duplicate denominator parentheses in string printing"
+}

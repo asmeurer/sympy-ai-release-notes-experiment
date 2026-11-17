@@ -1,0 +1,197 @@
+diff --git a/sympy/core/evalf.py b/sympy/core/evalf.py
+index 08d8043c5156..a95b059c36a0 100644
+--- a/sympy/core/evalf.py
++++ b/sympy/core/evalf.py
+@@ -3,7 +3,7 @@
+ for mathematical functions.
+ """
+ from __future__ import annotations
+-from typing import Callable, TYPE_CHECKING, Any, overload
++from typing import Callable, TYPE_CHECKING, Any, overload, cast
+ 
+ import math
+ 
+@@ -631,6 +631,37 @@ def evalf_add(v: 'Add', prec: int, options: OPT_DICT) -> TMP_RES:
+     return re, im, re_acc, im_acc
+ 
+ 
++class _ExactComplex:
++    __slots__ = ('a', 'b', 'q')
++
++    def __init__(self):
++        # (a + i*b)/q
++        self.q = 1
++        self.a = 1
++        self.b = 0
++
++    def __imul__(self, ri):
++        r, i = ri
++        c = r.p*i.q
++        d = i.p*r.q
++        s = r.q*i.q
++        a, b, q = self.a, self.b, self.q
++
++        real = a*c - b*d
++        imag = a*d + b*c
++        denom = q*s
++
++        g = math.gcd(real, imag, denom)
++        self.a = real // g
++        self.b = imag // g
++        self.q = denom // g
++        return self
++
++    def as_rationals(self):
++        from sympy.core.numbers import Rational
++        return Rational(self.a, self.q), Rational(self.b, self.q)
++
++
+ def evalf_mul(v: 'Mul', prec: int, options: OPT_DICT) -> TMP_RES:
+     res = pure_complex(v)
+     if res:
+@@ -638,13 +669,32 @@ def evalf_mul(v: 'Mul', prec: int, options: OPT_DICT) -> TMP_RES:
+         _, h = res
+         im, _, im_acc, _ = evalf(h, prec, options)
+         return None, im, None, im_acc
++
+     args = list(v.args)
++    flat_factors = []
++    coeff = _ExactComplex()
++    have_exact = False
++
++    for arg in args:
++        if arg.is_Mul:
++            args.extend(cast('tuple[Expr, ...]', arg.args))
++            continue
++
++        pair = pure_complex(arg)
++        if (pair is not None
++                and pair[0]  # note: pair[1] cannot be 0
++                and all(c.is_Rational for c in pair)):
++            coeff *= pair
++            have_exact = True
++            continue
++
++        flat_factors.append(arg)
+ 
+     # see if any argument is NaN or oo and thus warrants a special return
+     has_zero = False
+     special = []
+     from .numbers import Float
+-    for arg in args:
++    for arg in flat_factors:
+         result = evalf(arg, prec, options)
+         if result is S.ComplexInfinity:
+             special.append(result)
+@@ -673,7 +723,7 @@ def evalf_mul(v: 'Mul', prec: int, options: OPT_DICT) -> TMP_RES:
+     acc = prec
+ 
+     # XXX: big overestimate
+-    working_prec = prec + len(args) + 5
++    working_prec = prec + len(flat_factors) + int(have_exact) + 5
+ 
+     # Empty product is 1
+     start = man, exp, bc = MPZ(1), 0, 1
+@@ -681,19 +731,23 @@ def evalf_mul(v: 'Mul', prec: int, options: OPT_DICT) -> TMP_RES:
+     # First, we multiply all pure real or pure imaginary numbers.
+     # direction tells us that the result should be multiplied by
+     # I**direction; all other numbers get put into complex_factors
+-    # to be multiplied out after the first phase.
+-    last = len(args)
++    # to be multiplied out after the first phase. Exact complex
++    # numbers (Rational + I*Rational) gathered in previous loop
++    # are handled after all others.
+     direction = 0
+-    args.append(S.One)
+     complex_factors = []
++    LAST = len(flat_factors)
++    for i in range(LAST + 1):
++        if i != LAST:
++            re, im, re_acc, im_acc = evalf(
++                flat_factors[i], working_prec, options)
++        elif have_exact:
++            real, imag = coeff.as_rationals()
++            re, _, re_acc, _ = evalf(real, working_prec, options)
++            im, _, im_acc, _ = evalf(imag, working_prec, options)
++        else:
++            break
+ 
+-    for i, arg in enumerate(args):
+-        if i != last and pure_complex(arg):
+-            args[-1] = (args[-1]*arg).expand()
+-            continue
+-        elif i == last and arg is S.One:
+-            continue
+-        re, im, re_acc, im_acc = evalf(arg, working_prec, options)
+         if re and im:
+             complex_factors.append((re, im, re_acc, im_acc))
+             continue
+diff --git a/sympy/core/tests/test_evalf.py b/sympy/core/tests/test_evalf.py
+index daa0ac667a01..22d77c940ee5 100644
+--- a/sympy/core/tests/test_evalf.py
++++ b/sympy/core/tests/test_evalf.py
+@@ -10,6 +10,7 @@
+ from sympy.core import (GoldenRatio)
+ from sympy.core.numbers import (AlgebraicNumber, E, Float, I, Rational,
+                                 oo, zoo, nan, pi)
++from sympy.core.parameters import evaluate
+ from sympy.core.power import Pow
+ from sympy.core.relational import Eq
+ from sympy.core.singleton import S
+@@ -476,6 +477,56 @@ def test_evalf_mul():
+     assert NS(product(1 + sqrt(n)*I, (n, 1, 500)), 1) == '5.e+567 + 2.e+568*I'
+ 
+ 
++def test_evalf_manage_exact_gcd_30874():
++    # don't let numer and denom accumulate to 25**500
++    assert Mul(*[(3 + 4*I)/5*(3 - 4*I)/5 for i in range(500)
++        ], evaluate=False).n(3) == S(1).n(3)
++
++
++def test_evalf_nested_complex_cancellation_30874():
++    tiny = Rational(1, 10**100)
++    a = 1 + I
++    b = 1 + tiny + I
++    c = Float('1.0', 15) + Float('1e-150', 15)*I
++    expr = Mul(Mul(a, c, evaluate=False), b, evaluate=False)
++    assert expr.evalf(20).as_real_imag()[0] == tiny.evalf(20)
++
++
++def test_evalf_complex_exact_cancellation_30874():
++    tiny = Rational(1, 10**100)
++    expr = Mul(1 + I, 1 + tiny + I, evaluate=False)
++    real, imag = expr.evalf(20).as_real_imag()
++    assert real == tiny.evalf(20)
++    assert imag == (2 + tiny).evalf(20)
++
++
++def test_evalf_complex_float_precision_30874():
++    a = Float('1.23456789012345000001', 15)
++    b = Float('1.23456789012344000001', 15)
++    expr = Mul(a + b*I, a + b*I, evaluate=False)
++
++    # Convert the stored binary Floats to exact Rationals
++    # to calculate the reference result without rounding.
++    r, i = Rational(a), Rational(b)
++    expected = (
++        (r*r - i*i).evalf(35),
++        (2*r*i).evalf(35))
++
++    assert expr.evalf(35).as_real_imag() == expected
++
++
++def test_evalf_complex_exact_zero_components_30874():
++    a = Mul(1 + I, 1 - I, evaluate=False)
++    b = Mul(1 + I, 1 + I, evaluate=False)
++    assert a.evalf(20).as_real_imag()[1] == 0
++    assert b.evalf(20).as_real_imag()[0] == 0
++
++
++def test_issue_30874():
++    with evaluate(False):
++        str(Mul(-1, I).evalf())
++
++
+ def test_scaled_zero():
+     a, b = (([0], 1, 100, 1), -1)
+     assert scaled_zero(100) == (a, b)

@@ -1,0 +1,133 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 7979,
+  "human_is": "B",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 8027,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 8027,
+      "cacheReadInputTokens": 15222,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.08419639999999999,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 846,
+      "provider": "firstParty",
+      "thinkingTokens": 164,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30972,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"accurate\",\"overall\":5,\"problems\":[\"Two sentences, slightly longer than ideal.\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"\\\"constructor notation\\\" with no example may be unclear to users.\",\"\\\"Fixed pretty-printing sequences\\\" reads a little awkwardly.\"]},\"same_substance\":true,\"preferred\":\"A\",\"strength\":\"slight\",\"rationale\":\"In the diff, `_print_SeqFormula` no longer raises NotImplementedError when a sequence has symbolic bounds. It now falls back to `_print_Function`, so these sequences pretty-print as `SeqFormula(n, (n, 0, k))`. This method also covers SeqPer, SeqAdd and SeqMul. Both candidates describe this change correctly under the printing header. A is slightly better because its concrete example shows users what \\\"constructor notation\\\" means, while B is shorter but leaves that phrase abstract.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "accurate",
+      "overall": 5,
+      "problems": [
+        "Two sentences, slightly longer than ideal."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "\"constructor notation\" with no example may be unclear to users.",
+        "\"Fixed pretty-printing sequences\" reads a little awkwardly."
+      ]
+    },
+    "preferred": "A",
+    "rationale": "In the diff, `_print_SeqFormula` no longer raises NotImplementedError when a sequence has symbolic bounds. It now falls back to `_print_Function`, so these sequences pretty-print as `SeqFormula(n, (n, 0, k))`. This method also covers SeqPer, SeqAdd and SeqMul. Both candidates describe this change correctly under the printing header. A is slightly better because its concrete example shows users what \"constructor notation\" means, while B is shorter but leaves that phrase abstract.",
+    "same_substance": true,
+    "should_have_entry": "yes",
+    "strength": "slight"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30972/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30972/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "accurate",
+          "overall": 5,
+          "problems": [
+            "Two sentences, slightly longer than ideal."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "\"constructor notation\" with no example may be unclear to users.",
+            "\"Fixed pretty-printing sequences\" reads a little awkwardly."
+          ]
+        },
+        "preferred": "A",
+        "rationale": "In the diff, `_print_SeqFormula` no longer raises NotImplementedError when a sequence has symbolic bounds. It now falls back to `_print_Function`, so these sequences pretty-print as `SeqFormula(n, (n, 0, k))`. This method also covers SeqPer, SeqAdd and SeqMul. Both candidates describe this change correctly under the printing header. A is slightly better because its concrete example shows users what \"constructor notation\" means, while B is shorter but leaves that phrase abstract.",
+        "same_substance": true,
+        "should_have_entry": "yes",
+        "strength": "slight"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.08419639999999999,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 8027,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 8027,
+    "cache_read_input_tokens": 15222,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 2539,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 2539,
+        "cache_read_input_tokens": 10355,
+        "input_tokens": 2,
+        "output_tokens": 646,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 846,
+    "output_tokens_details": {
+      "thinking_tokens": 164
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

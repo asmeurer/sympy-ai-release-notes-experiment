@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "OpenAI Codex using GPT-6 Astra generated changes in `.mailmap`, `sympy/core/evalf.py`, and `sympy/core/tests/test_evalf.py`.",
+  "author": "raman118",
+  "entries": [
+    {
+      "submodule": "core",
+      "text": "Fixed recursion when numerically evaluating a complex absolute value with evaluation disabled."
+    }
+  ],
+  "merged_at": "2026-11-08T20:48:01Z",
+  "number": 30950,
+  "overlap": {
+    "title_similarity": 0.3971631205673759,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* core\n  * Fixed recursion when numerically evaluating a complex absolute value with evaluation disabled.",
+  "status": "entry",
+  "title": "core: fix evalf Abs recursion with evaluate(False)"
+}

@@ -1,0 +1,90 @@
+{
+  "additions": 31,
+  "author": "suchishah2807",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\r\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\nLocal source: doc/src/contributing/pull-request-guidelines.rst\r\nKeep all section headings below. -->\r\n\r\n#### References to other Issues or PRs\r\nNo linked issue.\r\nFound while testing edge cases myself.\r\n\r\n#### Brief description of what is fixed or changed\r\nconvolution_fft([], [1, 2]) and convolution_ntt([], [1, 2], prime=...) return [0].\r\nconvolution([], [1, 2]) raises ValueError: max() iterable argument is empty.\r\nCause: the result length is computed as len(a) + len(b) - 1, which is 1 when one list is empty and the other has 2 items.\r\nFix in convolution_fft, convolution_ntt and convolution_int: return [] early if either input is empty.\r\nFix in convolution(): skip the zero padding when either list is empty.\r\nFile changed: sympy/discrete/convolutions.py, 11 lines added.\r\n\r\n#### Other comments\r\nExisting tests only covered [] with [] and [] with [1].\r\nNew test test_convolution_empty_input covers:\r\nlengths 0 to 3, in both orders;\r\nthe prime, dyadic, subset and Rational paths;\r\nnon-empty inputs, which are unaffected.\r\nThe test fails before the fix and passes after it.\r\nThe cyclic case cycle=3 still returns [0, 0, 0].\r\nsympy/discrete tests pass, and the doctests pass.\r\n\r\n#### AI Generation Disclosure\r\nAI helped find the bug by running edge-case tests.\r\nAI wrote the first version of the fix and of the test.\r\n\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\n* discrete\r\n  * convolution functions no longer return [0] or raise an error when one input is empty.\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 3,
+  "commits": [
+    {
+      "author": "suchishah2807",
+      "message": "discrete: return [] when convolving with an empty sequence",
+      "sha": "9cdd69c29122a0a19aecfcdaced74dcc8cf3d68b"
+    },
+    {
+      "author": "suchishah2807",
+      "message": "add Suchi Shah to .mailmap",
+      "sha": "6135b7934c41c275446d0e06079ead94b731c100"
+    },
+    {
+      "author": "suchishah2807",
+      "message": "Fix lint error in convolution test",
+      "sha": "b1941e117e97bc293b8309bb6031c2b65fcfed9d"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Apply batched suggestions from code review\n\nCo-authored-by: Christopher Smith <smichr@gmail.com>",
+      "sha": "295cbc975f09ec8bf568671131b7cad9632d1135"
+    }
+  ],
+  "created_at": "2026-11-10T04:53:47Z",
+  "deletions": 1,
+  "diff": "diff --git a/.mailmap b/.mailmap\nindex 8cf66f814074..1d365c67b534 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -1978,6 +1978,7 @@ shubhayu09 <guptashubhayu601@gmail.com> shubhayu09 <87441886+shubhayu09@users.no\n sirnicolaf <43586954+sirnicolaf@users.noreply.github.com>\n slacker404 <pchantza@gmail.com>\n soumi7 <soumibardhan10@gmail.com>\n+suchishah2807 <suchikeyurshah@gmail.com>\n symbolique <symbolique@users.noreply.github.com>\n tanush <tanushtakkarr44@gmail.com> tanush7 <tanushtakkarr44@gmail.com>\n tanush <tanushtakkarr44@gmail.com> tanush78 <tanushtakkar44@gmail.com>\ndiff --git a/sympy/discrete/convolutions.py b/sympy/discrete/convolutions.py\nindex 5e50a70dbf39..daffcc840a7e 100644\n--- a/sympy/discrete/convolutions.py\n+++ b/sympy/discrete/convolutions.py\n@@ -111,7 +111,8 @@ def loop(a):\n                 (ia, ma), (ib, mb) = da, db\n                 den = ma*mb\n                 ls = convolution_int(ia, ib)\n-                ls.extend([0]*(len(a) + len(b) - 1 - len(ls)))\n+                if a and b:\n+                    ls.extend([0]*(len(a) + len(b) - 1 - len(ls)))\n                 if den != 1:\n                     ls = [Rational(i, den) for i in ls]\n         if ls is None:\n@@ -159,6 +160,9 @@ def convolution_fft(a, b, dps=None):\n \n     \"\"\"\n \n+    if not a or not b:\n+        return []\n+\n     a, b = a[:], b[:]\n     n = m = len(a) + len(b) - 1 # convolution size\n \n@@ -214,6 +218,8 @@ def convolution_ntt(a, b, prime):\n \n     \"\"\"\n \n+    if not a or not b:\n+        return []\n     a, b, p = a[:], b[:], as_int(prime)\n     n = m = len(a) + len(b) - 1 # convolution size\n \n@@ -568,6 +574,9 @@ def convolution_int(a, b):\n            University of California, Berkeley, California (2004).\n            https://people.eecs.berkeley.edu/~fateman/papers/polysbyGMP.pdf\n     \"\"\"\n+    if not a or not b:\n+        return []\n+\n     # An upper bound on the largest coefficient in p(x)q(x) is given by (1 + min(dp, dq))N(p)N(q)\n     # where dp = deg(p), dq = deg(q), N(f) denotes the coefficient of largest modulus in f [1]\n     B = max(abs(c) for c in a)*max(abs(c) for c in b)*(1 + min(len(a) - 1, len(b) - 1))\ndiff --git a/sympy/discrete/tests/test_convolutions.py b/sympy/discrete/tests/test_convolutions.py\nindex 6bef164b0400..26ef960a3210 100644\n--- a/sympy/discrete/tests/test_convolutions.py\n+++ b/sympy/discrete/tests/test_convolutions.py\n@@ -176,6 +176,26 @@ def test_cyclic_convolution():\n     raises(ValueError, lambda: convolution([1, 2, 3], [4, 5, 6], cycle=-1))\n \n \n+def test_convolution_empty_input():\n+    # the convolution of an empty sequence with anything is empty\n+    p = 19*2**10 + 1\n+    for kwargs in ({}, {'prime': p}):\n+        funcs = ((convolution, convolution_fft, convolution_int)\n+                 if not kwargs else (convolution, convolution_ntt))\n+        for func in funcs:\n+            for seq in ([], [1], [1, 2], [1, 2, 3]):\n+                assert func([], seq, **kwargs) == []\n+                assert func(seq, [], **kwargs) == []\n+    assert convolution([], [1, 2], cycle=3) == [0, 0, 0]\n+    assert convolution([], [Rational(1, 2), 3]) == []\n+    assert convolution([], [1, 2], dyadic=True) == []\n+    assert convolution([], [1, 2], subset=True) == []\n+    # a nonempty input is unaffected\n+    assert convolution([1], [1, 2]) == [1, 2]\n+    assert convolution_fft([1], [1, 2]) == [1, 2]\n+    assert convolution_ntt([1], [1, 2], prime=p) == [1, 2]\n+\n+\n def test_convolution_fft():\n     assert all(convolution_fft([], x, dps=y) == [] for x in ([], [1]) for y in (None, 3))\n     assert convolution_fft([1, 2, 3], [4, 5, 6]) == [4, 13, 28, 27, 18]\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* discrete\n  * convolution functions no longer return [0] or raise an error when one input is empty. ([#31022](https://github.com/sympy/sympy/pull/31022) by [@smichr](https://github.com/smichr) and [@suchishah2807](https://github.com/suchishah2807))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\r\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\n    Local source: doc/src/contributing/pull-request-guidelines.rst\r\n    Keep all section headings below. -->\r\n\r\n    #### References to other Issues or PRs\r\n    No linked issue.\r\n    Found while testing edge cases myself.\r\n\r\n    #### Brief description of what is fixed or changed\r\n    convolution_fft([], [1, 2]) and convolution_ntt([], [1, 2], prime=...) return [0].\r\n    convolution([], [1, 2]) raises ValueError: max() iterable argument is empty.\r\n    Cause: the result length is computed as len(a) + len(b) - 1, which is 1 when one list is empty and the other has 2 items.\r\n    Fix in convolution_fft, convolution_ntt and convolution_int: return [] early if either input is empty.\r\n    Fix in convolution(): skip the zero padding when either list is empty.\r\n    File changed: sympy/discrete/convolutions.py, 11 lines added.\r\n\r\n    #### Other comments\r\n    Existing tests only covered [] with [] and [] with [1].\r\n    New test test_convolution_empty_input covers:\r\n    lengths 0 to 3, in both orders;\r\n    the prime, dyadic, subset and Rational paths;\r\n    non-empty inputs, which are unaffected.\r\n    The test fails before the fix and passes after it.\r\n    The cyclic case cycle=3 still returns [0, 0, 0].\r\n    sympy/discrete tests pass, and the doctests pass.\r\n\r\n    #### AI Generation Disclosure\r\n    AI helped find the bug by running edge-case tests.\r\n    AI wrote the first version of the fix and of the test.\r\n\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    * discrete\r\n      * convolution functions no longer return [0] or raise an error when one input is empty.\r\n    <!-- END RELEASE NOTES -->\r\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-10T04:53:50Z"
+    },
+    {
+      "author": "smichr",
+      "body": "```\r\nPackage: discrete.\r\nNote: convolution functions no longer return [0] or raise an error when one input is empty.\r\n```\r\nYou have to use a literal module name and note without prefix. The following should work.\r\n```\r\n* discrete\r\n  * convolution functions no longer return [0] or raise an error when one input is empty.\r\n```",
+      "created_at": "2026-11-10T10:13:50Z"
+    }
+  ],
+  "labels": [],
+  "linked": [],
+  "merge_commit_sha": "de06b948bd78245559aa355081c1b85feec67f03",
+  "merged_at": "2026-11-11T02:58:56Z",
+  "number": 31022,
+  "review_comments": [
+    {
+      "author": "smichr",
+      "body": "```suggestion\n    for kwargs in ({}, {'prime': p}):\n        funcs = ((convolution, convolution_fft, convolution_int)\n                 if not kwargs else (convolution, convolution_ntt))\n        for func in funcs:\n            for seq in ([], [1], [1, 2], [1, 2, 3]):\n                assert func([], seq, **kwargs) == []\n                assert func(seq, [], **kwargs) == []\n    assert convolution([], [1, 2], cycle=3) == [0, 0, 0]\n```",
+      "created_at": "2026-11-10T10:05:06Z",
+      "path": "sympy/discrete/tests/test_convolutions.py"
+    },
+    {
+      "author": "smichr",
+      "body": "```suggestion\n    if not a or not b:\n        return []\n    a, b, p = a[:], b[:], as_int(prime)\n```",
+      "created_at": "2026-11-10T10:10:50Z",
+      "path": "sympy/discrete/convolutions.py"
+    },
+    {
+      "author": "smichr",
+      "body": "Quick return before copy like in the other functions.",
+      "created_at": "2026-11-10T10:14:17Z",
+      "path": "sympy/discrete/convolutions.py"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T10:05:06Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T10:10:50Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T10:14:17Z"
+    }
+  ],
+  "title": "Fix convolution empty input"
+}

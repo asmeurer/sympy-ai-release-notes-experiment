@@ -1,0 +1,233 @@
+diff --git a/sympy/functions/elementary/tests/test_trigonometric.py b/sympy/functions/elementary/tests/test_trigonometric.py
+index 29f2e020ae89..1dc3642fb298 100644
+--- a/sympy/functions/elementary/tests/test_trigonometric.py
++++ b/sympy/functions/elementary/tests/test_trigonometric.py
+@@ -1,7 +1,7 @@
+ from __future__ import annotations
+ from sympy.calculus.accumulationbounds import AccumBounds
+ from sympy.core.add import Add
+-from sympy.core.function import (Lambda, diff)
++from sympy.core.function import (diff)
+ from sympy.core.mod import Mod
+ from sympy.core.mul import Mul
+ from sympy.core.numbers import (E, Float, I, Rational, nan, oo, pi, zoo)
+@@ -21,14 +21,12 @@
+ from sympy.series.limits import limit
+ from sympy.series.order import O
+ from sympy.series.series import series
+-from sympy.sets.fancysets import ImageSet
+-from sympy.sets.sets import (FiniteSet, Interval)
++from sympy.sets.sets import (FiniteSet)
+ from sympy.simplify.simplify import simplify
+ from sympy.core.expr import unchanged
+ from sympy.core.function import ArgumentIndexError, PoleError
+ from sympy.core.relational import Ne, Eq
+ from sympy.functions.elementary.piecewise import Piecewise
+-from sympy.sets.setexpr import SetExpr
+ from sympy.testing.pytest import XFAIL, slow, raises
+ 
+ 
+@@ -161,9 +159,6 @@ def test_sin():
+     assert isinstance(sin( re(x) - im(y)), sin) is True
+     assert isinstance(sin(-re(x) + im(y)), sin) is False
+ 
+-    assert sin(SetExpr(Interval(0, 1))) == SetExpr(ImageSet(Lambda(x, sin(x)),
+-                       Interval(0, 1)))
+-
+     for d in list(range(1, 22)) + [60, 85]:
+         for n in range(d*2 + 1):
+             x = n*pi/d
+diff --git a/sympy/sets/handlers/functions.py b/sympy/sets/handlers/functions.py
+index 29fce93ce862..d154d1912654 100644
+--- a/sympy/sets/handlers/functions.py
++++ b/sympy/sets/handlers/functions.py
+@@ -7,6 +7,7 @@
+ from sympy.core.numbers import Float, oo
+ from sympy.core.symbol import Dummy, symbols, Wild
+ from sympy.functions.elementary.exponential import exp, log
++from sympy.functions.elementary.trigonometric import sin, cos
+ from sympy.functions.elementary.miscellaneous import Min, Max
+ from sympy.logic.boolalg import true
+ from sympy.multipledispatch import Dispatcher
+@@ -74,7 +75,11 @@ def _(f, x):
+ 
+     try:
+         from sympy.polys.polyutils import _nsort
+-        sing = list(singularities(expr, var, x))
++        sing = singularities(expr, var, x)
++        # Do not try to enumerate infinitely many or unresolved singularities.
++        if not sing.is_finite_set:
++            return
++        sing = list(sing)
+         if len(sing) > 1:
+             sing = _nsort(sing)
+     except NotImplementedError:
+@@ -90,30 +95,25 @@ def _(f, x):
+         _end = f(x.end)
+ 
+     if len(sing) == 0:
+-        soln_expr = solveset(diff(expr, var), var)
++        soln_expr = solveset(diff(expr, var), var, x)
+         if not (isinstance(soln_expr, FiniteSet)
+                 or soln_expr is S.EmptySet):
+             return
+         solns = list(soln_expr)
+ 
+-        extr = [_start, _end] + [f(i) for i in solns
+-                                 if i.is_real and i in x]
+-        start, end = Min(*extr), Max(*extr)
+-
+-        left_open, right_open = False, False
+-        if _start <= _end:
+-            # the minimum or maximum value can occur simultaneously
+-            # on both the edge of the interval and in some interior
+-            # point
+-            if start == _start and start not in solns:
+-                left_open = x.left_open
+-            if end == _end and end not in solns:
+-                right_open = x.right_open
+-        else:
+-            if start == _end and start not in solns:
+-                left_open = x.right_open
+-            if end == _start and end not in solns:
+-                right_open = x.left_open
++        critical_values = [f(i) for i in solns if i.is_real and i in x]
++        start, end = Min(_start, _end, *critical_values), Max(
++            _start, _end, *critical_values)
++
++        # A bound is open only when it is not attained at any included
++        # endpoint or interior critical point.
++        attained = list(critical_values)
++        if not x.left_open:
++            attained.append(_start)
++        if not x.right_open:
++            attained.append(_end)
++        left_open = all(start != value for value in attained)
++        right_open = all(end != value for value in attained)
+ 
+         if start == end and start in (S.Infinity, S.NegativeInfinity):
+             return FiniteSet(start)
+@@ -136,6 +136,8 @@ def _(f, x):
+         return Interval(exp(x.start), exp(x.end), x.left_open, x.right_open)
+     elif f == log:
+         return Interval(log(x.start), log(x.end), x.left_open, x.right_open)
++    elif f in (sin, cos):
++        return imageset(f, x)
+     return ImageSet(Lambda(_x, f(_x)), x)
+ 
+ @_set_function.register(FunctionUnion, Union)
+diff --git a/sympy/sets/sets.py b/sympy/sets/sets.py
+index d5c974e87dab..0e5166fba96f 100644
+--- a/sympy/sets/sets.py
++++ b/sympy/sets/sets.py
+@@ -2465,10 +2465,10 @@ def imageset(*args):
+     Interval(0, 4)
+ 
+     >>> imageset(Lambda(x, sin(x)), Interval(-2, 1))
+-    ImageSet(Lambda(x, sin(x)), Interval(-2, 1))
++    Interval(-1, sin(1))
+ 
+     >>> imageset(sin, Interval(-2, 1))
+-    ImageSet(Lambda(x, sin(x)), Interval(-2, 1))
++    Interval(-1, sin(1))
+     >>> imageset(lambda y: x + y, Interval(-2, 1))
+     ImageSet(Lambda(y, x + y), Interval(-2, 1))
+ 
+diff --git a/sympy/sets/tests/test_setexpr.py b/sympy/sets/tests/test_setexpr.py
+index 9d48a5193a9b..65fbfdb7c83a 100644
+--- a/sympy/sets/tests/test_setexpr.py
++++ b/sympy/sets/tests/test_setexpr.py
+@@ -4,12 +4,12 @@
+ 
+ from sympy.core.expr import Expr
+ from sympy.core.function import Lambda
+-from sympy.core.numbers import (I, Rational, oo, nan)
++from sympy.core.numbers import (I, Rational, oo, nan, pi)
+ from sympy.core.singleton import S
+ from sympy.core.symbol import (Dummy, Symbol, symbols)
+ from sympy.functions.elementary.exponential import (exp, log)
+ from sympy.functions.elementary.miscellaneous import (Max, Min, sqrt)
+-from sympy.functions.elementary.trigonometric import cos
++from sympy.functions.elementary.trigonometric import cos, sin
+ from sympy.sets.sets import Set, imageset
+ 
+ 
+@@ -39,6 +39,17 @@ def test_scalar_funcs():
+         assert output == expected
+ 
+ 
++def test_trigonometric_interval():
++    a = SetExpr(Interval(1, 2))
++    assert sin(a) == SetExpr(Interval(sin(1), 1))
++    assert cos(a) == SetExpr(Interval(cos(2), cos(1)))
++    assert sin(SetExpr(Interval(0, 2*pi))) == SetExpr(Interval(-1, 1))
++    assert sin(SetExpr(Interval.open(0, pi/2))) == \
++        SetExpr(Interval.open(0, 1))
++    assert cos(SetExpr(Interval.open(0, pi))) == \
++        SetExpr(Interval.open(-1, 1))
++
++
+ def test_Add_Mul():
+     assert (SetExpr(Interval(0, 1)) + 1).set == Interval(1, 2)
+     assert (SetExpr(Interval(0, 1))*2).set == Interval(0, 2)
+diff --git a/sympy/sets/tests/test_sets.py b/sympy/sets/tests/test_sets.py
+index 2a6b0488abd5..9279f45ddcf9 100644
+--- a/sympy/sets/tests/test_sets.py
++++ b/sympy/sets/tests/test_sets.py
+@@ -11,7 +11,7 @@
+ from sympy.core.sympify import sympify
+ from sympy.functions.elementary.miscellaneous import (Max, Min, sqrt)
+ from sympy.functions.elementary.piecewise import Piecewise
+-from sympy.functions.elementary.trigonometric import (cos, sin)
++from sympy.functions.elementary.trigonometric import (cos, cot, sin, tan)
+ from sympy.logic.boolalg import (false, true)
+ from sympy.matrices.kind import MatrixKind
+ from sympy.matrices.dense import Matrix
+@@ -71,6 +71,47 @@ def f(x):
+         Interval(1, 2), Interval(2, 3)))
+ 
+ 
++def test_imageset_interval_critical_points():
++    # Solve only for critical points in the interval, not on all of C.
++    assert imageset(Lambda(x, sin(x)), Interval(1, 2)) == \
++        Interval(sin(1), 1)
++    assert imageset(Lambda(x, cos(x)), Interval(1, 2)) == \
++        Interval(cos(2), cos(1))
++    assert imageset(sin, Interval(0, 2*pi)) == Interval(-1, 1)
++    assert imageset(Lambda(x, sin(x)), Interval(-2, 1)) == \
++        Interval(-1, sin(1))
++
++
++def test_imageset_interval_open_extrema():
++    # The limit at an excluded endpoint need not be in the image.
++    f = Lambda(x, 2 - (x - 1)**2)
++    assert imageset(f, Interval.open(0, 2)) == Interval.Lopen(1, 2)
++    f = Lambda(x, (x - 1)**2)
++    assert imageset(f, Interval.open(0, 2)) == Interval.Ropen(0, 1)
++    assert imageset(Lambda(x, x**2), Interval.open(1, 2)) == \
++        Interval.open(1, 4)
++    assert imageset(Lambda(x, x**2), Interval.open(-1, 1)) == \
++        Interval.Ropen(0, 1)
++    # A value reached at the other, included endpoint must remain included.
++    assert imageset(Lambda(x, x**2), Interval.Ropen(-1, 1)) == \
++        Interval(0, 1)
++    assert imageset(Lambda(x, sin(x)), Interval.Lopen(0, pi)) == \
++        Interval(0, 1)
++    assert imageset(Lambda(x, sin(x)), Interval.open(0, pi)) == \
++        Interval.Lopen(0, 1)
++
++def test_imageset_infinite_singularities():
++    # Issue 29675: do not enumerate periodic singularities on all reals.
++    for func in (tan, cot):
++        f = Lambda(x, func(x))
++        assert imageset(f, S.Reals) == ImageSet(f, S.Reals)
++
++    # Empty and finite singularity sets must still be evaluated.
++    assert imageset(Lambda(x, x**2), Interval(0, 2)) == Interval(0, 4)
++    assert imageset(Lambda(x, 1/(x - 1)), Interval(0, 2)) == \
++        Union(Interval(-oo, -1), Interval(1, oo))
++
++
+ def test_is_empty():
+     for s in [S.Naturals, S.Naturals0, S.Integers, S.Rationals, S.Reals,
+             S.UniversalSet]:

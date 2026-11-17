@@ -1,0 +1,158 @@
+{
+  "additions": 58,
+  "author": "oscarbenjamin",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\r\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\nLocal source: doc/src/contributing/pull-request-guidelines.rst\r\nKeep all section headings below. -->\r\n\r\n#### References to other Issues or PRs\r\n\r\nSee https://github.com/sympy/sympy/pull/30990#discussion_r4507118047\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\nRemove the hacky workaround in Basic.xreplace and other methods that try to allow non-Basic args in Basic. It should not be necessary to have to do things like that and it is better if non-Basic args lead to runtime errors so that people stop putting non-Basic in the args.\r\n\r\nA few buggy classes were fixed.\r\n\r\n#### Other comments\r\n\r\n\r\n#### AI Generation Disclosure\r\n\r\nUsed codex for the tensor/codegen fixes.\r\n\r\n#### Release Notes\r\n\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\n* core\r\n   * Removed workarounds in Basic.xreplace, Basic.subs, Basic.replace, Basic.sort_key, and Basic.doit that allowed non-Basic objects in the args of a Basic instance. Downstream Basic subclasses that have non-Basic args may now raise errors in these methods (they should be fixed so that all args are Basic).\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 6,
+  "commits": [
+    {
+      "author": "Oscar Benjamin",
+      "message": "fix(core): remove non-Basic args workaround in xreplace",
+      "sha": "833048d456fb8d3ea066ababb178e449f55b1927"
+    },
+    {
+      "author": "Oscar Benjamin",
+      "message": "fix(core): remove workaround in Basic.sort_key\n\nAll args should be Basic.",
+      "sha": "57b1aade23f4765e943b51a3aeea21532d1c44b8"
+    },
+    {
+      "author": "Oscar Benjamin",
+      "message": "fix(core): remove hacky subs workaround\n\nAll args should be Basic",
+      "sha": "dc6f2182a2cc48e9a3dcb2755369ccd2618d8f0f"
+    },
+    {
+      "author": "Oscar Benjamin",
+      "message": "fix(core): remove hacky workaround in Basic.replace\n\nThe args should always be Basic.",
+      "sha": "8e758a115b93425ecd14e8a6f950438c58963c12"
+    },
+    {
+      "author": "Oscar Benjamin",
+      "message": "fix(core): remove hacky workaround in Basic.doit\n\nAll args should be Basic.",
+      "sha": "94121be1839b6245e95c36cad158d66e0ec6d484"
+    },
+    {
+      "author": "Oscar Benjamin",
+      "message": "fix(core): remove hacy workaround in Expr._expand_hint\n\nAll args should be Basic.",
+      "sha": "6f8d7a8152cdb15393655c906c8db87fcc310a0e"
+    },
+    {
+      "author": "Oscar Benjamin",
+      "message": "fix(codegen): handle nested arrays in reshape",
+      "sha": "3ca9a0f568346deac016912da14b74ef24cc9283"
+    },
+    {
+      "author": "Oscar Benjamin",
+      "message": "tst(codegen): regression tests for hash/sort_key/doit",
+      "sha": "6515187a7b268c43ad9f928e0c08bd045ae19e61"
+    }
+  ],
+  "created_at": "2026-11-08T17:48:46Z",
+  "deletions": 45,
+  "diff": "diff --git a/sympy/codegen/fnodes.py b/sympy/codegen/fnodes.py\nindex b2cf88473835..ed6d83189821 100644\n--- a/sympy/codegen/fnodes.py\n+++ b/sympy/codegen/fnodes.py\n@@ -7,7 +7,7 @@\n \n from __future__ import annotations\n from sympy.codegen.ast import (\n-    Attribute, CodeBlock, FunctionCall, Node, none, String,\n+    Attribute, CodeBlock, FunctionCall, KeywordFunctionCall, Node, none, String,\n     Token, _mk_Tuple, Variable\n )\n from sympy.core.basic import Basic\n@@ -517,17 +517,28 @@ def reshape(source, shape, pad=None, order=None):\n     'reshape(array, shape, pad=pad, order=order)'\n \n     \"\"\"\n-    from sympy.codegen.ast import KeywordFunctionCall\n+    def nested_array(arg):\n+        if isinstance(arg, (list, tuple)):\n+            return ArrayConstructor([nested_array(element) for element in arg])\n+        return _printable(arg)\n+\n+    def array(arg):\n+        if isinstance(arg, (list, tuple)):\n+            return ArrayConstructor(arg)\n+        return _printable(arg)\n+\n+    source = nested_array(source)\n+    shape = array(shape)\n \n     kwargs = {}\n     if pad is not None:\n-        kwargs['pad'] = _printable(pad)\n+        kwargs['pad'] = nested_array(pad)\n     if order is not None:\n-        kwargs['order'] = _printable(order)\n+        kwargs['order'] = array(order)\n \n     return KeywordFunctionCall(\n         'reshape',\n-        [_printable(source), _printable(shape)],\n+        [source, shape],\n         kwargs\n     )\n \ndiff --git a/sympy/codegen/tests/test_fnodes.py b/sympy/codegen/tests/test_fnodes.py\nindex dbdb1f7a712e..559b2c78be95 100644\n--- a/sympy/codegen/tests/test_fnodes.py\n+++ b/sympy/codegen/tests/test_fnodes.py\n@@ -199,10 +199,22 @@ def test_reshape():\n         (reshape(Symbol('a') + Symbol('b'), [Symbol('n') * 2]), 'reshape(a + b, [2*n])'),\n         (reshape(array, shape, None, String('F')), 'reshape(array, shape, order=F)'),\n         (reshape(array, [Symbol('n'), 3]), 'reshape(array, [n, 3])'),\n+        (reshape(array, (2, 3)), 'reshape(array, [2, 3])'),\n+        (reshape([1, 2], [2, 2], [0], (2, 1)),\n+         'reshape([1, 2], [2, 2], pad=[0], order=[2, 1])'),\n+        (reshape([[1, 2], [3, 4]], [2, 2]),\n+         'reshape([[1, 2], [3, 4]], [2, 2])'),\n+        (reshape(((1, 2), (3, 4)), (2, 3), [[5, 6]]),\n+         'reshape([[1, 2], [3, 4]], [2, 3], pad=[[5, 6]])'),\n     ]\n \n     for expr, expected in cases:\n-        assert fcode(expr, source_format='free') == expected\n+        hash(expr)\n+        expr.sort_key()\n+        assert expr.doit() == expr\n+        assert fcode(expr, source_format='free', standard=2003) == expected\n+\n+    assert fcode(reshape(array, [2, 3]), source_format='free', standard=95) == 'reshape(array, (/2, 3/))'\n \n \n @may_xfail\ndiff --git a/sympy/core/basic.py b/sympy/core/basic.py\nindex ae6cf81485b6..64adf3ff620d 100644\n--- a/sympy/core/basic.py\n+++ b/sympy/core/basic.py\n@@ -493,15 +493,8 @@ def sort_key(self, order=None):\n \n         \"\"\"\n \n-        # XXX: remove this when issue 5169 is fixed\n-        def inner_key(arg):\n-            if isinstance(arg, Basic):\n-                return arg.sort_key(order)\n-            else:\n-                return arg\n-\n         args = self._sorted_args\n-        args = len(args), tuple([inner_key(arg) for arg in args])\n+        args = len(args), tuple([arg.sort_key(order) for arg in args])\n         return self.class_key(), args, S.One.sort_key(), S.One\n \n     def _do_eq_sympify(self, other):\n@@ -1337,8 +1330,6 @@ def fallback(self, old, new):\n             hit = False\n             args = list(self.args)\n             for i, arg in enumerate(args):\n-                if not hasattr(arg, '_eval_subs'):\n-                    continue\n                 arg = arg._subs(old, new, **hints)\n                 if not _aresame(arg, args[i]):\n                     hit = True\n@@ -1458,14 +1449,9 @@ def _xreplace(self, rule):\n             args = []\n             changed = False\n             for a in self.args:\n-                _xreplace = getattr(a, '_xreplace', None)\n-                if _xreplace is not None:\n-                    a_xr = _xreplace(rule)\n-                    args.append(a_xr[0])\n-                    changed |= a_xr[1]\n-                else:\n-                    args.append(a)\n-            args = tuple(args)\n+                a, achanged = a._xreplace(rule)\n+                changed |= achanged\n+                args.append(a)\n             if changed:\n                 return self.func(*args), True\n         return self, False\n@@ -1851,21 +1837,19 @@ def replace(self, query, value, map=False, simultaneous=True, exact=None) -> Bas\n         def walk(rv, F):\n             \"\"\"Apply ``F`` to args and then to result.\n             \"\"\"\n-            args = getattr(rv, 'args', None)\n-            if args is not None:\n-                if args:\n-                    newargs = tuple([walk(a, F) for a in args])\n-                    if args != newargs:\n-                        rv = rv.func(*newargs)\n-                        if simultaneous:\n-                            # if rv is something that was already\n-                            # matched (that was changed) then skip\n-                            # applying F again\n-                            for i, e in enumerate(args):\n-                                if rv == e and e != newargs[i]:\n-                                    return rv\n-                rv = F(rv)\n-            return rv\n+            args = rv.args\n+            if args:\n+                newargs = tuple([walk(a, F) for a in args])\n+                if args != newargs:\n+                    rv = rv.func(*newargs)\n+                    if simultaneous:\n+                        # if rv is something that was already\n+                        # matched (that was changed) then skip\n+                        # applying F again\n+                        for i, e in enumerate(args):\n+                            if rv == e and e != newargs[i]:\n+                                return rv\n+            return F(rv)\n \n         mapping = {}  # changes that took place\n \n@@ -2103,8 +2087,7 @@ def doit(self, **hints):\n \n         \"\"\"\n         if hints.get('deep', True):\n-            terms = [term.doit(**hints) if isinstance(term, Basic) else term\n-                                         for term in self.args]\n+            terms = [term.doit(**hints) for term in self.args]\n             return self.func(*terms)\n         else:\n             return self\ndiff --git a/sympy/core/expr.py b/sympy/core/expr.py\nindex 42d66c14c446..2b032d1f9853 100644\n--- a/sympy/core/expr.py\n+++ b/sympy/core/expr.py\n@@ -3650,10 +3650,7 @@ def _expand_hint(expr, hint, deep=True, **hints):\n         ``False`` otherwise.\n         \"\"\"\n         hit = False\n-        # XXX: Hack to support non-Basic args\n-        #              |\n-        #              V\n-        if deep and getattr(expr, 'args', ()) and not expr.is_Atom:\n+        if deep and expr.args and not expr.is_Atom:\n             sargs = []\n             for arg in expr.args:\n                 arg, arghit = Expr._expand_hint(arg, hint, **hints)\ndiff --git a/sympy/tensor/tensor.py b/sympy/tensor/tensor.py\nindex fe17aba88950..ff18f8e50029 100644\n--- a/sympy/tensor/tensor.py\n+++ b/sympy/tensor/tensor.py\n@@ -1820,6 +1820,8 @@ def __new__(cls, name, index_types, symmetry=None, comm=0):\n         else:\n             assert symmetry.rank == len(index_types)\n \n+        if comm is None:\n+            comm = Integer(2)\n         obj = Basic.__new__(cls, name_symbol, Tuple(*index_types), symmetry, sympify(comm))\n         return obj\n \ndiff --git a/sympy/tensor/tests/test_tensor.py b/sympy/tensor/tests/test_tensor.py\nindex 4080eed25f6e..500bc09295c8 100644\n--- a/sympy/tensor/tests/test_tensor.py\n+++ b/sympy/tensor/tests/test_tensor.py\n@@ -538,6 +538,14 @@ def test_TensorHead():\n     assert A.symmetry == TensorSymmetry.no_symmetry(2)\n     assert A.comm == 0\n \n+    B = TensorHead('B', [Lorentz], comm=None)\n+    assert B.args[3] == 2\n+    assert isinstance(B.args[3], Integer)\n+    assert B == TensorHead('B', [Lorentz], comm=2)\n+    assert B.comm == 2\n+    assert B.commutes_with(B) is None\n+    assert B.commutes_with(A) == 0\n+\n \n def test_add1():\n     assert TensAdd().args == ()\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* core\n  * Removed workarounds in Basic.xreplace, Basic.subs, Basic.replace, Basic.sort_key, and Basic.doit that allowed non-Basic objects in the args of a Basic instance. Downstream Basic subclasses that have non-Basic args may now raise errors in these methods (they should be fixed so that all args are Basic). ([#30994](https://github.com/sympy/sympy/pull/30994) by [@oscarbenjamin](https://github.com/oscarbenjamin))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\r\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\n    Local source: doc/src/contributing/pull-request-guidelines.rst\r\n    Keep all section headings below. -->\r\n\r\n    #### References to other Issues or PRs\r\n\r\n    See https://github.com/sympy/sympy/pull/30990#discussion_r4507118047\r\n\r\n    #### Brief description of what is fixed or changed\r\n\r\n    Remove the hacky workaround in Basic.xreplace and other methods that try to allow non-Basic args in Basic. It should not be necessary to have to do things like that and it is better if non-Basic args lead to runtime errors so that people stop putting non-Basic in the args.\r\n\r\n    A few buggy classes were fixed.\r\n\r\n    #### Other comments\r\n\r\n\r\n    #### AI Generation Disclosure\r\n\r\n    Used codex for the tensor/codegen fixes.\r\n\r\n    #### Release Notes\r\n\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    * core\r\n       * Removed workarounds in Basic.xreplace, Basic.subs, Basic.replace, Basic.sort_key, and Basic.doit that allowed non-Basic objects in the args of a Basic instance. Downstream Basic subclasses that have non-Basic args may now raise errors in these methods (they should be fixed so that all args are Basic).\r\n    <!-- END RELEASE NOTES -->\r\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-08T17:48:55Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "This is ready for review.",
+      "created_at": "2026-11-08T20:14:13Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "@smichr I deliberately kept the commits in this PR separate and tested them separately. You have merged them but squashed them altogether into one commit e2e2ee4.\r\n\r\nNow if this PR causes a problem it will not be possible for someone to bisect and find which of the different changes here is relevant. Please do not squash-merge my PRs. I will squash the commits manually if I think there is any value in doing that.",
+      "created_at": "2026-11-08T21:15:47Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "To be clear: thank you for reviewing and merging.\r\n\r\nI do appreciate that but please also check whether you are squash merging (github carries the setting over from one PR to another by default).",
+      "created_at": "2026-11-08T21:22:19Z"
+    }
+  ],
+  "labels": [
+    "core",
+    "tensor",
+    "typing"
+  ],
+  "linked": [
+    {
+      "author": "hunterhogan",
+      "body": "\ud83e\udd16 *This description was drafted by an AI agent (Claude Code) and revised by Hunter Hogan.*\n\n#### References to other Issues or PRs\n\nRelated typing PRs: #30946 (`solveset`), #30965 (`piecewise_fold`).\n\n#### Brief description of what is fixed or changed\n\n- Annotates `Basic.xreplace` and adds type-checking-only overloads for some subclasses. \n- `Atom.xreplace` replaced by `Atom._xreplace`\n- Change `rule` parameter dictionary keys to TypeVars.\n\n#### Other comments\n\n<details><summary>Other</summary>\n- `TensExpr.xreplace` needs `# type: ignore[override]`: mypy rejects a leading overload that `Expr.xreplace` lacks.\n- Known gap: a `Symbol` statically typed as `Boolean` matches `Boolean`'s `Expr`-to-`Expr` overload, so `p.xreplace({p: sin(x)})` is typed `Boolean`.\n</details>\n\n#### AI Generation Disclosure\n\nGenerated with Claude Code (Claude Opus 5.5), Hunter Hogan, and Predator Energy Drink.\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* core\n  * Added type annotations for `xreplace`.\n  * Removed the unused `hack2` keyword argument from `Atom.xreplace`.\n<!-- END RELEASE NOTES -->\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n",
+      "is_pull_request": true,
+      "merged_at": "2026-11-13T17:21:24Z",
+      "number": 30990,
+      "state": "closed",
+      "title": "\ud83e\udd16 Annotate Basic.xreplace"
+    }
+  ],
+  "merge_commit_sha": "e2e2ee4b79aeee5e19eefabd99fb799bcd0d3471",
+  "merged_at": "2026-11-08T21:04:01Z",
+  "number": 30994,
+  "review_comments": [
+    {
+      "author": "smichr",
+      "body": "In discussing with ChatGPT, we observe that you might need recursion here to process the elements of `arg`.\n\nConsider adding a test like:\n\n```python\ndef test_reshape_nested_lists():\n    e = reshape([[1, 2], [3, 4]], [2, 2])\n    e.sort_key()\n    e.doit()\n```\n\nBoth calls currently raise `AttributeError` because the nested Python lists are not converted to SymPy objects.\n\nThe defensive checks removed from `Basic` previously tolerated these non-`Basic` arguments, but their removal exposes the malformed `ArrayConstructor`. I'm not sure how `reshape` is intended to handle nested lists, so it may be better to normalize them recursively or reject them explicitly if they are unsupported.",
+      "created_at": "2026-11-08T18:44:34Z",
+      "path": "sympy/codegen/fnodes.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "Are those valid arguments to this function?",
+      "created_at": "2026-11-08T18:47:18Z",
+      "path": "sympy/codegen/fnodes.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "I've added something to handle this case.",
+      "created_at": "2026-11-08T19:24:00Z",
+      "path": "sympy/codegen/fnodes.py"
+    },
+    {
+      "author": "smichr",
+      "body": "These operations also passed before the changes in this PR. Since we're removing defensive checks from `Basic`, it would be good to add a regression test ensuring that they continue to work:\n\n```python\nfrom sympy.codegen.fnodes import reshape\n\ne = reshape([[1, 2], [3, 4]], [2, 2])\nhash(e)\ne.sort_key()\ne.doit()\n```\n\nIn the event of (inlikely) future changes we don't want to inadvertently re-introduce non-`Basic` arguments or break operations that previously worked.",
+      "created_at": "2026-11-08T20:30:09Z",
+      "path": "sympy/codegen/tests/test_fnodes.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "I've added that.",
+      "created_at": "2026-11-08T20:42:09Z",
+      "path": "sympy/codegen/tests/test_fnodes.py"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-08T18:44:34Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-08T18:47:18Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-08T19:24:00Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-08T20:30:08Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-08T20:42:09Z"
+    }
+  ],
+  "title": "fix(core): remove non-Basic args workarounds"
+}

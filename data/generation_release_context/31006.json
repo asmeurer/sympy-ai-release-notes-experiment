@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 5788,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 22497,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 22497,
+      "cacheReadInputTokens": 24201,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.1001961,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 778,
+      "provider": "firstParty",
+      "thinkingTokens": 124,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 31006,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"matrices\",\"text\":\"Fixed `MatrixSlice` to follow Python and NumPy slicing semantics: negative steps (such as `X[::-1, :]`) now work, and negative or out-of-bounds slice bounds (such as `X[0:100, :]`) are clipped to the matrix shape instead of raising `IndexError`, including when the matrix has symbolic dimensions.\"}],\"reasoning\":\"The PR changes user-visible MatrixSlice behavior: negative steps and out-of-range or negative bounds previously raised IndexError or gave wrong shapes, and the bugs (issues #18411 and #30999) existed in released versions, not just the dev branch. The entry is based on the diff and the new tests. The earlier floor-to-ceiling fix in #30984 is separate and was not included.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "matrices",
+        "text": "Fixed `MatrixSlice` to follow Python and NumPy slicing semantics: negative steps (such as `X[::-1, :]`) now work, and negative or out-of-bounds slice bounds (such as `X[0:100, :]`) are clipped to the matrix shape instead of raising `IndexError`, including when the matrix has symbolic dimensions."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The PR changes user-visible MatrixSlice behavior: negative steps and out-of-range or negative bounds previously raised IndexError or gave wrong shapes, and the bugs (issues #18411 and #30999) existed in released versions, not just the dev branch. The entry is based on the diff and the new tests. The earlier floor-to-ceiling fix in #30984 is separate and was not included."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31006/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31006/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31006/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "matrices",
+            "text": "Fixed `MatrixSlice` to follow Python and NumPy slicing semantics: negative steps (such as `X[::-1, :]`) now work, and negative or out-of-bounds slice bounds (such as `X[0:100, :]`) are clipped to the matrix shape instead of raising `IndexError`, including when the matrix has symbolic dimensions."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The PR changes user-visible MatrixSlice behavior: negative steps and out-of-range or negative bounds previously raised IndexError or gave wrong shapes, and the bugs (issues #18411 and #30999) existed in released versions, not just the dev branch. The entry is based on the diff and the new tests. The earlier floor-to-ceiling fix in #30984 is separate and was not included."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.1001961,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 22497,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 22497,
+    "cache_read_input_tokens": 24201,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 22056,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 22056,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 489,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 778,
+    "output_tokens_details": {
+      "thinking_tokens": 124
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

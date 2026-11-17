@@ -1,0 +1,77 @@
+{
+  "additions": 49,
+  "author": "smichr",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\r\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\nLocal source: doc/src/contributing/pull-request-guidelines.rst\r\nKeep all section headings below. -->\r\n\r\n#### References to other Issues or PRs\r\n\r\nProblem was identified in #30918 when trying to use ellipses in long expressions containing Float.\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\nWhen an expected docstring output contains floats *and* `...` the floats were checked without allowing for some of them to be missing because they were in the `...` portion. Now, if there are floats then normal Python doctest matching is attempted. If that fails then approximate testing *requiring all Float to be present* is employed.\r\n\r\n*If ellipses are used then any visible floats left in the expectation must match the obtained value exactly.* If you want approximate matching of floats you can't use ... with this PR.\r\n\r\nIn addition, bracket delimiters and `:`, `=`, and `/` are now recognized.\r\n\r\n#### Other comments\r\n\r\n\r\n#### AI Generation Disclosure\r\n\r\nProblem identified by author and solution/tests developed with ChatGPT.\r\n\r\n#### Release Notes\r\n\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\n* testing\r\n  * ellipses can now be used in doctest expectations; if they are, then any visible Floats must match exactly.\r\n  * Float delimiters in expectations were extended to include `()[]{}` and `:=/`.\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "Christopher Smith",
+      "message": "Honor doctest ellipses before approximate floating-point checks",
+      "sha": "08a130215e18fe7a33bfb9462c74b76542321fc6"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Test numeric values hidden by doctest ellipses",
+      "sha": "57a2479a2e9510d235747a3f9967061a2e3c4d6f"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Use standard doctest matching for outputs with ellipses",
+      "sha": "c0871f68f1203181cd619922598f3430fa5b54c1"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Use float positions recognized by existing doctest checker",
+      "sha": "04f74fa152a39ab6102fcdab43f6de7667198852"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Recognize floats inside parentheses in doctest output",
+      "sha": "8adfd21460db895f0d427baf6a596985290041b4"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Test approximate matching of parenthesized floats",
+      "sha": "9224f491b1416ebe84c0b712456ed346a58617ec"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Recognize floats next to common punctuation in doctest output",
+      "sha": "91cfc81ebdcdb68b9d09ea2020c411f9e782bb44"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Test approximate floats around brackets and delimiters",
+      "sha": "fee00a38376f2fb6ce72df31e28b31f5fe56e9eb"
+    }
+  ],
+  "created_at": "2026-11-08T19:25:58Z",
+  "deletions": 2,
+  "diff": "diff --git a/sympy/testing/runtests.py b/sympy/testing/runtests.py\nindex 6fdd28c1acdb..eeb605064265 100644\n--- a/sympy/testing/runtests.py\n+++ b/sympy/testing/runtests.py\n@@ -1892,7 +1892,7 @@ def __init__(self):\n         # floats in the 'want' string may contain ellipses\n         want_floats = got_floats + r'(\\.{3})?'\n \n-        front_sep = r'\\s|\\+|\\-|\\*|,'\n+        front_sep = r'[\\s+\\-*,()\\[\\]{}:=/]'\n         back_sep = front_sep + r'|j|e'\n \n         fbeg = r'^%s(?=%s|$)' % (got_floats, back_sep)\n@@ -1918,6 +1918,11 @@ def check_output(self, want, got, optionflags):\n         if got == want:\n             return True\n \n+        # Ellipses may hide floats, so leave the output unchanged and\n+        # use doctest's ordinary text matching rather than float substitution.\n+        if optionflags & pdoctest.ELLIPSIS and '...' in want:\n+            return super().check_output(want, got, optionflags)\n+\n         # TODO parse integers as well ?\n         # Parse floats and compare them. If some of the parsed floats contain\n         # ellipses, skip the comparison.\ndiff --git a/sympy/testing/tests/test_runtests.py b/sympy/testing/tests/test_runtests.py\nindex 6b3d1fd4fe56..358a10e3de10 100644\n--- a/sympy/testing/tests/test_runtests.py\n+++ b/sympy/testing/tests/test_runtests.py\n@@ -1,8 +1,9 @@\n from __future__ import annotations\n \n import os\n+from doctest import ELLIPSIS, NORMALIZE_WHITESPACE\n \n-from sympy.testing.runtests import convert_to_native_paths\n+from sympy.testing.runtests import SymPyOutputChecker, convert_to_native_paths\n \n \n def test_convert_to_native_paths():\n@@ -14,3 +15,44 @@ def test_convert_to_native_paths():\n         r\".\\sympy\\solvers\",\n     ]\n     assert set(convert_to_native_paths(paths)) == {expected}\n+\n+\n+def test_sympy_output_checker_ellipsis():\n+    checker = SymPyOutputChecker()\n+\n+    # An ellipsis can hide several floating-point coefficients.\n+    got = 'Force(0.814, 1.06, 0.162, 0.0633, 0.433, -8.149, -0.374, 0.886)'\n+    want = 'Force(0.814, ..., -8.149, -0.374, 0.886)'\n+    assert checker.check_output(want, got, ELLIPSIS)\n+\n+    # Without ELLIPSIS the output must not match, and an incorrect\n+    # visible number must not be hidden by the wildcard.\n+    assert not checker.check_output(want, got, 0)\n+    assert not checker.check_output(\n+        'Force(0.814, ..., -8.149, -0.374, 0.999)', got, ELLIPSIS)\n+\n+    # The standard doctest matcher also normalizes whitespace.\n+    assert checker.check_output(\n+        'Force(0.814, ...,\\n -8.149, -0.374, 0.886)',\n+        got, ELLIPSIS | NORMALIZE_WHITESPACE)\n+\n+    # Approximate float matching without an ellipsis is unchanged.\n+    assert checker.check_output('0.60000', '0.6000001', 0)\n+    assert checker.check_output('1.0, 2.0', '1.000001, 2.0', ELLIPSIS)\n+\n+    # Approximate floats can be surrounded by brackets.\n+    for left, right in ('()', '[]', '{}'):\n+        want = f'{left}1.0, 2.0{right}'\n+        assert checker.check_output(\n+            want, f'{left}1.000001, 2.000001{right}', ELLIPSIS)\n+        assert not checker.check_output(\n+            want, f'{left}1.000001, 2.001{right}', ELLIPSIS)\n+\n+    # Other single-character separators are accepted as well.\n+    for sep in '=:/':\n+        assert checker.check_output(\n+            f'1.0{sep}2.0', f'1.000001{sep}2.000001', ELLIPSIS)\n+\n+    # With an ellipsis, visible floats must match exactly.\n+    assert not checker.check_output(\n+        'f(1.0, ..., 2.0)', 'f(1.000001, x, 2.0)', ELLIPSIS)\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* testing\n  * ellipses can now be used in doctest expectations; if they are, then any visible Floats must match exactly. ([#30997](https://github.com/sympy/sympy/pull/30997) by [@smichr](https://github.com/smichr))\n\n  * Float delimiters in expectations were extended to include `()[]{}` and `:=/`. ([#30997](https://github.com/sympy/sympy/pull/30997) by [@smichr](https://github.com/smichr))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\r\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\n    Local source: doc/src/contributing/pull-request-guidelines.rst\r\n    Keep all section headings below. -->\r\n\r\n    #### References to other Issues or PRs\r\n\r\n    Problem was identified in #30918 when trying to use ellipses in long expressions containing Float.\r\n\r\n    #### Brief description of what is fixed or changed\r\n\r\n    When an expected docstring output contains floats *and* `...` the floats were checked without allowing for some of them to be missing because they were in the `...` portion. Now, if there are floats then normal Python doctest matching is attempted. If that fails then approximate testing *requiring all Float to be present* is employed.\r\n\r\n    *If ellipses are used then any visible floats left in the expectation must match the obtained value exactly.* If you want approximate matching of floats you can't use ... with this PR.\r\n\r\n    In addition, bracket delimiters and `:`, `=`, and `/` are now recognized.\r\n\r\n    #### Other comments\r\n\r\n\r\n    #### AI Generation Disclosure\r\n\r\n    Problem identified by author and solution/tests developed with ChatGPT.\r\n\r\n    #### Release Notes\r\n\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    * testing\r\n      * ellipses can now be used in doctest expectations; if they are, then any visible Floats must match exactly.\r\n      * Float delimiters in expectations were extended to include `()[]{}` and `:=/`.\r\n    <!-- END RELEASE NOTES -->\r\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-08T19:26:03Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "smichr",
+      "body": "#### References to other Issues or PRs\r\n\r\nalternate to #30904, #30818\r\nfixes #2834 \r\nfixes #10800\r\nfixes #19790\r\nfixes #17609\r\nfixes #23211 (construction is fast when using evaluate(False) context\r\nfixes #16090\r\nfixes #17911 (like 10800)\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\nNo longer apply `complex` to numerical coeffcients of terms in as_terms (see first commit for commentary).\r\nTry to retain nice (and nicer) mathematical default printing through the printers (see second commit).\r\n\r\nThese are the two layers of change:\r\n1. Expr.as_terms() / as_ordered_terms() -- establishes the underlying structural ordering while avoiding evalf\r\n2. Printer._as_ordered_terms() -- makes presentation adjustments, including putting negative terms and explicit imaginary terms in the desired positions. This is shared by all printers, so we don't need three implementations of those adjustments.\r\n\r\nNote: the printers still have separate code for interpreting signs and rendering terms. They therefore won't necessarily produce identical ordering behavior in every special printing path. For example, `multiline_latex()` calls `as_ordered_terms()` directly rather than going through the shared `_as_ordered_terms`.\r\n\r\n#### Other comments\r\n\r\nNumerical evaluation has been removed from the ordering of terms based on their complex coefficients. Instead, sort keys determine the ordering, and printers (when `order=None`) attempt to present terms in a mathematically pleasing way.\r\n\r\nHowever, numerical evaluation can still be triggered indirectly by assumptions queries, including during expression construction. Using `evaluate(False)` avoids much of the evaluation normally performed during construction, allowing even very large expressions to be built quickly.\r\n\r\nUnfortunately, *printing* such unevaluated expressions could still be extremely slow. The problem was traced to the following sequence:\r\n\r\n```text\r\nevaluate(False)\r\n    \u2193\r\nLarge unevaluated expression\r\n    \u2193\r\nstr(expr)\r\n    \u2193\r\nas_terms()\r\n    \u2193\r\ndecompose_power()\r\n    \u2193\r\nReconstruct a power with evaluation enabled\r\n    \u2193\r\nAssumptions inference\r\n    \u2193\r\nevalf(2)\r\n```\r\n\r\nThe reconstruction in `decompose_power()` could trigger expensive numerical inference on expressions that had deliberately been left unevaluated.\r\n\r\nThis commit replaces `decompose_power()` with `as_base_exp()` in `as_terms()`, treating powers with non-integer exponents as individual generators rather than reconstructing them.\r\n\r\nAs a result, a radical expression representing `cos(pi/257)`, containing approximately 46,730 nodes, can be constructed using `evaluate(False)` in about 2 ms and converted to a string in approximately 0.5 seconds.\r\n\r\n\r\nPossible additions to `from sympy import this`: \r\n* inference is costly: don't use it when structure suffices\r\n* the cost of curiosity should be borne by the consumer\r\n* don't make everyone pay for what you need to know\r\n* Inspect what is present. Don't compute what might be discovered.\r\n\r\n\r\n#### AI Generation Disclosure\r\n\r\nExtensive collaboration with ChatGPT.\r\n\r\n#### Release Notes\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\n* core\r\n  * as_terms no longer uses evaluation to order terms by their numerical coefficients\r\n* printing\r\n  * rules for printing 2-term expressions have been improved to favor z - x over -x + z\r\n<!-- END RELEASE NOTES -->\r\n",
+      "is_pull_request": true,
+      "merged_at": "2026-11-10T19:58:10Z",
+      "number": 30918,
+      "state": "closed",
+      "title": "avoid numerical evaluation when ordering expression terms"
+    }
+  ],
+  "merge_commit_sha": "baf711edc3394a7a62ae8d8fe4655d1150d6b5e0",
+  "merged_at": "2026-11-08T22:56:25Z",
+  "number": 30997,
+  "review_comments": [],
+  "reviews": [],
+  "title": "output checker checks for `...` before literal floats"
+}

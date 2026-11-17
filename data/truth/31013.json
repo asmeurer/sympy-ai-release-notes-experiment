@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "AI tool: DeepSeek Harness coding agent (deepseek-flash). It generated the changes in\n`sympy/tensor/array/expressions/arrayexpr_derivatives.py` and\n`sympy/matrices/expressions/tests/test_derivatives.py`.\nThe account owner reviewed the changes and the test results before submission.",
+  "author": "rynwang",
+  "entries": [
+    {
+      "submodule": "tensor",
+      "text": "Fixed `HadamardProduct` derivatives raising `NotImplementedError` instead of using the generic array-expression fallback."
+    }
+  ],
+  "merged_at": "2026-11-09T22:50:41Z",
+  "number": 31013,
+  "overlap": {
+    "title_similarity": 0.3516483516483517,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* tensor\n  * Fixed `HadamardProduct` derivatives raising `NotImplementedError` instead of using the generic array-expression fallback.",
+  "status": "entry",
+  "title": "fix: use the generic array fallback for HadamardProduct derivatives"
+}

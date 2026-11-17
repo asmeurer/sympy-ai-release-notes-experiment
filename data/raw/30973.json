@@ -1,0 +1,78 @@
+{
+  "additions": 31,
+  "author": "Roshanraj2580",
+  "base": "master",
+  "body": "#### References to other Issues or PRs\n\nFixes #30970\n\n#### Brief description of what is fixed or changed\n\n`array_derive` lacked a registration for `OneArray`, causing it to fall back to the generic `Expr` handler which only returned `ZeroArray(*x.shape)` without preserving the shape of the expression being differentiated. In `ArrayTensorProduct._array_derive`, this shape mismatch resulted in `PermuteDims` raising `ValueError: Permutation size must be the length of the shape of expr`.\n\nThis PR:\n- Registers `OneArray` in `array_derive` returning `ZeroArray(*(get_shape(x) + expr.shape))` consistent with `ZeroArray`.\n- Updates the `Expr` fallback in `array_derive` to return `ZeroArray(*(get_shape(x) + get_shape(expr)))`.\n- Adds regression tests for `OneArray` differentiation and `ArrayTensorProduct` in `test_arrayexpr_derivatives.py`.\n- Adds `Roshanraj2580` to `.mailmap`.\n\n#### Other comments\n\nNone\n\n#### AI Generation Disclosure\n\nNO AI USE\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* tensor\n  * Support `array_derive` for `OneArray`.\n<!-- END RELEASE NOTES -->\n",
+  "changed_files": 3,
+  "commits": [
+    {
+      "author": "Roshanraj2580",
+      "message": "tensor: support array_derive for OneArray",
+      "sha": "16bf0cb1136f8e744a9a1047594a10a0e3b49826"
+    },
+    {
+      "author": "Roshanraj2580",
+      "message": "authors: add Roshanraj2580 to .mailmap",
+      "sha": "e697a9e0162922d64a1e2202bdcdfa5da29a0043"
+    }
+  ],
+  "created_at": "2026-11-06T19:44:06Z",
+  "deletions": 3,
+  "diff": "diff --git a/.mailmap b/.mailmap\nindex 01f8cb3e6846..c81b06ea7c8f 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -1462,6 +1462,7 @@ Roland Puntaier <roland.puntaier@chello.at>\n Rom le Clair <jacen.guardian@gmail.com>\n Roman Inflianskas <infroma@gmail.com>\n Ronan Lamy <ronan.lamy@gmail.com> <Ronan.Lamy@normalesup.org>\n+Roshanraj2580 <roshanraj2580@gmail.com>\n Rudr Tiwari <rudrtiwari@gmail.com>\n Rupesh Harode <rupeshharode@gmail.com>\n Rushabh Mehta <mehtarushabh2005@gmail.com> Rushabh Mehta <139112780+RushabhMehta2005@users.noreply.github.com>\ndiff --git a/sympy/tensor/array/expressions/arrayexpr_derivatives.py b/sympy/tensor/array/expressions/arrayexpr_derivatives.py\nindex 446157b5135f..d0fd6753ef51 100644\n--- a/sympy/tensor/array/expressions/arrayexpr_derivatives.py\n+++ b/sympy/tensor/array/expressions/arrayexpr_derivatives.py\n@@ -16,7 +16,7 @@\n from sympy.combinatorics.permutations import _af_invert\n from sympy.matrices.expressions.applyfunc import ElementwiseApplyFunction\n from sympy.tensor.array.expressions.array_expressions import (\n-    _ArrayExpr, ZeroArray, ArraySymbol, ArrayTensorProduct, ArrayAdd,\n+    _ArrayExpr, ZeroArray, OneArray, ArraySymbol, ArrayTensorProduct, ArrayAdd,\n     PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc, get_ndim,\n     get_shape, ArrayContraction, _array_tensor_product, _array_contraction,\n     _array_diagonal, _array_add, _permute_dims, Reshape, ArraySum)\n@@ -45,7 +45,7 @@ def _(expr: Expr, x: _ArrayExpr):\n             tp = _array_tensor_product(dparent, MatrixUnit(m, n, expr.i, expr.j))\n             return _array_contraction(tp, (rank_x, rank_x + 2), (rank_x + 1, rank_x + 3))\n         raise NotImplementedError(\"algorithm not implemented for this case\")\n-    return ZeroArray(*x.shape)\n+    return ZeroArray(*(get_shape(x) + get_shape(expr)))\n \n \n @array_derive.register(Add)\n@@ -181,6 +181,11 @@ def _(expr: ZeroArray, x: _ArrayExpr):\n     return ZeroArray(*(get_shape(x) + expr.shape))\n \n \n+@array_derive.register(OneArray)\n+def _(expr: OneArray, x: _ArrayExpr):\n+    return ZeroArray(*(get_shape(x) + expr.shape))\n+\n+\n @array_derive.register(Transpose)\n def _(expr: Transpose, x: Expr):\n     # D(A.T, A) ==> (m,n,i,j) ==> D(A_ji, A_mn) = d_mj d_ni\ndiff --git a/sympy/tensor/array/expressions/tests/test_arrayexpr_derivatives.py b/sympy/tensor/array/expressions/tests/test_arrayexpr_derivatives.py\nindex 4b8177077b6b..671f85ecc32e 100644\n--- a/sympy/tensor/array/expressions/tests/test_arrayexpr_derivatives.py\n+++ b/sympy/tensor/array/expressions/tests/test_arrayexpr_derivatives.py\n@@ -11,7 +11,7 @@\n from sympy.matrices.expressions.applyfunc import ElementwiseApplyFunction\n from sympy.tensor.array.expressions.array_expressions import ArraySymbol, ArrayTensorProduct, \\\n     PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc, ArrayContraction, _permute_dims, \\\n-    Reshape, ZeroArray\n+    Reshape, ZeroArray, OneArray\n from sympy.tensor.array.expressions.arrayexpr_derivatives import array_derive\n \n k = symbols(\"k\")\n@@ -139,6 +139,28 @@ def test_array_derive_zero_expressions():\n     assert array_derive(ZeroMatrix(2, 3), v) == ZeroArray(2, 2, 3)\n \n \n+def test_array_derive_onearray():\n+    M = MatrixSymbol(\"M\", 2, 2)\n+    v = ArraySymbol(\"v\", (2,))\n+    assert array_derive(OneArray(2, 2), M) == ZeroArray(2, 2, 2, 2)\n+    assert array_derive(OneArray(3,), v) == ZeroArray(2, 3)\n+\n+    X = ArraySymbol(\"X\", (1, 1))\n+    O = OneArray(1)\n+    res = array_derive(ArrayTensorProduct(O, X), X)\n+    assert res.shape == (1, 1, 1, 1, 1)\n+    assert res.as_explicit() == ImmutableDenseNDimArray([[[[[1]]]]])\n+\n+    res_rev = array_derive(ArrayTensorProduct(X, O), X)\n+    assert res_rev.shape == (1, 1, 1, 1, 1)\n+    assert res_rev.as_explicit() == ImmutableDenseNDimArray([[[[[1]]]]])\n+\n+    X2 = ArraySymbol(\"X\", (2, 3))\n+    O2 = OneArray(4)\n+    res2 = array_derive(ArrayTensorProduct(O2, X2), X2)\n+    assert res2.shape == (2, 3, 4, 2, 3)\n+\n+\n def test_array_derive_matrix_rules_non_matrix_x():\n     # Transpose/Inverse/Determinant/MatPow rules used to hardcode rank-2 x\n     # and crashed for any other rank of the differentiation variable.\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* tensor\n  * Support `array_derive` for `OneArray`. ([#30973](https://github.com/sympy/sympy/pull/30973) by [@Roshanraj2580](https://github.com/Roshanraj2580))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    #### References to other Issues or PRs\n\n    Fixes #30970\n\n    #### Brief description of what is fixed or changed\n\n    `array_derive` lacked a registration for `OneArray`, causing it to fall back to the generic `Expr` handler which only returned `ZeroArray(*x.shape)` without preserving the shape of the expression being differentiated. In `ArrayTensorProduct._array_derive`, this shape mismatch resulted in `PermuteDims` raising `ValueError: Permutation size must be the length of the shape of expr`.\n\n    This PR:\n    - Registers `OneArray` in `array_derive` returning `ZeroArray(*(get_shape(x) + expr.shape))` consistent with `ZeroArray`.\n    - Updates the `Expr` fallback in `array_derive` to return `ZeroArray(*(get_shape(x) + get_shape(expr)))`.\n    - Adds regression tests for `OneArray` differentiation and `ArrayTensorProduct` in `test_arrayexpr_derivatives.py`.\n    - Adds `Roshanraj2580` to `.mailmap`.\n\n    #### Other comments\n\n    None\n\n    #### AI Generation Disclosure\n\n    NO AI USE\n\n    #### Release Notes\n\n    <!-- BEGIN RELEASE NOTES -->\n    * tensor\n      * Support `array_derive` for `OneArray`.\n    <!-- END RELEASE NOTES -->\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-06T19:44:15Z"
+    },
+    {
+      "author": "knowprasad",
+      "body": "I reviewed the diff in `sympy/tensor/array/expressions/arrayexpr_derivatives.py` and `sympy/tensor/array/expressions/tests/test_arrayexpr_derivatives.py`, and tested the changes locally against issue #30970.\n\nThe diagnosis and fix are clean and mathematically correct. In SymPy's array expressions, the derivative of an expression with shape $S_A$ with respect to a variable with shape $S_X$ has shape $S_X + S_A$. Previously, `array_derive` lacked a registration for `OneArray`, causing it to fall back to the generic `Expr` handler. In `arrayexpr_derivatives.py` line 49, that fallback returned `ZeroArray(*x.shape)`, which discarded $S_A$ entirely. For `OneArray(1)` differentiated with respect to `ArraySymbol(\"X\", (1, 1))`, this produced `ZeroArray(1, 1)` instead of `ZeroArray(1, 1, 1)`.\n\nWhen differentiating `ArrayTensorProduct(OneArray(1), X)`, `ArrayTensorProduct._array_derive` built permutation indices expecting a rank-5 tensor, but the mismatched rank-2 derivative caused `PermuteDims` to raise `ValueError: Permutation size must be the length of the shape of expr`.\n\nA few specific observations from checking the implementation:\n\n1. **Shape preservation:** Updating line 49 to `ZeroArray(*(get_shape(x) + get_shape(expr)))` and registering `OneArray` with `ZeroArray(*(get_shape(x) + expr.shape))` directly mirrors the behavior of `ZeroArray` and `ArraySymbol`. For scalar expressions without a `shape` attribute, `get_shape(expr)` returns `()`, so scalar differentiation behavior is preserved without side effects.\n2. **Permutation symmetry:** The tests in `test_arrayexpr_derivatives.py` verify both `ArrayTensorProduct(O, X)` and `ArrayTensorProduct(X, O)` alongside explicit multidimensional evaluation with `ImmutableDenseNDimArray`, confirming the permutation indices align regardless of argument position.\n3. **CI check:** All 46 test matrix jobs (doctests, mypy, and unit test suites across Python versions) pass cleanly. The only failing check is `Check Authors`, which happens because your git committer name and email (`Roshanraj2580 <roshanraj2580@gmail.com>`) need an entry in the `AUTHORS` file (or `.mailmap`).\n4. **Typo in PR description and release notes:** There appears to be a control character (ASCII 0x07 / `^G`) in the word `^Grray_derive` in the PR description and in the `<!-- BEGIN RELEASE NOTES -->` block (`Support ^Grray_derive for OneArray.`). Updating that to `array_derive` will keep the automated release notes entry clean.\n\nThe PR is in solid shape and ready to merge from my perspective once the AUTHORS entry and release note wording are updated.\n",
+      "created_at": "2026-11-07T03:19:23Z"
+    },
+    {
+      "author": "Roshanraj2580",
+      "body": "Good catch, thanks for the review!\n\nAdded the .mailmap entry in e697a9e and cleaned up the release notes / PR description formatting.",
+      "created_at": "2026-11-07T04:38:47Z"
+    },
+    {
+      "author": "ThePauliPrinciple",
+      "body": "There still seems to be an issue with the release notes/PR description\r\n<img width=\"446\" height=\"157\" alt=\"afbeelding\" src=\"https://github.com/user-attachments/assets/9fbd396d-bcff-41b6-97c5-f64865b37d49\" />\r\n",
+      "created_at": "2026-11-07T08:07:38Z"
+    },
+    {
+      "author": "Roshanraj2580",
+      "body": "Thanks for pointing that out! A shell escaping issue had clipped the backticks into a control character. Fixed now, and the bot output looks clean.",
+      "created_at": "2026-11-07T13:56:54Z"
+    },
+    {
+      "author": "ThePauliPrinciple",
+      "body": "Thanks for the quick work!\r\n\r\nThis looks good to me. It fixes the issue I had. The order of the indices are correct.\r\n\r\nPerhaps it is also related to https://github.com/sympy/sympy/issues/30902",
+      "created_at": "2026-11-07T14:14:50Z"
+    },
+    {
+      "author": "Roshanraj2580",
+      "body": "Thanks for testing and confirming! Yeah, #30902 covers several related routing issues and rank assumptions across `array_derive` and the converters. Will check if some of the simpler zero-array / rank-handling cases there can be addressed cleanly in a follow-up.",
+      "created_at": "2026-11-07T14:37:56Z"
+    }
+  ],
+  "labels": [
+    "tensor"
+  ],
+  "linked": [
+    {
+      "author": "ThePauliPrinciple",
+      "body": "Currently, for a `OneArray` O, derived by an `ArraySymbol` X, sympy yields a `ZeroArray` Z with `Z.shape == X.shape` rather than `Z.shape == O.shape + X.shape`.\n\nThe derivative handling of `ArrayTensorProduct` expects `O.shape + X.shape` and thus generates an incorrect permutation:\n\n```python\n>>> from sympy.tensor.array.expressions import ArraySymbol, array_derive, OneArray, ArrayTensorProduct\n>>> X = ArraySymbol(\"X\", (1,1))\n>>> O = OneArray(1)\n>>> Z = array_derive(O, X)\n>>> print(f'{O.shape=}')\n>>> print(f'{X.shape=}')\n>>> print(f'{Z.shape=}')\n>>> array_derive(ArrayTensorProduct(O, X), X)\nO.shape=(1,)\nX.shape=(1, 1)\nZ.shape=(1, 1)\n---------------------------------------------------------------------------\n\nValueError                                Traceback (most recent call last)\n\n[/tmp/ipykernel_21787/2624025206.py](https://localhost:8080/#) in <cell line: 0>()\n      6 print(f'{X.shape=}')\n      7 print(f'{Z.shape=}')\n----> 8 array_derive(ArrayTensorProduct(O, X), X)\n\n3 frames\n\n[/usr/lib/python3.13/functools.py](https://localhost:8080/#) in wrapper(*args, **kw)\n    932             raise TypeError(f'{funcname} requires at least '\n    933                             '1 positional argument')\n--> 934         return dispatch(args[0].__class__)(*args, **kw)\n    935 \n    936     funcname = getattr(func, '__name__', 'singledispatch function')\n\n[/usr/local/lib/python3.13/dist-packages/sympy/tensor/array/expressions/arrayexpr_derivatives.py](https://localhost:8080/#) in _(expr, x)\n     60                list(range(tot3, tot4))\n     61         print(perm)\n---> 62         addend = _permute_dims(addend, _af_invert(perm))\n     63         addend_list.append(addend)\n     64     if len(addend_list) == 1:\n\n[/usr/local/lib/python3.13/dist-packages/sympy/tensor/array/expressions/array_expressions.py](https://localhost:8080/#) in _permute_dims(expr, permutation, **kwargs)\n   1959 \n   1960 def _permute_dims(expr, permutation, **kwargs):\n-> 1961     return PermuteDims(expr, permutation, canonicalize=True, **kwargs)\n   1962 \n   1963 \n\n[/usr/local/lib/python3.13/dist-packages/sympy/tensor/array/expressions/array_expressions.py](https://localhost:8080/#) in __new__(cls, expr, permutation, index_order_old, index_order_new, **kwargs)\n    461         permutation_size = permutation.size\n    462         if permutation_size != expr_rank:\n--> 463             raise ValueError(\"Permutation size must be the length of the shape of expr\")\n    464 \n    465         canonicalize = kwargs.pop(\"canonicalize\", False)\n\nValueError: Permutation size must be the length of the shape of expr\n```\n",
+      "is_pull_request": false,
+      "number": 30970,
+      "state": "closed",
+      "title": "array_derive with OneArray and ArrayTensorProduct fails"
+    }
+  ],
+  "merge_commit_sha": "be1150c9cdee9282ba0e0e1bc58d850127504e75",
+  "merged_at": "2026-11-09T23:20:45Z",
+  "number": 30973,
+  "review_comments": [],
+  "reviews": [],
+  "title": "tensor: support array_derive for OneArray"
+}

@@ -1,0 +1,73 @@
+{
+  "additions": 12,
+  "author": "hunterhogan",
+  "base": "master",
+  "body": "\ud83e\udd16 *This description was drafted by an AI agent (Claude Code).*\n\n#### References to other Issues or PRs\n\n\n#### Brief description of what is fixed or changed\n\nType annotations in `sympy/simplify/radsimp.py`:\n\n- `fraction(expr: Expr, exact: bool = False) -> tuple[Expr, Expr]`\n- `numer` and `denom`: same parameters, `-> Expr`\n- In `fraction`, `term.is_Rational` becomes `isinstance(term, Rational)` so type checkers accept `term.p` and `term.q`. Only `Rational` sets `is_Rational = True`, so behavior is unchanged.\n\n#### Other comments\n\n`mypy sympy`, `ruff check sympy`, `bin/test quality`, `radsimp.py` doctests, and the radsimp/simplify tests pass locally.\n\n#### AI Generation Disclosure\n\nClaude Code (Claude Opus 5.5) wrote all changes in this PR and this description. Hunter Hogan reviewed them.\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* simplify\n    * radsimp: Add types to `fraction`\n<!-- END RELEASE NOTES -->\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "Hunter Hogan",
+      "message": "Annotate fraction, numer, and denom\n\nfraction takes an Expr and returns a pair of Expr. Testing\nisinstance(term, Rational) instead of term.is_Rational lets type\ncheckers see .p and .q; only Rational sets is_Rational.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "762e0ba4676916c68447fa6eec28666b37956cf1"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Accept unsympified input in fraction, numer, and denom\n\nfraction sympifies its argument, so Expr | complex matches the convention\nfor parameters that have not been sympified yet.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "a43eef58d912120cfdd11a8bf6cd70ba56d9e434"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Declare fraction's numer and denom lists as Expr | int\n\nRational.p and Rational.q are int. Once @cacheit was typed, mypy inferred\nlist[Expr] for the lists and rejected appending them.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "fdff1f4d9563c56a8f526eff65d403355bc758a9"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Narrow numer to Mul in LatexPrinter._print_Mul\n\nfraction now returns Expr, so numer.args is tuple[Basic, ...]; with the\nInteger.__mul__ overloads from #29422, a*x no longer type checks.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "32a80b01275d3cd448f298b4ca4668b8f657ec17"
+    }
+  ],
+  "created_at": "2026-11-10T12:39:20Z",
+  "deletions": 9,
+  "diff": "diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py\nindex 059120e9b34b..f14b037f1d27 100644\n--- a/sympy/printing/latex.py\n+++ b/sympy/printing/latex.py\n@@ -622,10 +622,10 @@ def convert_args(args) -> str:\n                 if self._needs_mul_brackets(numer, last=True):\n                     tex += r\"\\frac{1}{%s}%s\\left(%s\\right)\" \\\n                         % (sdenom, separator, snumer)\n-                elif numer.is_Mul:\n+                elif isinstance(numer, Mul):\n                     # split a long numerator\n-                    a = S.One\n-                    b = S.One\n+                    a: Expr = S.One\n+                    b: Expr = S.One\n                     for x in numer.args:\n                         if self._needs_mul_brackets(x, last=False) or \\\n                                 len(convert(a*x).split()) > ratio*ldenom or \\\ndiff --git a/sympy/simplify/radsimp.py b/sympy/simplify/radsimp.py\nindex 7945c691325b..c4699be19930 100644\n--- a/sympy/simplify/radsimp.py\n+++ b/sympy/simplify/radsimp.py\n@@ -1,4 +1,5 @@\n from __future__ import annotations\n+from typing import TYPE_CHECKING\n from collections import defaultdict\n \n from sympy.core import sympify, S, Mul, Derivative, Pow\n@@ -17,7 +18,8 @@\n from sympy.simplify.sqrtdenest import sqrtdenest\n from sympy.utilities.iterables import iterable, sift\n \n-\n+if TYPE_CHECKING:\n+    from sympy.core.expr import Expr\n \n \n def collect(expr, syms, func=None, evaluate=None, exact=False, distribute_order_term=True):\n@@ -1048,7 +1050,7 @@ def rad_rationalize(num, den):\n     return rad_rationalize(num, den)\n \n \n-def fraction(expr, exact=False):\n+def fraction(expr: Expr | complex, exact: bool = False) -> tuple[Expr, Expr]:\n     \"\"\"Returns a pair with expression's numerator and denominator.\n        If the given expression is not a fraction then this function\n        will return the tuple (expr, 1).\n@@ -1106,7 +1108,8 @@ def fraction(expr, exact=False):\n     \"\"\"\n     expr = sympify(expr)\n \n-    numer, denom = [], []\n+    numer: list[Expr | int] = []\n+    denom: list[Expr | int] = []\n \n     for term in Mul.make_args(expr):\n         if term.is_commutative and (term.is_Pow or isinstance(term, exp)):\n@@ -1133,7 +1136,7 @@ def fraction(expr, exact=False):\n                 denom.append(d)\n             else:\n                 numer.append(term)\n-        elif term.is_Rational and not term.is_Integer:\n+        elif isinstance(term, Rational) and not term.is_Integer:\n             if term.p != 1:\n                 numer.append(term.p)\n             denom.append(term.q)\n@@ -1142,11 +1145,11 @@ def fraction(expr, exact=False):\n     return Mul(*numer, evaluate=not exact), Mul(*denom, evaluate=not exact)\n \n \n-def numer(expr, exact=False):  # default matches fraction's default\n+def numer(expr: Expr | complex, exact: bool = False) -> Expr:  # default matches fraction's default\n     return fraction(expr, exact=exact)[0]\n \n \n-def denom(expr, exact=False):  # default matches fraction's default\n+def denom(expr: Expr | complex, exact: bool = False) -> Expr:  # default matches fraction's default\n     return fraction(expr, exact=exact)[1]\n \n \n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* simplify\n  * radsimp: Add types to `fraction` ([#31025](https://github.com/sympy/sympy/pull/31025) by [@hunterhogan](https://github.com/hunterhogan))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    \ud83e\udd16 *This description was drafted by an AI agent (Claude Code).*\n\n    #### References to other Issues or PRs\n\n\n    #### Brief description of what is fixed or changed\n\n    Type annotations in `sympy/simplify/radsimp.py`:\n\n    - `fraction(expr: Expr, exact: bool = False) -> tuple[Expr, Expr]`\n    - `numer` and `denom`: same parameters, `-> Expr`\n    - In `fraction`, `term.is_Rational` becomes `isinstance(term, Rational)` so type checkers accept `term.p` and `term.q`. Only `Rational` sets `is_Rational = True`, so behavior is unchanged.\n\n    #### Other comments\n\n    `mypy sympy`, `ruff check sympy`, `bin/test quality`, `radsimp.py` doctests, and the radsimp/simplify tests pass locally.\n\n    #### AI Generation Disclosure\n\n    Claude Code (Claude Opus 5.5) wrote all changes in this PR and this description. Hunter Hogan reviewed them.\n\n    #### Release Notes\n\n    <!-- BEGIN RELEASE NOTES -->\n    * simplify\n        * radsimp: Add types to `fraction`\n    <!-- END RELEASE NOTES -->\n\n    \ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-10T12:39:24Z"
+    },
+    {
+      "author": "smichr",
+      "body": "redsimp -> radsimp in release note",
+      "created_at": "2026-11-11T03:06:32Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "Looks good.",
+      "created_at": "2026-11-13T14:45:50Z"
+    }
+  ],
+  "labels": [
+    "typing"
+  ],
+  "linked": [],
+  "merge_commit_sha": "511b054ccb85db60601958fbe5f334d21266611d",
+  "merged_at": "2026-11-13T14:45:57Z",
+  "number": 31025,
+  "review_comments": [
+    {
+      "author": "oscarbenjamin",
+      "body": "I think the parameter annotation should be `Expr | complex`. At least for now this is what we use for parameters that have not been sympified yet.",
+      "created_at": "2026-11-10T22:16:09Z",
+      "path": "sympy/simplify/radsimp.py"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T22:16:09Z"
+    }
+  ],
+  "title": "\ud83e\udd16 Annotate fraction, numer, and denom"
+}

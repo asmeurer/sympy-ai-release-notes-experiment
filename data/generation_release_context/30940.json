@@ -1,0 +1,104 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 7066,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 25569,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 25569,
+      "cacheReadInputTokens": 24201,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.1137641,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 906,
+      "provider": "firstParty",
+      "thinkingTokens": 248,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 30940,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":true,\"entries\":[],\"reasoning\":\"The PR only migrates packaging metadata from setup.py to pyproject.toml, leaving the license expression, dependencies and installed files unchanged. The removed setup.py commands (test, antlr), bin/ helper scripts and sdist exclusions (AGENTS.md, CLAUDE.md) affect only developers and release managers, not SymPy users.\"}",
+  "structured_output": {
+    "entries": [],
+    "no_entry": true,
+    "reasoning": "The PR only migrates packaging metadata from setup.py to pyproject.toml, leaving the license expression, dependencies and installed files unchanged. The removed setup.py commands (test, antlr), bin/ helper scripts and sdist exclusions (AGENTS.md, CLAUDE.md) affect only developers and release managers, not SymPy users."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30940/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30940/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30940/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [],
+        "no_entry": true,
+        "reasoning": "The PR only migrates packaging metadata from setup.py to pyproject.toml, leaving the license expression, dependencies and installed files unchanged. The removed setup.py commands (test, antlr), bin/ helper scripts and sdist exclusions (AGENTS.md, CLAUDE.md) affect only developers and release managers, not SymPy users."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.1137641,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 25569,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 25569,
+    "cache_read_input_tokens": 24201,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 25128,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 25128,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 617,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 906,
+    "output_tokens_details": {
+      "thinking_tokens": 248
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

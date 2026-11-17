@@ -1,0 +1,25 @@
+{
+  "ai_disclosure": "Problem identified by author and solution/tests developed with ChatGPT.",
+  "author": "smichr",
+  "entries": [
+    {
+      "submodule": "testing",
+      "text": "ellipses can now be used in doctest expectations; if they are, then any visible Floats must match exactly."
+    },
+    {
+      "submodule": "testing",
+      "text": "Float delimiters in expectations were extended to include `()[]{}` and `:=/`."
+    }
+  ],
+  "merged_at": "2026-11-08T22:56:25Z",
+  "number": 30997,
+  "overlap": {
+    "title_similarity": 0.19811320754716982,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* testing\n  * ellipses can now be used in doctest expectations; if they are, then any visible Floats must match exactly.\n  * Float delimiters in expectations were extended to include `()[]{}` and `:=/`.",
+  "status": "entry",
+  "title": "output checker checks for `...` before literal floats"
+}

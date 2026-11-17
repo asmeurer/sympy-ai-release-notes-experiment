@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "The contributor used OpenAI Codex to generate changes in `sympy/printing/latex.py` and `sympy/printing/tests/test_latex.py` and draft this description. The exact runtime model identifier was unavailable.",
+  "author": "raman118",
+  "entries": [
+    {
+      "submodule": "printing",
+      "text": "Fixed LaTeX rendering of bounded indices in notebook renderers that do not support `\\nobreak`."
+    }
+  ],
+  "merged_at": "2026-11-07T08:56:54Z",
+  "number": 30977,
+  "overlap": {
+    "title_similarity": 0.1875,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* printing\n  * Fixed LaTeX rendering of bounded indices in notebook renderers that do not support `\\nobreak`.",
+  "status": "entry",
+  "title": "Remove nobreak from LaTeX index ranges"
+}

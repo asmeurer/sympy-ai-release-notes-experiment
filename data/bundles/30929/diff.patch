@@ -1,0 +1,85 @@
+diff --git a/.mailmap b/.mailmap
+index a396615f7a99..8cb2cc06a13c 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -1887,6 +1887,7 @@ cym1 <16437732+cym1@users.noreply.github.com>
+ damianos <damianos@semmle.com>
+ dandiez <47832466+dandiez@users.noreply.github.com>
+ dboeckenhoff <daniel.f.boeckenhoff@googlemail.com>
++dengzi <2294612869@qq.com>
+ der-blaue-elefant <github@kklein.de>
+ dimasvq <dimas.vq.2020@bristol.ac.uk>
+ dispasha <dispasha@users.noreply.github.com>
+diff --git a/sympy/core/symbol.py b/sympy/core/symbol.py
+index 0702c0433919..a814e7b84184 100644
+--- a/sympy/core/symbol.py
++++ b/sympy/core/symbol.py
+@@ -515,6 +515,7 @@ def __new__(cls, name: str | None = None,
+                      **assumptions: bool | None) -> Self:
+         if dummy_index is not None:
+             assert name is not None, "If you specify a dummy_index, you must also provide a name"
++            dummy_index = int(dummy_index)
+ 
+         if name is None:
+             name = "Dummy_" + str(Dummy._count)
+diff --git a/sympy/core/tests/test_symbol.py b/sympy/core/tests/test_symbol.py
+index 22daa9576dc0..4571755e00c7 100644
+--- a/sympy/core/tests/test_symbol.py
++++ b/sympy/core/tests/test_symbol.py
+@@ -50,6 +50,10 @@ def test_Dummy():
+ def test_Dummy_force_dummy_index():
+     raises(AssertionError, lambda: Dummy(dummy_index=1))
+     assert Dummy('d', dummy_index=2) == Dummy('d', dummy_index=2)
++    d_int = Dummy('d', dummy_index=2)
++    d_sympified = Dummy('d', dummy_index=sympify(2))
++    assert d_int == d_sympified
++    assert d_sympified == d_int
+     assert Dummy('d1', dummy_index=2) != Dummy('d2', dummy_index=2)
+     d1 = Dummy('d', dummy_index=3)
+     d2 = Dummy('d')
+diff --git a/sympy/core/tests/test_sympify.py b/sympy/core/tests/test_sympify.py
+index 9d5815f56362..c9472c5709a4 100644
+--- a/sympy/core/tests/test_sympify.py
++++ b/sympy/core/tests/test_sympify.py
+@@ -6,7 +6,7 @@
+ from sympy.core.numbers import (Float, I, Integer, Rational, pi, oo)
+ from sympy.core.power import Pow
+ from sympy.core.singleton import S
+-from sympy.core.symbol import Symbol
++from sympy.core.symbol import Dummy, Symbol
+ from sympy.functions.elementary.complexes import Abs
+ from sympy.functions.elementary.exponential import exp
+ from sympy.functions.elementary.miscellaneous import sqrt
+@@ -46,6 +46,11 @@ def test_issue_3538():
+     assert str(type(v)) == str(type(exp(x)))
+ 
+ 
++def test_srepr_dummy_roundtrip():
++    d = Dummy('d', dummy_index=5)
++    assert sympify(srepr(d + 1)) == d + 1
++
++
+ def test_sympify1():
+     assert sympify("x") == Symbol("x")
+     assert sympify("   x") == Symbol("x")
+diff --git a/sympy/polys/tests/test_rootoftools.py b/sympy/polys/tests/test_rootoftools.py
+index c1a649b372fe..cd8f85f43ac5 100644
+--- a/sympy/polys/tests/test_rootoftools.py
++++ b/sympy/polys/tests/test_rootoftools.py
+@@ -26,10 +26,16 @@
+ 
+ from sympy.testing.pytest import raises, slow
+ from sympy.core.expr import unchanged
++from sympy.core.sympify import sympify
++from sympy.printing.repr import srepr
+ 
+ from sympy.abc import a, b, x, y, z, r
+ 
+ 
++def test_CRootOf_srepr_roundtrip():
++    assert sympify(srepr(CRootOf(x**3 - x + 1, 0))) == CRootOf(x**3 - x + 1, 0)
++
++
+ def test_CRootOf___new__():
+     assert rootof(x, 0) == 0
+     assert rootof(x, -1) == 0

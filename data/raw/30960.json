@@ -1,0 +1,32 @@
+{
+  "additions": 3,
+  "author": "smichr",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\r\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\nLocal source: doc/src/contributing/pull-request-guidelines.rst\r\nKeep all section headings below. -->\r\n\r\n#### References to other Issues or PRs\r\n\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\nThe following failure can be averted by letting the uncertainty in the error be up to 2 ULP (units in last place); the current requirements make it about 1.61 ULP for the failing test. This is only changing the test criteria.\r\n\r\n```\r\n=============================================== short test summary info ===============================================\r\nFAILED sympy/codegen/tests/test_algorithms.py::test_newtons_method_function__rtol_cse_nan - assert 2.86126401550282484098850784656751e-15 < 2.64523030128337532347187054305861e-15\r\n================================== 1 failed, 2 passed, 2 skipped, 1 xfailed in 1.07s ==================================\r\n```\r\n#### Other comments\r\n\r\n\r\n#### AI Generation Disclosure\r\n\r\nDiscussed with ChatGPT.\r\n\r\n#### Release Notes\r\n\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\nNO ENTRY\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 1,
+  "commits": [
+    {
+      "author": "Christopher Smith",
+      "message": "Allow two ULPs for Newton root accuracy on different platforms",
+      "sha": "82f9b8e3ad35a7c0fa935fa79d2b3431aa29be80"
+    }
+  ],
+  "created_at": "2026-11-05T20:01:29Z",
+  "deletions": 1,
+  "diff": "diff --git a/sympy/codegen/tests/test_algorithms.py b/sympy/codegen/tests/test_algorithms.py\nindex d9ee656b49c7..1d6e57094391 100644\n--- a/sympy/codegen/tests/test_algorithms.py\n+++ b/sympy/codegen/tests/test_algorithms.py\n@@ -1,4 +1,5 @@\n from __future__ import annotations\n+from math import ulp\n import tempfile\n from sympy import log, Min, Max, sqrt\n from sympy.core.numbers import Float\n@@ -178,4 +179,5 @@ def _clamp(low, expr, high):\n             req = ref*reftol[meth]\n             if use_cse:\n                 req *= 2\n-            assert abs(result - ref) < req\n+            # Allow for floating-point resolution differences across platforms.\n+            assert abs(result - ref) < max(req, 2*ulp(result))\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\n* No release notes entry will be added for this pull request.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\r\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\n    Local source: doc/src/contributing/pull-request-guidelines.rst\r\n    Keep all section headings below. -->\r\n\r\n    #### References to other Issues or PRs\r\n\r\n\r\n    #### Brief description of what is fixed or changed\r\n\r\n    The following failure can be averted by letting the uncertainty in the error be up to 2 ULP (units in last place); the current requirements make it about 1.61 ULP for the failing test. This is only changing the test criteria.\r\n\r\n    ```\r\n    =============================================== short test summary info ===============================================\r\n    FAILED sympy/codegen/tests/test_algorithms.py::test_newtons_method_function__rtol_cse_nan - assert 2.86126401550282484098850784656751e-15 < 2.64523030128337532347187054305861e-15\r\n    ================================== 1 failed, 2 passed, 2 skipped, 1 xfailed in 1.07s ==================================\r\n    ```\r\n    #### Other comments\r\n\r\n\r\n    #### AI Generation Disclosure\r\n\r\n    Discussed with ChatGPT.\r\n\r\n    #### Release Notes\r\n\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    NO ENTRY\r\n    <!-- END RELEASE NOTES -->\r\n\n\n</details><p>\n",
+      "created_at": "2026-11-05T20:01:35Z"
+    }
+  ],
+  "labels": [],
+  "linked": [],
+  "merge_commit_sha": "a1e6fd3993dae123441783a9f995527bb064932b",
+  "merged_at": "2026-11-05T20:57:26Z",
+  "number": 30960,
+  "review_comments": [],
+  "reviews": [],
+  "title": "Allow two ULPs for Newton root accuracy on different platforms"
+}

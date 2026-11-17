@@ -1,0 +1,68 @@
+diff --git a/sympy/printing/pretty/pretty.py b/sympy/printing/pretty/pretty.py
+index 4fa9b2635bc2..07ed0b411870 100644
+--- a/sympy/printing/pretty/pretty.py
++++ b/sympy/printing/pretty/pretty.py
+@@ -2425,7 +2425,7 @@ def _print_SeqFormula(self, s):
+             dots = '...'
+ 
+         if len(s.start.free_symbols) > 0 or len(s.stop.free_symbols) > 0:
+-            raise NotImplementedError("Pretty printing of sequences with symbolic bound not implemented")
++            return self._print_Function(s)
+ 
+         if s.start is S.NegativeInfinity:
+             stop = s.stop
+diff --git a/sympy/printing/pretty/tests/test_pretty.py b/sympy/printing/pretty/tests/test_pretty.py
+index 63116b97ad0d..bdc1ff88e30f 100644
+--- a/sympy/printing/pretty/tests/test_pretty.py
++++ b/sympy/printing/pretty/tests/test_pretty.py
+@@ -4945,9 +4945,9 @@ def test_pretty_sequences():
+     assert upretty(SeqMul(s5, s6)) == ucode_str
+ 
+     # Sequences with symbolic limits, issue 12629
+-    s7 = SeqFormula(a**2, (a, 0, x))
+-    raises(NotImplementedError, lambda: pretty(s7))
+-    raises(NotImplementedError, lambda: upretty(s7))
++    s7 = SeqFormula(a, (a, 0, x))
++    assert pretty(s7) == 'SeqFormula(a, (a, 0, x))'
++    assert upretty(s7) == 'SeqFormula(a, (a, 0, x))'
+ 
+     b = Symbol('b')
+     s8 = SeqFormula(b*a**2, (a, 0, 2))
+@@ -4957,6 +4957,37 @@ def test_pretty_sequences():
+     assert upretty(s8) == ucode_str
+ 
+ 
++def test_pretty_sequences_symbolic_limits():
++    n, k = symbols('n k', integer=True)
++    for limits, ascii_str, ucode_str in [
++        ((n, k, oo), 'SeqFormula(n, (n, k, oo))',
++         'SeqFormula(n, (n, k, ∞))'),
++        ((n, -oo, k), 'SeqFormula(n, (n, -oo, k))',
++         'SeqFormula(n, (n, -∞, k))'),
++        ((n, k, k + 2), 'SeqFormula(n, (n, k, k + 2))',
++         'SeqFormula(n, (n, k, k + 2))'),
++    ]:
++        seq = SeqFormula(n, limits)
++        assert pretty(seq) == ascii_str
++        assert upretty(seq) == ucode_str
++
++    formula = SeqFormula(n, (n, 0, k))
++    periodic = SeqPer((1, 2), (n, 0, k))
++    expected = 'SeqPer((1, 2), (n, 0, k))'
++    assert pretty(periodic) == expected
++    assert upretty(periodic) == expected
++    for cls in (SeqAdd, SeqMul):
++        seq = cls(formula, periodic)
++        expected = (cls.__name__ + '(SeqFormula(n, (n, 0, k)), '
++                    'SeqPer((1, 2), (n, 0, k)))')
++        assert pretty(seq) == expected
++        assert upretty(seq) == expected
++
++    assert upretty(SeqFormula(n**2, (n, 0, k))) == (
++        '          ⎛ 2           ⎞\n'
++        'SeqFormula⎝n , (n, 0, k)⎠')
++
++
+ def test_pretty_FourierSeries():
+     f = fourier_series(x, (x, -pi, pi))
+ 

@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "OpenAI Codex (GPT-6.1 Sol) generated the original changes in `sympy/utilities/iterables.py` and `sympy/utilities/tests/test_iterables.py`. OpenAI Codex (GPT-6 Astra) generated the follow-up changes in those files based on smichr's suggestion, added the user-provided identity to `.mailmap`, and wrote this description at the account owner's request.",
+  "author": "raman118",
+  "entries": [
+    {
+      "submodule": "utilities",
+      "text": "Fixed `reshape` to reject negative counts and nonpositive total template sizes with `ValueError`, while supporting nested zero-size groups in templates with a positive total size."
+    }
+  ],
+  "merged_at": "2026-11-05T19:29:15Z",
+  "number": 30952,
+  "overlap": {
+    "title_similarity": 0.28837209302325584,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* utilities\n  * Fixed `reshape` to reject negative counts and nonpositive total template sizes with `ValueError`, while supporting nested zero-size groups in templates with a positive total size.",
+  "status": "entry",
+  "title": "Fix reshape validation for empty templates"
+}

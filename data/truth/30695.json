@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "NO AI USE",
+  "author": "DroneBetter",
+  "entries": [
+    {
+      "submodule": "functions",
+      "text": "Compute `stirling(n,k)` by performing the recurrence in a parallelogram instead of a trapezoid; this is about twice as fast at generating full rows, and saves about a linear factor for small/fixed `n-k`."
+    }
+  ],
+  "merged_at": "2026-11-11T16:12:32Z",
+  "number": 30695,
+  "overlap": {
+    "title_similarity": 0.288,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* functions\n  * Compute `stirling(n,k)` by performing the recurrence in a parallelogram instead of a trapezoid; this is about twice as fast at generating full rows, and saves about a linear factor for small/fixed `n-k`.",
+  "status": "entry",
+  "title": "make Stirling numbers take `\u0398(k*(n-k))` ops instead of `\u0398(k*(n-k/2))`"
+}

@@ -1,0 +1,25 @@
+{
+  "ai_disclosure": "This was a highly collaborative change made with ChatGPT.",
+  "author": "smichr",
+  "entries": [
+    {
+      "submodule": "core",
+      "text": "improved accuracy of the evaluation (evalf) of products"
+    },
+    {
+      "submodule": "core",
+      "text": "eliminated condition that caused recursion error when printing an evaluated expression in an evaluate(False) environment"
+    }
+  ],
+  "merged_at": "2026-11-05T20:13:08Z",
+  "number": 30924,
+  "overlap": {
+    "title_similarity": 0.20465116279069767,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* core\n  * improved accuracy of the evaluation (evalf) of products\n  * eliminated condition that caused recursion error when printing an evaluated expression in an evaluate(False) environment",
+  "status": "entry",
+  "title": "Avoid symbolic multiplication in evalf_mul"
+}

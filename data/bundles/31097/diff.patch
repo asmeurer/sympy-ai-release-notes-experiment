@@ -1,0 +1,57 @@
+diff --git a/.mailmap b/.mailmap
+index d66a21682d8b..93dd0cc3da8f 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -763,6 +763,7 @@ Hampus Malmberg <hampus.malmberg88@gmail.com>
+ Han Wei Ang <ang.h.w@u.nus.edu>
+ Hannah Kari <hannah.kari@marquette.edu> hannah-kari <42753364+hannah-kari@users.noreply.github.com>
+ Hanspeter Schmid <hanspeter.schmid@fhnw.ch>
++Hardik Kaurani <hardikkaurani1@gmail.com>
+ Hardik Pandey <hardikpandey0903@gmail.com>
+ Hardik Saini <43683678+Guardianofgotham@users.noreply.github.com>
+ Harikrishna Srinivasan <harikrishnasri3@gmail.com>
+diff --git a/sympy/matrices/solvers.py b/sympy/matrices/solvers.py
+index 40f0b5262b4e..0dbb44dce0f2 100644
+--- a/sympy/matrices/solvers.py
++++ b/sympy/matrices/solvers.py
+@@ -423,7 +423,7 @@ def _QRsolve(M, b):
+ 
+     dps  = _get_intermediate_simp(expand_mul, expand_mul)
+     Q, R = M.QRdecomposition()
+-    y    = Q.T * b
++    y    = Q.H * b
+ 
+     # back substitution to solve R*x = y:
+     # We build up the result "backwards" in the vector 'x' and reverse it
+diff --git a/sympy/matrices/tests/test_solvers.py b/sympy/matrices/tests/test_solvers.py
+index caef2233dce8..b400c84e5870 100644
+--- a/sympy/matrices/tests/test_solvers.py
++++ b/sympy/matrices/tests/test_solvers.py
+@@ -161,6 +161,27 @@ def test_QRsolve():
+     soln = A.QRsolve(b)
+     assert soln == x
+ 
++    # Test complex matrices (issue #31096)
++    Ac = Matrix([[1, I],
++                 [I, 2]])
++    xc = Matrix(2, 1, [1, 1])
++    bc = Ac * xc
++    soln = Ac.QRsolve(bc)
++    assert simplify(soln - xc) == Matrix.zeros(2, 1)
++    assert simplify(Ac * soln - bc) == Matrix.zeros(2, 1)
++
++    # Inversion via QR for complex matrices
++    inv_c = Ac.inv(method='QR')
++    assert simplify(inv_c * Ac) == eye(2)
++    assert simplify(Ac * inv_c) == eye(2)
++
++    # Multi-column RHS with complex entries
++    xc_multi = Matrix([[1 + I, 2], [-I, 3 - I]])
++    bc_multi = Ac * xc_multi
++    soln_multi = Ac.QRsolve(bc_multi)
++    assert simplify(soln_multi - xc_multi) == Matrix.zeros(2, 2)
++
++
+ def test_errors():
+     raises(ShapeError, lambda: Matrix([1]).LUsolve(Matrix([[1, 2], [3, 4]])))
+ 

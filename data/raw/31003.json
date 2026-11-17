@@ -1,0 +1,153 @@
+{
+  "additions": 147,
+  "author": "smichr",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\r\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\nLocal source: doc/src/contributing/pull-request-guidelines.rst\r\nKeep all section headings below. -->\r\n\r\n#### References to other Issues or PRs\r\n\r\nInspired by discussion in [report](https://groups.google.com/g/sympy/c/FJt8rP8XTDM) on mailing list. Objects like Derivative, Integral, etc... that have variables targeting variables in the expression of the object can benefit from having cse symbols replaced with functions whose arguments match the free symbols of the pattern they represent. This would allow doit to be applied to the cse result without having such objects collapse because they appear to be independent of the variables (when the cse symbol is used).\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\n```python\r\n>>> cse(exp(a)+Derivative(x + exp(a), x), postprocess=cse_to_functions)\r\n([(x0(a), exp(a))], [x0(a) + Derivative(x + x0(a), x)])\r\n>>> cse(x*exp(a)+Derivative(x + x*exp(a), x), postprocess=cse_to_functions)\r\n([(x0(a, x), x*exp(a))], [x0(a, x) + Derivative(x + x0(a, x), x)])\r\n>>> _[1][0].doit()\r\nx0(a, x) + Derivative(x0(a, x), x) + 1\r\n```\r\n\r\n#### Other comments\r\n\r\n\r\n#### AI Generation Disclosure\r\n\r\nThis is a collaboration with ChatGPT.\r\n\r\n#### Release Notes\r\n\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\n* simplify\r\n  * cse post-processor `cse_to_functions` is now available\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "Christopher Smith",
+      "message": "cse: add function-valued replacement postprocessor",
+      "sha": "f86ba5b94f017ebfcdd3083e18a90212954a1c5b"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "test function postprocessor and dependency-aware replacement",
+      "sha": "94aefbc15b17ff87cae8b2fd72a2843885eb3f91"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Preserve differentiation variables in CSE function arguments\n\nInclude freely occurring differentiation variables in variable_count order,\nupdating them through earlier replacements. Test ArraySymbol derivatives\nand argument ordering with repeated differentiation variables.\n\nGenerated with OpenAI Codex (GPT-6).",
+      "sha": "76f53913f6b424c55b635ef178847efa7c242cb6"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Limit CSE function arguments to matching differentiation variables\n\nTreat other symbols as parameters and use zero-argument functions when\nno differentiation variables match. Test parameter exclusion and name\ncollisions for zero-argument functions.\n\nGenerated with OpenAI Codex (GPT-6).",
+      "sha": "19f71c8b5cc100ad605aa8238ea7474dba5d7f1b"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "cse: do not extract symbol-like expressions\n\nTreat is_symbol objects consistently in CSE and preserve ArrayElement\nas the differentiation variable in function-valued CSE output.",
+      "sha": "dab6049a044aa0fc053e137bf2c0dd5d1111345d"
+    }
+  ],
+  "created_at": "2026-11-09T05:16:08Z",
+  "deletions": 6,
+  "diff": "diff --git a/sympy/simplify/cse_main.py b/sympy/simplify/cse_main.py\nindex aab21a6e80a2..071d6b81aba5 100644\n--- a/sympy/simplify/cse_main.py\n+++ b/sympy/simplify/cse_main.py\n@@ -5,15 +5,16 @@\n \n from sympy.core import Basic, Mul, Add, Pow, sympify\n from sympy.core.containers import Tuple, OrderedSet\n+from sympy.core.function import Function, AppliedUndef, Derivative\n from sympy.core.exprtools import factor_terms\n from sympy.core.singleton import S\n from sympy.core.sorting import ordered\n from sympy.core.symbol import symbols, Symbol\n+from sympy.core.traversal import preorder_traversal\n from sympy.matrices import (MatrixBase, Matrix, ImmutableMatrix,\n                             SparseMatrix, ImmutableSparseMatrix)\n from sympy.matrices.expressions import (MatrixExpr, MatrixSymbol, MatMul,\n                                         MatAdd, MatPow, Inverse)\n-from sympy.matrices.expressions.matexpr import MatrixElement\n from sympy.polys.rootoftools import RootOf\n from sympy.utilities.iterables import numbered_symbols, sift, \\\n         topological_sort, iterable\n@@ -41,6 +42,66 @@\n # ===============================================================\n \n \n+def cse_to_functions(replacements, reduced_expressions):\n+    \"\"\"Represent scalar CSE temporaries as functions of differentiation variables.\n+\n+    This can be passed as the ``postprocess`` argument to ``cse``. The\n+    replacement left-hand sides become applied undefined functions instead\n+    of independent Symbols, and their occurrences in later expressions\n+    are updated accordingly.\n+\n+    These are symbolic function definitions, not ordinary scalar assignments.\n+    Matrix-valued replacements are left unchanged.\n+\n+    Only differentiation variables occurring freely in a replacement are\n+    included as arguments, in their ``variable_count`` order. Other symbols\n+    are treated as parameters. Replacements with no matching differentiation\n+    variables become zero-argument functions.\n+\n+    Examples\n+    ========\n+\n+    >>> from sympy import cse, Derivative, Function, symbols\n+    >>> from sympy.simplify.cse_main import cse_to_functions\n+    >>> x = symbols('x')\n+    >>> f = Function('f')\n+    >>> cse(f(x)**2 + Derivative(f(x), x), postprocess=cse_to_functions)\n+    ([(x0(x), f(x))], [x0(x)**2 + Derivative(x0(x), x)])\n+    \"\"\"\n+    expressions = [rhs for _, rhs in replacements] + list(reduced_expressions)\n+    used_names = {\n+        node.func.__name__\n+        for expr in expressions\n+        for node in expr.atoms(AppliedUndef)\n+    }\n+    variables = OrderedSet(\n+        variable\n+        for expr in expressions\n+        for node in preorder_traversal(expr, keys=True)\n+        if isinstance(node, Derivative)\n+        for variable, _ in node.variable_count\n+    )\n+    converted = {}\n+    processed = []\n+    for sym, rhs in replacements:\n+        rhs = rhs.xreplace(converted)\n+        if isinstance(sym, Symbol):\n+            name = sym.name\n+            while name in used_names:\n+                name += '_'\n+            used_names.add(name)\n+            args = OrderedSet(\n+                variable for variable in\n+                (v.xreplace(converted) for v in variables)\n+                if rhs.has_xfree({variable})\n+            )\n+            func = Function(name)(*args)\n+            converted[sym] = func\n+            sym = func\n+        processed.append((sym, rhs))\n+    return processed, [expr.xreplace(converted) for expr in reduced_expressions]\n+\n+\n def reps_toposort(r):\n     \"\"\"Sort replacements ``r`` so (k1, v1) appears before (k2, v2)\n     if k2 is in v1's free symbols. This orders items in the\n@@ -618,9 +679,7 @@ def _find_repeated(expr):\n             return\n \n         if isinstance(expr, Basic) and (\n-                expr.is_Atom or\n-                expr.is_Order or\n-                isinstance(expr, (MatrixSymbol, MatrixElement))):\n+                expr.is_symbol or expr.is_Atom or expr.is_Order):\n             if expr.is_Symbol:\n                 excluded_symbols.add(expr.name)\n             return\ndiff --git a/sympy/simplify/tests/test_cse.py b/sympy/simplify/tests/test_cse.py\nindex 6a22626017d4..3e35990907e3 100644\n--- a/sympy/simplify/tests/test_cse.py\n+++ b/sympy/simplify/tests/test_cse.py\n@@ -7,7 +7,7 @@\n from sympy.core.add import Add\n from sympy.core.containers import Tuple\n from sympy.core.expr import UnevaluatedExpr\n-from sympy.core.function import Function\n+from sympy.core.function import Derivative, Function\n from sympy.core.mul import Mul\n from sympy.core.power import Pow\n from sympy.core.relational import Eq\n@@ -22,9 +22,10 @@\n from sympy.matrices.expressions import Inverse, MatAdd, MatMul, Transpose\n from sympy.polys.rootoftools import CRootOf\n from sympy.series.order import O\n-from sympy.simplify.cse_main import cse\n+from sympy.simplify.cse_main import cse, cse_to_functions\n from sympy.simplify.simplify import signsimp\n from sympy.tensor.indexed import (Idx, IndexedBase)\n+from sympy.tensor.array.expressions import ArraySymbol\n \n from sympy.core.function import count_ops\n from sympy.simplify.cse_opts import sub_pre, sub_post\n@@ -298,6 +299,87 @@ def test_pow_invpow():\n         ([(x0, x**(2*y))], [x0 + 1/x0])\n \n \n+def test_cse_to_functions():\n+    from sympy import Derivative\n+    from sympy.simplify.cse_main import cse_to_functions\n+\n+    f = Function('f')\n+    F = Function('x0')\n+    expr = f(x)**2 + Derivative(f(x), x)\n+    assert cse(expr, postprocess=cse_to_functions) == (\n+        [(F(x), f(x))], [F(x)**2 + Derivative(F(x), x)])\n+\n+    expr = Matrix([[f(x), Derivative(f(x), x)], [f(x)**2, f(x)]])\n+    assert cse(expr, postprocess=cse_to_functions) == (\n+        [(F(x), f(x))],\n+        [Matrix([[F(x), Derivative(F(x), x)], [F(x)**2, F(x)]])])\n+\n+\n+def test_cse_to_functions_dependencies_and_collision():\n+    from sympy import Derivative\n+    from sympy.simplify.cse_main import cse_to_functions\n+\n+    x0, x1 = symbols('x0 x1')\n+    F0, F1 = Function('x0'), Function('x1')\n+    assert cse_to_functions(\n+        [(x0, x + y), (x1, x0**2)], [Derivative(x1, x)]) == (\n+        [(F0(x), x + y), (F1(x), F0(x)**2)],\n+        [Derivative(F1(x), x)])\n+\n+    existing = F0(x)\n+    renamed = Function('x0_')(x)\n+    assert cse_to_functions(\n+        [(x0, sin(x))], [existing + Derivative(x0, x)]) == (\n+        [(renamed, sin(x))],\n+        [existing + Derivative(renamed, x)])\n+\n+\n+def test_cse_symbol_like_not_eliminated():\n+    # Symbol-like objects are not computations to be extracted by CSE.\n+    from sympy import Indexed, MatrixSymbol\n+\n+    i = Symbol('i')\n+    X = ArraySymbol('X', (3,))\n+    M = MatrixSymbol('M', 3, 3)\n+    for symbol_like in (Indexed('X', i), X[i], M[i, 0]):\n+        assert symbol_like.is_symbol\n+        assert cse([symbol_like, symbol_like]) == (\n+            [], [symbol_like, symbol_like])\n+\n+\n+def test_cse_to_functions_array_derivative():\n+    i = Symbol('i')\n+    X = ArraySymbol('X', (3,))\n+    f = Function('f')\n+    expr = f(X[i])**2 + Derivative(f(X[i]), X[i])\n+    F = Function('x0')(X[i])\n+    replacements, reduced = cse(expr, postprocess=cse_to_functions)\n+    assert replacements == [(F, f(X[i]))]\n+    assert reduced == [F**2 + Derivative(F, X[i])]\n+    assert reduced[0].doit() == reduced[0]\n+\n+\n+def test_cse_to_functions_derivative_argument_order():\n+    derivative = Derivative(Function('f')(x, y), (y, 2), x)\n+    F = Function('x0')(y, x)\n+    assert cse_to_functions([(x0, derivative + z)], [x0]) == (\n+        [(F, derivative + z)], [F])\n+\n+\n+def test_cse_to_functions_parameters():\n+    f = Function('f')\n+    F0, F1 = Function('x0'), Function('x1')\n+    assert cse_to_functions(\n+        [(x0, y*f(x)), (x1, z + y)], [Derivative(x0 + x1, x)]) == (\n+        [(F0(x), y*f(x)), (F1(), z + y)],\n+        [Derivative(F0(x) + F1(), x)])\n+\n+    existing = F0(x)\n+    renamed = Function('x0_')()\n+    assert cse_to_functions([(x0, y + z)], [existing + x0]) == (\n+        [(renamed, y + z)], [existing + renamed])\n+\n+\n def test_postprocess():\n     eq = (x + 1 + exp((x + 1)/(y + 1)) + cos(y + 1))\n     assert cse([eq, Eq(x, z + 1), z - 2, (z + 1)*(x + 1)],\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* simplify\n  * cse post-processor `cse_to_functions` is now available ([#31003](https://github.com/sympy/sympy/pull/31003) by [@smichr](https://github.com/smichr))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\r\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\n    Local source: doc/src/contributing/pull-request-guidelines.rst\r\n    Keep all section headings below. -->\r\n\r\n    #### References to other Issues or PRs\r\n\r\n    Inspired by discussion in [report](https://groups.google.com/g/sympy/c/FJt8rP8XTDM) on mailing list. Objects like Derivative, Integral, etc... that have variables targeting variables in the expression of the object can benefit from having cse symbols replaced with functions whose arguments match the free symbols of the pattern they represent. This would allow doit to be applied to the cse result without having such objects collapse because they appear to be independent of the variables (when the cse symbol is used).\r\n\r\n    #### Brief description of what is fixed or changed\r\n\r\n    ```python\r\n    >>> cse(exp(a)+Derivative(x + exp(a), x), postprocess=cse_to_functions)\r\n    ([(x0(a), exp(a))], [x0(a) + Derivative(x + x0(a), x)])\r\n    >>> cse(x*exp(a)+Derivative(x + x*exp(a), x), postprocess=cse_to_functions)\r\n    ([(x0(a, x), x*exp(a))], [x0(a, x) + Derivative(x + x0(a, x), x)])\r\n    >>> _[1][0].doit()\r\n    x0(a, x) + Derivative(x0(a, x), x) + 1\r\n    ```\r\n\r\n    #### Other comments\r\n\r\n\r\n    #### AI Generation Disclosure\r\n\r\n    This is a collaboration with ChatGPT.\r\n\r\n    #### Release Notes\r\n\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    * simplify\r\n      * cse post-processor `cse_to_functions` is now available\r\n    <!-- END RELEASE NOTES -->\r\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-09T05:16:11Z"
+    },
+    {
+      "author": "ThePauliPrinciple",
+      "body": "I tried this with an `Indexed` object and got the following:\r\n```python\r\nfrom sympy import cse, Derivative, Function, symbols\r\nfrom sympy.simplify.cse_main import cse_to_functions\r\nfrom sympy.abc import i\r\nfrom sympy.tensor.array.expressions import ArraySymbol\r\n\r\nX = ArraySymbol('X', (3,))\r\n#x = symbols('x')\r\nx = X[i]\r\nf = Function('f')\r\ncse(f(x)**2 + Derivative(f(x), x), postprocess=cse_to_functions)\r\n```\r\n```\r\n([(x0(X, i), X[i]), (x1(X, i), f(x0(X, i)))],\r\n [x1(X, i)**2 + Derivative(x1(X, i), x0(X, i))])\r\n```\r\nI expected `x0(X[i])` rather than `x0(X, i)`.",
+      "created_at": "2026-11-09T08:11:26Z"
+    },
+    {
+      "author": "smichr",
+      "body": "@ThePauliPrinciple We need a better way to recognize free_symbol-like objects.",
+      "created_at": "2026-11-09T20:43:51Z"
+    },
+    {
+      "author": "moorepants",
+      "body": "This looks like a nice addition. It would be helpful if you need to take the derivative of the simplified expressions, e.g.:\r\n\r\n```\r\nIn [1]: %paste\r\n    >>> from sympy import cse, Derivative, Function, symbols\r\n    >>> from sympy.simplify.cse_main import cse_to_functions\r\n    >>> x = symbols('x')\r\n    >>> f = Function('f')\r\n    >>> cse(f(x)**2 + Derivative(f(x), x), postprocess=cse_to_functions)\r\n\r\n## -- End pasted text --\r\nOut[2]: ([(x0(x), f(x))], [x0(x)**2 + Derivative(x0(x), x)])\r\n\r\nIn [3]: _[1][0].diff(x)\r\nOut[3]: 2*x0(x)*Derivative(x0(x), x) + Derivative(x0(x), (x, 2))\r\n\r\nIn [4]: expr = f(x)**2 + Derivative(f(x), x)\r\n\r\nIn [5]: cse(expr.diff(x))\r\nOut[5]: ([(x0, f(x))], [2*x0*Derivative(x0, x) + Derivative(x0, (x, 2))])\r\n```",
+      "created_at": "2026-11-10T13:41:30Z"
+    }
+  ],
+  "labels": [],
+  "linked": [],
+  "merge_commit_sha": "128ca843fc717319efa7a300217ae73f080bbf95",
+  "merged_at": "2026-11-12T01:33:11Z",
+  "number": 31003,
+  "review_comments": [
+    {
+      "author": "smichr",
+      "body": "notice that F0(x) not F0(x, y) and F1() not F1(y, z) -- we don't pollute function args with symbols that are constant wrt differentiation.",
+      "created_at": "2026-11-09T22:36:36Z",
+      "path": "sympy/simplify/tests/test_cse.py"
+    },
+    {
+      "author": "smichr",
+      "body": "Although F1 doesn't hurt, it's not really necessary, is it? But full Derivatives can be differentiation variables, too, and I think I would prefer to see those pulled out, so I am not sure where to draw the line.",
+      "created_at": "2026-11-09T22:42:14Z",
+      "path": "sympy/simplify/tests/test_cse.py"
+    },
+    {
+      "author": "ThePauliPrinciple",
+      "body": "You are right, it depends entirely on context. Maybe there can be some argument to `cse_to_functions`? In a way, I consider `X[i]` to be an \"atom\" eventhough in sympy it structurally is not. Maybe there is some way to define a list of \"non-atom\" differentiation variables?\r\n\r\nI don't think `x0() = X[i]` is helpful here to me, since `d x1(x0()) dX[i] = 0 ` because `x0()` does not depend on `X[i]`.\r\n\r\nMaybe it's just for the user to substitute their \"non-atom\" differentiation variables with `Symbol`s,  then running `cse_to_functions` and finally substituting them back.",
+      "created_at": "2026-11-10T09:31:38Z",
+      "path": "sympy/simplify/tests/test_cse.py"
+    },
+    {
+      "author": "smichr",
+      "body": "I will modify cse to ignore anything for which is_symbol is true -- see #30917 ",
+      "created_at": "2026-11-10T10:38:32Z",
+      "path": "sympy/simplify/tests/test_cse.py"
+    },
+    {
+      "author": "smichr",
+      "body": "OK, now line 358 shows the non-extracted \"symbol\" still acting as the Derivative variable.",
+      "created_at": "2026-11-10T10:41:03Z",
+      "path": "sympy/simplify/tests/test_cse.py"
+    },
+    {
+      "author": "ThePauliPrinciple",
+      "body": "That seems reasonable.\r\n\r\nNot really within the scope of this PR, but something to also consider\r\n\r\n```python\r\nfrom sympy import cse\r\nfrom sympy.simplify.cse_main import cse_to_functions\r\nfrom sympy.tensor.array.expressions import ArraySymbol\r\n\r\nX = ArraySymbol('X', (3,))\r\nA = ArraySymbol('A', (3,))\r\ncse(X*(X+A)+ X+A, postprocess=cse_to_functions)\r\n```\r\nSince `X.is_symbol == False` this runs into the same issue.\r\nRegardless, I don't think there is anything in `sympy` that is a symbol that maps a number of shaped symbols to an arbitrary shape.",
+      "created_at": "2026-11-10T11:07:47Z",
+      "path": "sympy/simplify/tests/test_cse.py"
+    },
+    {
+      "author": "smichr",
+      "body": "It can be modified if there is a use case.",
+      "created_at": "2026-11-11T05:44:02Z",
+      "path": "sympy/simplify/tests/test_cse.py"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-09T22:36:35Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-09T22:42:14Z"
+    },
+    {
+      "author": "ThePauliPrinciple",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T09:31:39Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T10:38:33Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T10:41:03Z"
+    },
+    {
+      "author": "ThePauliPrinciple",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T11:07:47Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-11T05:44:02Z"
+    }
+  ],
+  "title": "cse function postprocess"
+}

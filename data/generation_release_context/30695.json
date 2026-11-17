@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4363,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 11432,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 11432,
+      "cacheReadInputTokens": 17114,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0527274,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 528,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 30695,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"functions\",\"text\":\"Improved the performance of `stirling` for Stirling numbers of the first and second kind with the default algorithm, making it about twice as fast for large arguments.\"}],\"reasoning\":\"The diff changes the internal Stirling number recurrence to skip redundant computation, giving a roughly 2x speedup for users of `stirling`. Performance improvements affect end users, and nothing indicates this was a regression since 1.14.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "functions",
+        "text": "Improved the performance of `stirling` for Stirling numbers of the first and second kind with the default algorithm, making it about twice as fast for large arguments."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The diff changes the internal Stirling number recurrence to skip redundant computation, giving a roughly 2x speedup for users of `stirling`. Performance improvements affect end users, and nothing indicates this was a regression since 1.14."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30695/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30695/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30695/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "functions",
+            "text": "Improved the performance of `stirling` for Stirling numbers of the first and second kind with the default algorithm, making it about twice as fast for large arguments."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The diff changes the internal Stirling number recurrence to skip redundant computation, giving a roughly 2x speedup for users of `stirling`. Performance improvements affect end users, and nothing indicates this was a regression since 1.14."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0527274,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 11432,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 11432,
+    "cache_read_input_tokens": 17114,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 3904,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 3904,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 239,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 528,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

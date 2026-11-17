@@ -1,0 +1,32 @@
+{
+  "additions": 1,
+  "author": "hunterhogan",
+  "base": "master",
+  "body": "\ud83e\udd16 *This description was drafted by an AI agent (Claude Code).*\n\n#### References to other Issues or PRs\n\n\n#### Brief description of what is fixed or changed\n\nAnnotates `Basic.has`.\n\n#### Other comments\n\n#### AI Generation Disclosure\n\nClaude Code\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* core\n    * Annotations for `Basic.has`.\n<!-- END RELEASE NOTES -->\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n",
+  "changed_files": 1,
+  "commits": [
+    {
+      "author": "Hunter Hogan",
+      "message": "Annotate Basic.has patterns\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "1c3fff2f47349bfa90bcf2f1372b1214fadf7504"
+    }
+  ],
+  "created_at": "2026-11-13T06:26:55Z",
+  "deletions": 1,
+  "diff": "diff --git a/sympy/core/basic.py b/sympy/core/basic.py\nindex 6ee7f4ee718b..018f06d09caf 100644\n--- a/sympy/core/basic.py\n+++ b/sympy/core/basic.py\n@@ -1457,7 +1457,7 @@ def _xreplace(self, rule):\n         return self, False\n \n     @cacheit\n-    def has(self, *patterns) -> bool:\n+    def has(self, *patterns: Basic | type[Basic] | complex) -> bool:\n         \"\"\"\n         Test whether any subexpression matches any of the patterns.\n \n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* core\n  * Annotations for `Basic.has`. ([#31068](https://github.com/sympy/sympy/pull/31068) by [@hunterhogan](https://github.com/hunterhogan))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    \ud83e\udd16 *This description was drafted by an AI agent (Claude Code).*\n\n    #### References to other Issues or PRs\n\n\n    #### Brief description of what is fixed or changed\n\n    Annotates `Basic.has`.\n\n    #### Other comments\n\n    #### AI Generation Disclosure\n\n    Claude Code\n\n    #### Release Notes\n\n    <!-- BEGIN RELEASE NOTES -->\n    * core\n        * Annotations for `Basic.has`.\n    <!-- END RELEASE NOTES -->\n\n    \ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-13T06:27:00Z"
+    }
+  ],
+  "labels": [],
+  "linked": [],
+  "merge_commit_sha": "7924a87ec127f29216b80201e58a4f1436afca93",
+  "merged_at": "2026-11-13T14:48:30Z",
+  "number": 31068,
+  "review_comments": [],
+  "reviews": [],
+  "title": "\ud83e\udd16 Annotate Basic.has"
+}

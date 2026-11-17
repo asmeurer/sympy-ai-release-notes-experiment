@@ -1,0 +1,124 @@
+{
+  "additions": 51,
+  "author": "deadstrobe5",
+  "base": "master",
+  "body": "#### References to other Issues or PRs\n\nSpeeds up the cases in #10697 and #22240 (does not close them).\n\n#### Brief description of what is fixed or changed\n\n`Basic._subs` calls `_aresame(self, old)` on every node, and the fallback calls `_aresame` on every argument. Each call walked both subtrees in postorder, so a substitution cost roughly size times depth and was paid again for each pair in the mapping.\n\nWhen `approx` is None, `is_same` now returns True for the same object, returns False when the root classes differ (the old walk always ended with that same class check at the root), and compares two arg-less Basic leaves with `==` directly. The loop also tests `a is None or b is None` instead of `None in t`, which called `Basic.__eq__(None)` twice per node. The `approx` path is unchanged.\n\nSame-process A/B on CPython 3.14, median of 5 alternating runs, cache cleared before each run:\n\n| case | before | after | speedup |\n|---|---|---|---|\n| 8x8 Matrix.subs with a 200-symbol dict | 4872 ms | 1062 ms | 4.6x |\n| `((x+1)**2 + 1).subs(d)`, 3000-key dict (#10697) | 494 ms | 97 ms | 5.1x |\n| expanded `(x+y+z+w+1)**10`, `subs(x, t+1)` | 117 ms | 59 ms | 2.0x |\n| small expr subs x2000 | 652 ms | 454 ms | 1.4x |\n| `x.subs(x, k)` x5000 | 72 ms | 25 ms | 2.9x |\n\n#### Other comments\n\nA differential fuzz of the old and new `is_same` (and `subs`, `subs(simultaneous=True)`) over about 14,500 random expression pairs, including numbers, Floats, Tuples, non-commutative symbols, Python ints and the `equal_valued` approx, found no difference. The new test covers equal-but-distinct `UndefinedFunction` classes, which must still compare the same.\n\n#### AI Generation Disclosure\n\nClaude Code (Claude Opus 5.5) wrote all of the code and tests in this PR and ran the benchmarks and the old-vs-new comparisons quoted above.\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* core\n  * `subs` is faster, up to 5x for substitutions with large dicts, because `Basic.is_same` no longer walks identical or differently typed subtrees.\n<!-- END RELEASE NOTES -->\n",
+  "changed_files": 3,
+  "commits": [
+    {
+      "author": "deadstrobe5",
+      "message": "core: make subs faster by short-circuiting Basic.is_same",
+      "sha": "b83948e8e37518f6fc28f8b2253ea0a5c619c520"
+    },
+    {
+      "author": "deadstrobe5",
+      "message": "Sort .mailmap entry",
+      "sha": "00698092e2a362941d060fba7a01c06ab099288b"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "handle float('nan') like S.NaN",
+      "sha": "fc376ca9253edeef7142adfffab55793196bf580"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "handle float('nan') like S.NaN tests",
+      "sha": "12452f045518e46d96452d147fdefa0b2fb861f2"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "whitespace fix",
+      "sha": "9fa0787f78ff37f7accf9b458ebca9fcc1b9e424"
+    }
+  ],
+  "created_at": "2026-11-10T04:05:35Z",
+  "deletions": 5,
+  "diff": "diff --git a/.mailmap b/.mailmap\nindex e54858cb4f62..0778f5d68d65 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -1904,6 +1904,7 @@ cym1 <16437732+cym1@users.noreply.github.com>\n damianos <damianos@semmle.com>\n dandiez <47832466+dandiez@users.noreply.github.com>\n dboeckenhoff <daniel.f.boeckenhoff@googlemail.com>\n+deadstrobe5 <afonso.diamantino2@gmail.com>\n dengzi <2294612869@qq.com>\n der-blaue-elefant <github@kklein.de>\n dimasvq <dimas.vq.2020@bristol.ac.uk>\ndiff --git a/sympy/core/basic.py b/sympy/core/basic.py\nindex 64adf3ff620d..e17d65545346 100644\n--- a/sympy/core/basic.py\n+++ b/sympy/core/basic.py\n@@ -2346,18 +2346,24 @@ def is_same(a, b, approx=None):\n         False\n \n         \"\"\"\n+        if approx is None:\n+            if a is b:\n+                return True\n+            if a.__class__ != b.__class__:\n+                return False\n+            if isinstance(a, Basic) and not a.args and not b.args:\n+                return a == b\n         from .numbers import Number\n         from .traversal import postorder_traversal as pot\n-        for t in zip_longest(pot(a), pot(b)):\n-            if None in t:\n+        for a, b in zip_longest(pot(a), pot(b)):\n+            if a is None or b is None:\n                 return False\n-            a, b = t\n             if isinstance(a, Number):\n                 if not isinstance(b, Number):\n                     return False\n                 if approx:\n                     return approx(a, b)\n-            if not (a == b and a.__class__ == b.__class__):\n+            if not (a is b or a == b and a.__class__ == b.__class__):\n                 return False\n         return True\n \ndiff --git a/sympy/core/tests/test_subs.py b/sympy/core/tests/test_subs.py\nindex f7be746446cc..4d7d12c68cfd 100644\n--- a/sympy/core/tests/test_subs.py\n+++ b/sympy/core/tests/test_subs.py\n@@ -4,9 +4,11 @@\n \n from sympy.calculus.accumulationbounds import AccumBounds\n from sympy.core.add import Add\n+from sympy.core.cache import clear_cache\n from sympy.core.basic import Basic\n from sympy.core.containers import (Dict, Tuple)\n-from sympy.core.function import (Derivative, Function, Lambda, Subs)\n+from sympy.core.function import (Derivative, Function, Lambda, Subs,\n+    UndefinedFunction)\n from sympy.core.mul import Mul\n from sympy.core.numbers import (Float, I, Integer, Rational, oo, pi, zoo)\n from sympy.core.relational import Eq\n@@ -635,6 +637,43 @@ def test_issue_6079():\n     assert not _aresame(x, symbols('x', positive=True))\n \n \n+def test_aresame_identical_and_class():\n+    e = cos(x) + x**2\n+    assert _aresame(e, e)\n+    assert _aresame(e, cos(x) + x**2)\n+    assert not _aresame(e, cos(x))\n+    assert not _aresame(x, Basic(x))\n+    assert _aresame(Float(0.5), Float(0.5))\n+    assert not _aresame(Float(0.5), S.Half)\n+    assert not _aresame(x, y)\n+    assert not _aresame(Tuple(), Tuple(x))\n+    assert _aresame(2, 2)\n+    assert not _aresame(2, 3)\n+    f1 = UndefinedFunction('f', real=True)\n+    f1x = f1(x)\n+    clear_cache()\n+    f2 = UndefinedFunction('f', real=True)\n+    assert f2 is not f1\n+    assert _aresame(f1x, f2(x))\n+    # float('nan') behaves the same as S.NaN\n+    f1 = float('nan')\n+    f2 = float('nan')\n+    b1 = Basic(f1)\n+    b2 = Basic(f1)\n+\n+    assert f1 is not f2\n+    assert b1 is not b2\n+\n+    assert _aresame(f1, f1)\n+    assert not _aresame(f1, f2)\n+    assert _aresame(b1, b1)\n+    assert _aresame(b1, b2)\n+    assert not _aresame(b1, Basic(f2))\n+\n+    assert not _aresame(f1, S.NaN)\n+    assert not _aresame(b1, Basic(S.NaN))\n+\n+\n def test_issue_4680():\n     N = Symbol('N')\n     assert N.subs({\"N\": 3}) == 3\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* core\n  * `subs` is faster, up to 5x for substitutions with large dicts, because `Basic.is_same` no longer walks identical or differently typed subtrees. ([#31019](https://github.com/sympy/sympy/pull/31019) by [@deadstrobe5](https://github.com/deadstrobe5) and [@smichr](https://github.com/smichr))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    #### References to other Issues or PRs\n\n    Speeds up the cases in #10697 and #22240 (does not close them).\n\n    #### Brief description of what is fixed or changed\n\n    `Basic._subs` calls `_aresame(self, old)` on every node, and the fallback calls `_aresame` on every argument. Each call walked both subtrees in postorder, so a substitution cost roughly size times depth and was paid again for each pair in the mapping.\n\n    When `approx` is None, `is_same` now returns True for the same object, returns False when the root classes differ (the old walk always ended with that same class check at the root), and compares two arg-less Basic leaves with `==` directly. The loop also tests `a is None or b is None` instead of `None in t`, which called `Basic.__eq__(None)` twice per node. The `approx` path is unchanged.\n\n    Same-process A/B on CPython 3.14, median of 5 alternating runs, cache cleared before each run:\n\n    | case | before | after | speedup |\n    |---|---|---|---|\n    | 8x8 Matrix.subs with a 200-symbol dict | 4872 ms | 1062 ms | 4.6x |\n    | `((x+1)**2 + 1).subs(d)`, 3000-key dict (#10697) | 494 ms | 97 ms | 5.1x |\n    | expanded `(x+y+z+w+1)**10`, `subs(x, t+1)` | 117 ms | 59 ms | 2.0x |\n    | small expr subs x2000 | 652 ms | 454 ms | 1.4x |\n    | `x.subs(x, k)` x5000 | 72 ms | 25 ms | 2.9x |\n\n    #### Other comments\n\n    A differential fuzz of the old and new `is_same` (and `subs`, `subs(simultaneous=True)`) over about 14,500 random expression pairs, including numbers, Floats, Tuples, non-commutative symbols, Python ints and the `equal_valued` approx, found no difference. The new test covers equal-but-distinct `UndefinedFunction` classes, which must still compare the same.\n\n    #### AI Generation Disclosure\n\n    Claude Code (Claude Opus 5.5) wrote all of the code and tests in this PR and ran the benchmarks and the old-vs-new comparisons quoted above.\n\n    #### Release Notes\n\n    <!-- BEGIN RELEASE NOTES -->\n    * core\n      * `subs` is faster, up to 5x for substitutions with large dicts, because `Basic.is_same` no longer walks identical or differently typed subtrees.\n    <!-- END RELEASE NOTES -->\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-10T04:05:39Z"
+    },
+    {
+      "author": "smichr",
+      "body": "Having worked on `ordered` it is nice to see this change here. Thanks!",
+      "created_at": "2026-11-10T23:50:14Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "asmeurer",
+      "body": "If you have a large mapping, subs iterates over each term in the mapping, even if `simultaneous=True`. Contrast this with `xreplace`, which does the substitution all at once.\n\n```\nIn [18]: a = (x + 1)**2 + 1\n\nIn [19]: mapping = {Symbol('x%d' % i): i for i in range(10000)}\n\nIn [20]: %timeit a.subs(mapping)\n1 loop, best of 3: 4.93 s per loop\n\nIn [21]: %timeit a.subs(mapping, simultaneous=True)\n1 loop, best of 3: 8.04 s per loop\n\nIn [22]: %timeit a.xreplace(mapping)\n100000 loops, best of 3: 11.5 \u00b5s per loop\n```\n\n`subs` should only traverse an expression once when `simultaneous=True` (side note: I agree with the `XXX` comment in the code, simultaneous=True should be the default for dictionaries, maybe even the default always, but that's another issue). Even when simultaneous=False, it may be faster to recursively apply subs recursively to the mapping (in reverse), remove duplicates, and then apply the mapping all at once to the expression. We'd have to test it, but I suspect it would be faster, since in the common case the expression will be large and the terms in the mapping will be small. \n",
+      "is_pull_request": false,
+      "number": 10697,
+      "state": "open",
+      "title": "subs is too slow for large mappings"
+    },
+    {
+      "author": "nguyenthanhvuh",
+      "body": "Hi, it seems that the `.subs` function is quite slow. When I have a long expression `e` (can contain nonlinear terms like `x**2, y*x*z`), calling `e.subs(some_dict)` takes some noticeable time (two sec's or so). In fact `subs` is often slower than solving  large equations. Is there something obvious that I miss ?  My main goal is to just substitute variables in the expression with concrete values,   e.g.,  `x*y.subs({x:3}) = 3*y`",
+      "is_pull_request": false,
+      "number": 22240,
+      "state": "open",
+      "title": "subs is slow"
+    }
+  ],
+  "merge_commit_sha": "eb7faab0746b0524395846cc49726ebbd28d9d2f",
+  "merged_at": "2026-11-11T02:45:12Z",
+  "number": 31019,
+  "review_comments": [
+    {
+      "author": "smichr",
+      "body": "```suggestion\n            if not (a is b or a == b and a.__class__ == b.__class__):\n```",
+      "created_at": "2026-11-10T17:23:01Z",
+      "path": "sympy/core/basic.py"
+    },
+    {
+      "author": "smichr",
+      "body": "With that, then the following will pass (and should be added to tests):\n```python\nf1 = float('nan')\nf2 = float('nan')\nb1 = Basic(f1)\nb2 = Basic(f1)\n\nassert f1 is not f2\nassert b1 is not b2\n\nassert _aresame(f1, f1)\nassert not _aresame(f1, f2)\nassert _aresame(b1, b1)\nassert _aresame(b1, b2)\nassert not _aresame(b1, Basic(f2))\n\nassert not _aresame(f1, S.NaN)\nassert not _aresame(b1, Basic(S.NaN))\n```",
+      "created_at": "2026-11-10T17:23:49Z",
+      "path": "sympy/core/basic.py"
+    },
+    {
+      "author": "smichr",
+      "body": "```suggestion\n    assert _aresame(f1x, f2(x))\n    # float('nan') behaves the same as S.NaN\n    f1 = float('nan')\n    f2 = float('nan')\n    b1 = Basic(f1)\n    b2 = Basic(f1)\n    \n    assert f1 is not f2\n    assert b1 is not b2\n    \n    assert _aresame(f1, f1)\n    assert not _aresame(f1, f2)\n    assert _aresame(b1, b1)\n    assert _aresame(b1, b2)\n    assert not _aresame(b1, Basic(f2))\n    \n    assert not _aresame(f1, S.NaN)\n    assert not _aresame(b1, Basic(S.NaN))\n```",
+      "created_at": "2026-11-10T23:41:15Z",
+      "path": "sympy/core/tests/test_subs.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "This fails on PyPy.",
+      "created_at": "2026-11-11T16:09:08Z",
+      "path": "sympy/core/tests/test_subs.py"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T17:23:01Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T17:23:49Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T23:41:15Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-11T16:09:08Z"
+    }
+  ],
+  "title": "core: make subs faster by short-circuiting Basic.is_same"
+}

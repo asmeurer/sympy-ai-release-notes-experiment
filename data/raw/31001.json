@@ -1,0 +1,37 @@
+{
+  "additions": 4,
+  "author": "smichr",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\nLocal source: doc/src/contributing/pull-request-guidelines.rst\nKeep all section headings below. -->\n\n#### References to other Issues or PRs\n\n#### Brief description of what is fixed or changed\n\nIssue found while investigating [report](https://groups.google.com/g/sympy/c/FJt8rP8XTDM) on mailing list where apparently `cse` was capturing a symbol as a replacement pattern. This can be reproduced by introducing an UnevaluatedExpr which rebuilds to a symbol; the root cause for doing the rebuild (which was intended *not* to happen) was a test involving a tuple and list container which compared as unequal (and thus permitted the rebuild).\n\n\n#### Other comments\n\n\n#### AI Generation Disclosure\n\nAuthor noted issue and ChatGPT located the issue and suggested the correction and test which were added.\n\n#### Release Notes\n\n\n<!-- BEGIN RELEASE NOTES -->\n* simplify\n  * an inadvertent rebuild of an UnevaluateExpr is now avoided\n<!-- END RELEASE NOTES -->\n",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "Christopher Smith",
+      "message": "cse: use list(args) for comparison",
+      "sha": "5271d62a92d4cc6ad0b5cff9bf37953b0572ff94"
+    }
+  ],
+  "created_at": "2026-11-09T03:13:38Z",
+  "deletions": 1,
+  "diff": "diff --git a/sympy/simplify/cse_main.py b/sympy/simplify/cse_main.py\nindex 0541cfc5a3ea..aab21a6e80a2 100644\n--- a/sympy/simplify/cse_main.py\n+++ b/sympy/simplify/cse_main.py\n@@ -694,7 +694,7 @@ def _rebuild(expr):\n             args = expr.args\n \n         new_args = list(map(_rebuild, args))\n-        if isinstance(expr, Unevaluated) or new_args != args:\n+        if isinstance(expr, Unevaluated) or new_args != list(args):\n             new_expr = expr.func(*new_args)\n         else:\n             new_expr = expr\ndiff --git a/sympy/simplify/tests/test_cse.py b/sympy/simplify/tests/test_cse.py\nindex c111e607b2ae..6a22626017d4 100644\n--- a/sympy/simplify/tests/test_cse.py\n+++ b/sympy/simplify/tests/test_cse.py\n@@ -558,6 +558,9 @@ def test_cse_unevaluated():\n         msg = f'Expected common subexpression {xp1} or {-xp1}, instead got {ue}'\n         assert False, msg\n \n+    p = Pow(x, 1, evaluate=False)\n+    assert cse([p, p]) == ([(x0, p)], [x0, x0])\n+\n \n def test_cse__performance():\n     nexprs, nterms = 3, 20\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* simplify\n  * an inadvertent rebuild of an UnevaluateExpr is now avoided ([#31001](https://github.com/sympy/sympy/pull/31001) by [@smichr](https://github.com/smichr))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\n    Local source: doc/src/contributing/pull-request-guidelines.rst\n    Keep all section headings below. -->\n\n    #### References to other Issues or PRs\n\n    #### Brief description of what is fixed or changed\n\n    Issue found while investigating [report](https://groups.google.com/g/sympy/c/FJt8rP8XTDM) on mailing list where apparently `cse` was capturing a symbol as a replacement pattern. This can be reproduced by introducing an UnevaluatedExpr which rebuilds to a symbol; the root cause for doing the rebuild (which was intended *not* to happen) was a test involving a tuple and list container which compared as unequal (and thus permitted the rebuild).\n\n\n    #### Other comments\n\n\n    #### AI Generation Disclosure\n\n    Author noted issue and ChatGPT located the issue and suggested the correction and test which were added.\n\n    #### Release Notes\n\n\n    <!-- BEGIN RELEASE NOTES -->\n    * simplify\n      * an inadvertent rebuild of an UnevaluateExpr is now avoided\n    <!-- END RELEASE NOTES -->\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-09T03:13:46Z"
+    },
+    {
+      "author": "moorepants",
+      "body": "Here is the behavior in the latest release 1.14.0 (for reference):\r\n\r\n```\r\nIn [8]: import sympy as sm\r\n\r\nIn [9]: x = sm.symbols('x')\r\n\r\nIn [10]: p = sm.Pow(x, 1, evaluate=False)\r\n\r\nIn [11]: p\r\nOut[11]: x**1\r\n\r\nIn [12]: sm.cse([p, p])\r\nOut[12]: ([(x0, x)], [x0, x0])\r\n```",
+      "created_at": "2026-11-09T10:10:09Z"
+    }
+  ],
+  "labels": [],
+  "linked": [],
+  "merge_commit_sha": "81a4fafbf9c60c6ef434a495aaa34a03c65118fc",
+  "merged_at": "2026-11-09T04:54:01Z",
+  "number": 31001,
+  "review_comments": [],
+  "reviews": [],
+  "title": "cse: use list(args) for comparison"
+}

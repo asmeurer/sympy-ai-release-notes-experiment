@@ -1,0 +1,71 @@
+diff --git a/.github/workflows/checkconflict.yml b/.github/workflows/checkconflict.yml
+deleted file mode 100644
+index 39ac103ebfbf..000000000000
+--- a/.github/workflows/checkconflict.yml
++++ /dev/null
+@@ -1,32 +0,0 @@
+-name: "Maintenance"
+-on:
+-  # So that PRs touching the same files as the push are updated
+-  push:
+-  # So that the `dirtyLabel` is removed if conflicts are resolve
+-
+-  # XXX: This workflow needs to update labels on fork PRs, so it uses the
+-  # privileged pull_request_target event. Do not add checkout or shell steps
+-  # that consume PR-controlled data here.
+-
+-  pull_request_target: # zizmor: ignore[dangerous-triggers]
+-    types: [synchronize]
+-
+-concurrency:
+-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+-  cancel-in-progress: true
+-
+-permissions: {}
+-
+-jobs:
+-  main:
+-    name: Check Merge Conflicts
+-    permissions:
+-      pull-requests: read # to check if PR is mergeable.
+-      issues: write # to add and remove the merge-conflict label
+-    runs-on: ubuntu-latest
+-    steps:
+-      - name: Check if PRs have merge conflicts
+-        uses: eps1lon/actions-label-merge-conflict@0273be72a0bbd58fcd71d0d6c02c209b50d1e5e1 # v3.1.0
+-        with:
+-          dirtyLabel: "Merge conflict"
+-          repoToken: "${{ github.token }}"
+diff --git a/release/compare_tar_against_git.py b/release/compare_tar_against_git.py
+index 4ce381fd2915..83826994335e 100755
+--- a/release/compare_tar_against_git.py
++++ b/release/compare_tar_against_git.py
+@@ -36,7 +36,6 @@ def main(tarname, gitroot):
+     '.github/workflows/runtests.yml',
+     '.github/workflows/emscripten.yml',
+     '.github/workflows/release.yml',
+-    '.github/workflows/checkconflict.yml',
+     '.github/workflows/nightly-wheels.yml',
+     '.github/workflows/zizmor.yml',
+     '.ci/durations.json',
+diff --git a/sympy/core/tests/test_subs.py b/sympy/core/tests/test_subs.py
+index 4d7d12c68cfd..d3f7f7215123 100644
+--- a/sympy/core/tests/test_subs.py
++++ b/sympy/core/tests/test_subs.py
+@@ -661,14 +661,13 @@ def test_aresame_identical_and_class():
+     b1 = Basic(f1)
+     b2 = Basic(f1)
+ 
+-    assert f1 is not f2
+     assert b1 is not b2
+ 
+     assert _aresame(f1, f1)
+-    assert not _aresame(f1, f2)
++    assert _aresame(f1, f2) == (f1 is f2)
+     assert _aresame(b1, b1)
+     assert _aresame(b1, b2)
+-    assert not _aresame(b1, Basic(f2))
++    assert _aresame(b1, Basic(f2)) == (f1 is f2)
+ 
+     assert not _aresame(f1, S.NaN)
+     assert not _aresame(b1, Basic(S.NaN))

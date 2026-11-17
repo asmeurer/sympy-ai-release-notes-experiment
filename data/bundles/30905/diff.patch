@@ -1,0 +1,78 @@
+diff --git a/.mailmap b/.mailmap
+index 8cb2cc06a13c..ebd75ac4fdfd 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -388,6 +388,7 @@ Arthur Milchior <arthur@milchior.fr>
+ Arthur Ryman <arthur.ryman@gmail.com>
+ Arun Singh <arunsin997@gmail.com> Arun Singh <erarungwl2013@gmail.com>
+ Arun sanganal <74652697+ArunSanganal@users.noreply.github.com>
++Arya Patel <aryapatel7899@gmail.com>
+ Aryan Vishwakarma <aryanvishwakarma275@gmail.com> Aryan-202 <aryanvishwakarma275@gmail.com>
+ Ashish Kumar Gaurav <ashishkg0022@gmail.com>
+ Ashutosh Hathidara <ashutoshhathidara98@gmail.com>
+diff --git a/sympy/printing/numpy.py b/sympy/printing/numpy.py
+index e7f4a31f7594..220b3879676a 100644
+--- a/sympy/printing/numpy.py
++++ b/sympy/printing/numpy.py
+@@ -263,6 +263,9 @@ def _print_Mod(self, expr):
+         return "%s(%s)" % (self._module_format(self._module + '.mod'), ', '.join(
+             (self._print(arg) for arg in expr.args)))
+ 
++    def _print_frac(self, expr):
++        return "%s(%s, 1)" % (self._module_format(self._module + '.mod'), self._print(expr.args[0]))
++
+     def _print_re(self, expr):
+         return "%s(%s)" % (self._module_format(self._module + '.real'), self._print(expr.args[0]))
+ 
+diff --git a/sympy/printing/pycode.py b/sympy/printing/pycode.py
+index 1a7aa71e01c9..52f95cd61ae0 100644
+--- a/sympy/printing/pycode.py
++++ b/sympy/printing/pycode.py
+@@ -664,7 +664,7 @@ def _print_Half(self, expr):
+         return self._print_Rational(expr)
+ 
+     def _print_frac(self, expr):
+-        return self._print_Mod(Mod(expr.args[0], 1))
++        return '({})'.format(self._print_Mod(Mod(expr.args[0], 1)))
+ 
+     def _print_Symbol(self, expr):
+ 
+diff --git a/sympy/printing/tests/test_pycode.py b/sympy/printing/tests/test_pycode.py
+index 92fa44674a5d..5b3d21dad69c 100644
+--- a/sympy/printing/tests/test_pycode.py
++++ b/sympy/printing/tests/test_pycode.py
+@@ -293,7 +293,11 @@ def test_frac():
+     assert prntr.doprint(expr) == 'numpy.mod(x, 1)'
+ 
+     prntr = PythonCodePrinter()
+-    assert prntr.doprint(expr) == 'x % 1'
++    assert prntr.doprint(expr) == '(x % 1)'
++    assert prntr.doprint(2*expr) == '2*(x % 1)'
++    assert prntr.doprint(-expr) == '-(x % 1)'
++    assert prntr.doprint(expr**2) == '(x % 1)**2'
++    assert prntr.doprint(x*expr) == 'x*(x % 1)'
+ 
+     prntr = MpmathPrinter()
+     assert prntr.doprint(expr) == 'mpmath.frac(x)'
+diff --git a/sympy/utilities/tests/test_lambdify.py b/sympy/utilities/tests/test_lambdify.py
+index 47a2f4162b82..3987e223e52d 100644
+--- a/sympy/utilities/tests/test_lambdify.py
++++ b/sympy/utilities/tests/test_lambdify.py
+@@ -20,7 +20,7 @@
+ from sympy.functions.elementary.complexes import Abs, sign
+ from sympy.functions.elementary.exponential import exp, log
+ from sympy.functions.elementary.hyperbolic import asinh,acosh,atanh
+-from sympy.functions.elementary.integers import floor
++from sympy.functions.elementary.integers import floor, frac
+ from sympy.functions.elementary.miscellaneous import (Max, Min, sqrt)
+ from sympy.functions.elementary.piecewise import Piecewise
+ from sympy.functions.elementary.trigonometric import (asin, acos, atan, cos, cot, sin,
+@@ -2331,3 +2331,8 @@ def test_issue_28803_jointrandonsymbol_recursion():
+ 
+     # Should not raise RecursionError
+     lambdify(a, z * a)
++
++
++def test_frac_math():
++    f = lambdify(x, [2*frac(x), -frac(x), frac(x)**2], 'math')
++    assert f(1.75) == [1.5, -0.75, 0.5625]

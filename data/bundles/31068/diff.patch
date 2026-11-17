@@ -1,0 +1,13 @@
+diff --git a/sympy/core/basic.py b/sympy/core/basic.py
+index 6ee7f4ee718b..018f06d09caf 100644
+--- a/sympy/core/basic.py
++++ b/sympy/core/basic.py
+@@ -1457,7 +1457,7 @@ def _xreplace(self, rule):
+         return self, False
+ 
+     @cacheit
+-    def has(self, *patterns) -> bool:
++    def has(self, *patterns: Basic | type[Basic] | complex) -> bool:
+         """
+         Test whether any subexpression matches any of the patterns.
+ 

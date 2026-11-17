@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "NO AI USE",
+  "author": "knowprasad",
+  "entries": [
+    {
+      "submodule": "printing",
+      "text": "Parenthesize `Relational` and `Contains` arguments of `Not` in LaTeX, Pretty, and MathML printers."
+    }
+  ],
+  "merged_at": "2026-11-10T09:56:36Z",
+  "number": 30982,
+  "overlap": {
+    "title_similarity": 0.7928994082840237,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* printing\n  * Parenthesize `Relational` and `Contains` arguments of `Not` in LaTeX, Pretty, and MathML printers.",
+  "status": "entry",
+  "title": "printing: parenthesize Relational and Contains in Not for LaTeX, pretty, and MathML"
+}

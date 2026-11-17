@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "The code, tests and commit message were written with Claude (Anthropic, model Claude Opus 5.5) using Claude Code. This covers all changed lines in sympy/printing/pycode.py, sympy/printing/numpy.py, sympy/printing/tests/test_pycode.py and sympy/utilities/tests/test_lambdify.py. I reviewed the change and ran the tests myself. The PR description above is written by me.",
+  "author": "Aryapatel-007",
+  "entries": [
+    {
+      "submodule": "printing",
+      "text": "Fixed `pycode` and `lambdify` with the `math` module giving wrong results for expressions containing `frac`, such as `2*frac(x)`, which was printed as `2*x % 1`."
+    }
+  ],
+  "merged_at": "2026-11-05T17:13:18Z",
+  "number": 30905,
+  "overlap": {
+    "title_similarity": 0.2430939226519337,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* printing\n  * Fixed `pycode` and `lambdify` with the `math` module giving wrong results for expressions containing `frac`, such as `2*frac(x)`, which was printed as `2*x % 1`.",
+  "status": "entry",
+  "title": "Parenthesize frac in PythonCodePrinter"
+}

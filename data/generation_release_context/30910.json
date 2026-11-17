@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4605,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 11170,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 11170,
+      "cacheReadInputTokens": 17114,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0522494,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 585,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 30910,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"core\",\"text\":\"Fixed `Lambda.subs` so that it no longer substitutes expressions containing a bound variable of the `Lambda`. For example, `Lambda(x, x**2).subs(x**2, z)` now returns `Lambda(x, x**2)` instead of `Lambda(x, z)`.\"}],\"reasoning\":\"The diff changes `Lambda._subs` so it returns the Lambda unchanged whenever `old` shares free symbols with the bound variables. This fixes wrong results for users. Nothing indicates the bug is new since 1.14.0, so it gets an entry.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "core",
+        "text": "Fixed `Lambda.subs` so that it no longer substitutes expressions containing a bound variable of the `Lambda`. For example, `Lambda(x, x**2).subs(x**2, z)` now returns `Lambda(x, x**2)` instead of `Lambda(x, z)`."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The diff changes `Lambda._subs` so it returns the Lambda unchanged whenever `old` shares free symbols with the bound variables. This fixes wrong results for users. Nothing indicates the bug is new since 1.14.0, so it gets an entry."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30910/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30910/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30910/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "core",
+            "text": "Fixed `Lambda.subs` so that it no longer substitutes expressions containing a bound variable of the `Lambda`. For example, `Lambda(x, x**2).subs(x**2, z)` now returns `Lambda(x, x**2)` instead of `Lambda(x, z)`."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The diff changes `Lambda._subs` so it returns the Lambda unchanged whenever `old` shares free symbols with the bound variables. This fixes wrong results for users. Nothing indicates the bug is new since 1.14.0, so it gets an entry."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0522494,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 11170,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 11170,
+    "cache_read_input_tokens": 17114,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 3642,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 3642,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 296,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 585,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

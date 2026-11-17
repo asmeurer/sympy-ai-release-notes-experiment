@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "OpenAI Codex (GPT-6 Astra) generated all changes in `sympy/codegen/cfunctions.py`, `sympy/codegen/numpy_nodes.py`, `sympy/codegen/scipy_nodes.py`, and their corresponding test files.",
+  "author": "raman118",
+  "entries": [
+    {
+      "submodule": "codegen",
+      "text": "Fixed numerical evaluation of `log2`, `logaddexp`, `logaddexp2`, `cosm1`, and `powm1` treating binary precision as decimal digits and computing at unnecessarily high precision."
+    }
+  ],
+  "merged_at": "2026-11-09T19:27:12Z",
+  "number": 30963,
+  "overlap": {
+    "title_similarity": 0.2119815668202765,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* codegen\n  * Fixed numerical evaluation of `log2`, `logaddexp`, `logaddexp2`, `cosm1`, and `powm1` treating binary precision as decimal digits and computing at unnecessarily high precision.",
+  "status": "entry",
+  "title": "Respect binary precision in codegen numerical evaluation"
+}

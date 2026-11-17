@@ -1,0 +1,32 @@
+{
+  "additions": 20,
+  "author": "smichr",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\r\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\nLocal source: doc/src/contributing/pull-request-guidelines.rst\r\nKeep all section headings below. -->\r\n\r\n#### References to other Issues or PRs\r\n\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\nMod has precedence like Mul so it printed with parentheses surrounding it when it appeared as a factor in an expression. This is not necessary since it is not shown in inline form. The printing need for parentheses is now handled in the printers while leaving the global precedence unchanged.\r\n\r\n#### Other comments\r\n\r\n\r\n#### AI Generation Disclosure\r\n\r\nCollaborative effort with ChatGPT after identifying the issue while working on other Mod related issues.\r\n\r\n#### Release Notes\r\n\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\nNO ENTRY\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 3,
+  "commits": [
+    {
+      "author": "Christopher Smith",
+      "message": "print Mod like a Function w/o parens",
+      "sha": "dbffeac4c5ace628e33f1a7baa34457c58bc7044"
+    }
+  ],
+  "created_at": "2026-11-11T18:58:52Z",
+  "deletions": 1,
+  "diff": "diff --git a/sympy/printing/codeprinter.py b/sympy/printing/codeprinter.py\nindex 8472fb2b195e..ad89b112c017 100644\n--- a/sympy/printing/codeprinter.py\n+++ b/sympy/printing/codeprinter.py\n@@ -54,6 +54,7 @@ class CodePrinter(StrPrinter):\n     \"\"\"\n     The base class for code-printing subclasses.\n     \"\"\"\n+    _mod_precedence = PRECEDENCE[\"Mul\"]\n \n     _operators = {\n         'and': '&&',\ndiff --git a/sympy/printing/str.py b/sympy/printing/str.py\nindex 56f5247a748b..c602f5461f01 100644\n--- a/sympy/printing/str.py\n+++ b/sympy/printing/str.py\n@@ -7,6 +7,7 @@\n \n from sympy.core import S, Rational, Pow, Basic, Mul, Number, UnevaluatedExpr\n from sympy.core.function import Lambda\n+from sympy.core.mod import Mod\n from sympy.core.mul import _keep_coeff\n from sympy.core.numbers import Integer\n from sympy.core.relational import Relational\n@@ -24,6 +25,9 @@\n \n class StrPrinter(Printer):\n     printmethod = \"_sympystr\"\n+\n+    _mod_precedence = PRECEDENCE[\"Func\"]\n+\n     _default_settings: dict[str, Any] = {\n         \"order\": None,\n         \"full_prec\": \"auto\",\n@@ -38,7 +42,8 @@ class StrPrinter(Printer):\n     _relationals: dict[str, str] = {}\n \n     def parenthesize(self, item, level, strict=False):\n-        if (precedence(item) < level) or ((not strict) and precedence(item) <= level):\n+        prec = self._mod_precedence if isinstance(item, Mod) else precedence(item)\n+        if prec < level or (not strict and prec <= level):\n             return \"(%s)\" % self._print(item)\n         else:\n             return self._print(item)\ndiff --git a/sympy/printing/tests/test_str.py b/sympy/printing/tests/test_str.py\nindex bd170781e9c3..fc64b7113a91 100644\n--- a/sympy/printing/tests/test_str.py\n+++ b/sympy/printing/tests/test_str.py\n@@ -9,6 +9,7 @@\n from sympy.core.containers import (Dict, Tuple)\n from sympy.core.expr import UnevaluatedExpr, Expr\n from sympy.core.function import (Derivative, Function, Lambda, Subs, WildFunction)\n+from sympy.core.mod import Mod\n from sympy.core.mul import Mul\n from sympy.core import (Catalan, EulerGamma, GoldenRatio, TribonacciConstant)\n from sympy.core.numbers import (E, Float, I, Integer, Rational, nan, oo, pi, zoo)\n@@ -1360,3 +1361,15 @@ def test_printing_stats():\n def test_issue_30343():\n     f = Function('f')\n     assert str(f(nan) + f(1)) == \"f(nan) + f(1)\"\n+\n+\n+def test_Mod():\n+    m = Mod(x, y, evaluate=False)\n+    assert str(3*m) == \"3*Mod(x, y)\"\n+    assert str(m*sin(x)) == \"sin(x)*Mod(x, y)\"\n+    assert str(m**2) == \"Mod(x, y)**2\"\n+    assert str(1/m) == \"1/Mod(x, y)\"\n+    assert str(m*Mod(x + 1, y, evaluate=False)) == \\\n+        \"Mod(x, y)*Mod(x + 1, y)\"\n+    assert str(Mod(12**(x + 1), 21)) == \\\n+        \"3*Mod(12**(x + 1)/3, 7)\"\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\n* No release notes entry will be added for this pull request.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\r\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\r\n    Local source: doc/src/contributing/pull-request-guidelines.rst\r\n    Keep all section headings below. -->\r\n\r\n    #### References to other Issues or PRs\r\n\r\n\r\n    #### Brief description of what is fixed or changed\r\n\r\n    Mod has precedence like Mul so it printed with parentheses surrounding it when it appeared as a factor in an expression. This is not necessary since it is not shown in inline form. The printing need for parentheses is now handled in the printers while leaving the global precedence unchanged.\r\n\r\n    #### Other comments\r\n\r\n\r\n    #### AI Generation Disclosure\r\n\r\n    Collaborative effort with ChatGPT after identifying the issue while working on other Mod related issues.\r\n\r\n    #### Release Notes\r\n\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    NO ENTRY\r\n    <!-- END RELEASE NOTES -->\r\n\n\n</details><p>\n",
+      "created_at": "2026-11-11T18:58:57Z"
+    }
+  ],
+  "labels": [],
+  "linked": [],
+  "merge_commit_sha": "71230155ce20818370c6fe9e28cc7d23cb984e31",
+  "merged_at": "2026-11-12T06:38:12Z",
+  "number": 31044,
+  "review_comments": [],
+  "reviews": [],
+  "title": "print Mod like a Function w/o parens"
+}

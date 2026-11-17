@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "Author noted issue and ChatGPT located the issue and suggested the correction and test which were added.",
+  "author": "smichr",
+  "entries": [
+    {
+      "submodule": "simplify",
+      "text": "an inadvertent rebuild of an UnevaluateExpr is now avoided"
+    }
+  ],
+  "merged_at": "2026-11-09T04:54:01Z",
+  "number": 31001,
+  "overlap": {
+    "title_similarity": 0.24444444444444444,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* simplify\n  * an inadvertent rebuild of an UnevaluateExpr is now avoided",
+  "status": "entry",
+  "title": "cse: use list(args) for comparison"
+}

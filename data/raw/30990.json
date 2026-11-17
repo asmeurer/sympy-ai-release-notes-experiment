@@ -1,0 +1,425 @@
+{
+  "additions": 81,
+  "author": "hunterhogan",
+  "base": "master",
+  "body": "\ud83e\udd16 *This description was drafted by an AI agent (Claude Code) and revised by Hunter Hogan.*\n\n#### References to other Issues or PRs\n\nRelated typing PRs: #30946 (`solveset`), #30965 (`piecewise_fold`).\n\n#### Brief description of what is fixed or changed\n\n- Annotates `Basic.xreplace` and adds type-checking-only overloads for some subclasses. \n- `Atom.xreplace` replaced by `Atom._xreplace`\n- Change `rule` parameter dictionary keys to TypeVars.\n\n#### Other comments\n\n<details><summary>Other</summary>\n- `TensExpr.xreplace` needs `# type: ignore[override]`: mypy rejects a leading overload that `Expr.xreplace` lacks.\n- Known gap: a `Symbol` statically typed as `Boolean` matches `Boolean`'s `Expr`-to-`Expr` overload, so `p.xreplace({p: sin(x)})` is typed `Boolean`.\n</details>\n\n#### AI Generation Disclosure\n\nGenerated with Claude Code (Claude Opus 5.5), Hunter Hogan, and Predator Energy Drink.\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* core\n  * Added type annotations for `xreplace`.\n  * Removed the unused `hack2` keyword argument from `Atom.xreplace`.\n<!-- END RELEASE NOTES -->\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n",
+  "changed_files": 8,
+  "commits": [
+    {
+      "author": "Hunter Hogan",
+      "message": "Annotate Basic.xreplace\n\nBasic.xreplace takes Mapping[Any, Basic] and returns Basic. Expr and\nBoolean get TYPE_CHECKING overloads next to their subs overloads: Expr\nvalues on an Expr give Expr, and Expr or Boolean values on a Boolean\ngive Boolean. Keys are Any because Mapping keys are invariant.\n\n_xreplace no longer rebinds args from a list to a tuple, which mypy\nrejects; self.func(*args) unpacks either.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "053727223c7141d312f82adf7904bb4c0c90cca5"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Ignore Poly.xreplace result types in summations\n\nnumer and denom are Poly, which is a Basic but not an Expr, so the\nannotated xreplace returns Basic; at runtime it returns a Poly.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "dde7e7ae5906fd854425566668afcc1757590acb"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Type xreplace rule keys as Basic instead of Any\n\nThe public xreplace signatures take Mapping[Tbasic, Basic], with Tbasic\nbound to Basic, so keys must be Basic (xreplace does not sympify) and a\ndict[Symbol, Expr] is still accepted even though Mapping keys are\ninvariant. The private _xreplace keeps Mapping[Any, Basic]: it looks up\nrule[self] with a Basic, which typeshed only allows for the mapping's own\nkey type.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "b0c993cb398b9b5a3dcdfc69f963783043569743"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Replace Atom.xreplace with Atom._xreplace\n\nAtom.xreplace was an untyped override with a hack2 parameter that nothing\nuses since Basic.xreplace dropped it. Because Atom precedes Expr in the\nMRO of AtomicExpr, it hid Expr's xreplace overloads, so x.xreplace(...)\nwas untyped for every Symbol and number. Atoms now use Basic.xreplace and\noverride _xreplace, which keeps them from recursing into args.\n\nWithout the override, NewSymbol in test_tensor needs an xreplace stub to\nsatisfy mypy, like its existing subs and simplify stubs.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "eff72f140b6824c04b75691b44726d86efbcd783"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Declare xreplace result types for Poly and Set\n\nPoly.xreplace returns the same kind of Poly, so a TYPE_CHECKING stub\nreturns Self and the type: ignore comments in summations.py are no longer\nneeded. Set gets overloads like Boolean's: Expr or Set values give a Set,\nother Basic values give Basic. As with Boolean, this is unsound only when\na rule key is the whole set.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "3515b64aba4bc303f32a9afdfc5a87189ab04dde"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Type MatrixBase.xreplace rule values as Expr\n\nMatrix entries are Expr, so with Expr rule values each entry's xreplace\nreturns Expr and applyfunc type checks without type: ignore. Keys are\nBasic, as in Basic.xreplace, since neither sympifies the rule.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "45d1ae1ea8e2cbe0b523f147fb1b8e6723df645d"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "troubleshooting Basic._xreplace. Basic.func property is the locus of the problem.",
+      "sha": "7055f8ad6bc1edad7b6432987202b5a414cea0e8"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Derive xreplace result types from func returning type[Self]\n\nBasic.func returns self.__class__, so it is annotated as type[Self] and\nrebuilding a node with self.func(*args) gives the receiver's type. With\nthat, Basic.xreplace takes Mapping[Tbasic, Tvalue] and returns\nSelf | Tvalue: either the rebuilt node or a value from the rule. Self is\nresolved for every subclass, so the hand-written xreplace overloads in\nExpr, Boolean and Set are removed, along with the imports only they used.\nPoly keeps its stub returning Self.\n\nLike Expr.__new__ -> Self, this does not account for evaluation changing\nthe class (Mul(2, S.Half) is 1).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "0e1fdc20e3868df8032861db7e6d21219d26b4f8"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Annotate Basic.func as Callable[..., Self]\n\ntype[Self] made generic rebuilds like expr.func(*args) check args against\none class's constructor signature (Add, Mul and Pow differ), which failed\nin simplify.py. func is used as a rebuild callable, so Callable[..., Self]\nstates its contract.\n\nAdd.as_numer_denom rebound n from a list to an Expr; the rebuilt\nnumerator and denominator now go straight into the return.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "03adc634a6d034b267338c98247ed185f05529a5"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Add Tvalue doc target and fix docstring typos\n\nSphinx needs a py:class target for the Tvalue TypeVar in the\nxreplace signature, as it has for Tbasic.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "96315c1b1dbc972930338056a02de29d3e2c87eb"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Declare Set.xreplace as returning Set\n\nBasic.xreplace returns Self | Tvalue, where Tvalue covers a rule key that\nis the whole expression. For a Set that case would need the set itself as\na key, so Set.xreplace returns Set, like Poly.xreplace returns Poly. This\nanticipates gh-30946, which annotates solveset as returning Set and\nassigns Set.xreplace results to Set variables.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "dce710f3e5eb0d574e1a50b94b62a8bb8ae11975"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Type xreplace results per family instead of with Self\n\nRebuilding an expression evaluates, so (x + y).xreplace({y: x}) is a Mul\nalthough the receiver is an Add. Self promised an Add. The type that\nsurvives evaluation is the family, so Basic.xreplace returns Basic and\nExpr, Boolean, and Set declare overloads like their subs overloads.\nBasic.func is unannotated again, and Add.as_numer_denom is restored.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "b83b7a881ac7c5eff5c29923dfa8e9a4844d01ad"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "type-checking-only TensExpr.xreplace. Suppress \"illegal\" override diagnostic. Remove now-unnecessary suppressions.",
+      "sha": "7a2a628f7ae0fe66a25dc923e69d0c08940805ba"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Add overloads to Set.xreplace and Boolean.xreplace and new tests to confirm the types.",
+      "sha": "5680699643135a2e8c025c39fe903656bd9f9d9b"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Split Poly.xreplace overloads and test xreplace result types\n\nPoly.xreplace({poly: sin(1)}) returns sin(1), so only rules mapping\nExpr keys to Expr values keep the Poly type; other rules give Basic.\n\nAdd type tests (runtime asserts plus assert_type under TYPE_CHECKING)\nfor Basic, Expr, Poly, MatrixBase, and TensExpr xreplace.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "e6a3081b1607ad6c5f147f9a350affd46e6a7a01"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Remove xreplace typing tests\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "987230ac2a5a70cd55dfc8ae70aa5699277dab95"
+    }
+  ],
+  "created_at": "2026-11-08T12:06:14Z",
+  "deletions": 14,
+  "diff": "diff --git a/sympy/core/basic.py b/sympy/core/basic.py\nindex 018f06d09caf..901fc4773f7a 100644\n--- a/sympy/core/basic.py\n+++ b/sympy/core/basic.py\n@@ -404,7 +404,7 @@ def compare(self, other):\n         comparison is based on the class name.\n         If the names are the same then a comparison is made\n         on the length of the hashable content.\n-        Items of the equal-lengthed contents are then\n+        Items of the equal-length contents are then\n         successively compared using the same rules. If there\n         is never a difference then 0 is returned.\n \n@@ -1372,7 +1372,7 @@ def _eval_subs(self, old: Basic, new: Basic) -> Basic | None:\n         \"\"\"\n         return None\n \n-    def xreplace(self, rule):\n+    def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic:\n         \"\"\"\n         Replace occurrences of objects within the expression.\n \n@@ -1439,14 +1439,14 @@ def xreplace(self, rule):\n         value, _ = self._xreplace(rule)\n         return value\n \n-    def _xreplace(self, rule):\n+    def _xreplace(self, rule: Mapping[Any, Basic]) -> tuple[Basic, bool]:\n         \"\"\"\n         Helper for xreplace. Tracks whether a replacement actually occurred.\n         \"\"\"\n         if self in rule:\n             return rule[self], True\n         elif rule:\n-            args = []\n+            args: list[Basic] = []\n             changed = False\n             for a in self.args:\n                 a, achanged = a._xreplace(rule)\n@@ -2261,7 +2261,7 @@ def _exec_constructor_postprocessors(cls, obj):\n         # WARNING: This API is experimental.\n \n         # This is an experimental API that introduces constructor\n-        # postprosessors for SymPy Core elements. If an argument of a SymPy\n+        # postprocessors for SymPy Core elements. If an argument of a SymPy\n         # expression has a `_constructor_postprocessor_mapping` attribute, it will\n         # be interpreted as a dictionary containing lists of postprocessing\n         # functions for matching expression node names.\n@@ -2403,8 +2403,10 @@ def matches(self, expr, repl_dict=None, old=False):\n                 return {}\n             return repl_dict.copy()\n \n-    def xreplace(self, rule, hack2=False):\n-        return rule.get(self, self)\n+    def _xreplace(self, rule: Mapping[Any, Basic]) -> tuple[Basic, bool]:\n+        if self in rule:\n+            return rule[self], True\n+        return self, False\n \n     def doit(self, **hints):\n         return self\ndiff --git a/sympy/core/expr.py b/sympy/core/expr.py\nindex a58216ddacf5..6e38bb28f899 100644\n--- a/sympy/core/expr.py\n+++ b/sympy/core/expr.py\n@@ -22,11 +22,14 @@\n \n \n if TYPE_CHECKING:\n-    from typing import Any, Hashable\n+    from typing import Any, Hashable, TypeVar\n     from typing_extensions import Self\n     from .numbers import Number\n+    from sympy.core.basic import Tbasic\n     from sympy.logic.boolalg import Boolean\n \n+    Texpr = TypeVar(\"Texpr\", bound='Expr')\n+\n from collections import defaultdict\n \n \n@@ -91,6 +94,14 @@ def subs(self, arg1: Mapping[Basic | complex, Basic | complex] | Basic | complex\n                  arg2: Basic | complex | None = None, **kwargs: Any) -> Basic:\n             ...\n \n+        @overload\n+        def xreplace(self, rule: Mapping[Tbasic, Expr]) -> Expr: ...\n+        @overload\n+        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic: ...\n+\n+        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic:\n+            ...\n+\n         def simplify(self, **kwargs) -> Expr:\n             ...\n \n@@ -3359,7 +3370,7 @@ def lseries(self, x=None, x0=0, dir='+', logx=None, cdir=0):\n         Wrapper for series yielding an iterator of the terms of the series.\n \n         Note: an infinite series will yield an infinite iterator. The following,\n-        for exaxmple, will never terminate. It will just keep printing terms\n+        for example, will never terminate. It will just keep printing terms\n         of the sin(x) series::\n \n           for term in sin(x).lseries(x):\ndiff --git a/sympy/logic/boolalg.py b/sympy/logic/boolalg.py\nindex 5ef7cbd055f9..b57242ab6375 100644\n--- a/sympy/logic/boolalg.py\n+++ b/sympy/logic/boolalg.py\n@@ -24,8 +24,9 @@\n from sympy.utilities.misc import filldedent\n \n if TYPE_CHECKING:\n-    from collections.abc import Iterable\n-    from sympy.core.basic import _SupportsItems\n+    from collections.abc import Iterable, Mapping\n+    from sympy.core.basic import _SupportsItems, Tbasic\n+    from sympy.core.expr import Expr, Texpr\n \n \n def as_Boolean(e):\n@@ -100,6 +101,16 @@ def subs(self, arg1: _SupportsItems[Basic | complex, Basic | complex] | Basic |\n                  arg2: Basic | complex | None = None, **kwargs: Any) -> Basic:\n             ...\n \n+        @overload\n+        def xreplace(self, rule: Mapping[Texpr, Expr]) -> Boolean: ...\n+        @overload\n+        def xreplace(self, rule: Mapping[Tbasic, Boolean]) -> Boolean: ...\n+        @overload\n+        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic: ...\n+\n+        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic:\n+            ...\n+\n         def simplify(self, **kwargs) -> Boolean:\n             ...\n \ndiff --git a/sympy/matrices/matrixbase.py b/sympy/matrices/matrixbase.py\nindex 5443995866d5..13410d212b56 100644\n--- a/sympy/matrices/matrixbase.py\n+++ b/sympy/matrices/matrixbase.py\n@@ -2801,7 +2801,7 @@ def C(self) -> Self:\n         return self.conjugate()\n \n     # should mirror core.basic.xreplace\n-    def xreplace(self, rule: Mapping[SBasic, SBasic]) -> Self:\n+    def xreplace(self, rule: Mapping[Tbasic, Expr]) -> Self:\n         \"\"\"Return a new matrix with xreplace applied to each entry.\n \n         Examples\ndiff --git a/sympy/polys/polytools.py b/sympy/polys/polytools.py\nindex c85713f1e42e..d99f1124fbdd 100644\n--- a/sympy/polys/polytools.py\n+++ b/sympy/polys/polytools.py\n@@ -64,8 +64,10 @@\n \n \n if TYPE_CHECKING:\n+    from sympy.core.basic import Tbasic\n+    from sympy.core.expr import Texpr\n     from sympy.polys.domains.domain import Domain\n-    from collections.abc import Iterator\n+    from collections.abc import Iterator, Mapping\n     from typing import Self\n \n \n@@ -227,6 +229,16 @@ def args(self):\n     def _hashable_content(self):\n         return (self.rep,) + self.gens\n \n+    if TYPE_CHECKING:\n+\n+        @overload\n+        def xreplace(self, rule: Mapping[Texpr, Expr]) -> Self: ...\n+        @overload\n+        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic: ...\n+\n+        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic:\n+            ...\n+\n     @classmethod\n     def from_dict(cls, rep: dict[tuple[int, ...], Any] | dict[int, Any], *gens, **args):\n         \"\"\"Construct a polynomial from a ``dict``. \"\"\"\ndiff --git a/sympy/sets/sets.py b/sympy/sets/sets.py\nindex 69bd213dc86a..bb338fc32a2a 100644\n--- a/sympy/sets/sets.py\n+++ b/sympy/sets/sets.py\n@@ -35,6 +35,8 @@\n \n if TYPE_CHECKING:\n     from collections.abc import Mapping, Iterable\n+    from sympy.core.basic import Tbasic\n+    from sympy.core.expr import Texpr\n \n \n tfn: dict[bool | Boolean | None, Boolean | None] = defaultdict(lambda: None, {\n@@ -112,6 +114,16 @@ def subs(self, arg1: Mapping[Basic | complex, Basic | complex] | Basic | complex\n                  arg2: Basic | complex | None = None, **kwargs: Any) -> Basic:\n             ...\n \n+        @overload\n+        def xreplace(self, rule: Mapping[Texpr, Expr]) -> Set: ...\n+        @overload\n+        def xreplace(self, rule: Mapping[Tbasic, Set]) -> Set: ...\n+        @overload\n+        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic: ...\n+\n+        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic:\n+            ...\n+\n         def simplify(self, **kwargs) -> Set:\n             assert False\n \ndiff --git a/sympy/tensor/tensor.py b/sympy/tensor/tensor.py\nindex 42cf2c9a4d82..65f931b7d35f 100644\n--- a/sympy/tensor/tensor.py\n+++ b/sympy/tensor/tensor.py\n@@ -30,7 +30,7 @@\n \"\"\"\n \n from __future__ import annotations\n-from typing import Any\n+from typing import TYPE_CHECKING, Any, overload\n from functools import reduce\n from math import prod\n \n@@ -60,6 +60,10 @@\n from sympy.utilities.decorator import memoize_property, deprecated\n from sympy.utilities.iterables import sift\n \n+if TYPE_CHECKING:\n+    from collections.abc import Mapping\n+    from sympy.core.basic import Tbasic\n+\n \n def deprecate_data():\n     sympy_deprecation_warning(\n@@ -2011,6 +2015,18 @@ class TensExpr(Expr, ABC):\n     _op_priority = 12.0\n     is_commutative = False\n \n+    if TYPE_CHECKING:\n+\n+        @overload # type: ignore[override]\n+        def xreplace(self, rule: Mapping[TensorIndex, TensorIndex]) -> TensExpr: ...\n+        @overload\n+        def xreplace(self, rule: Mapping[Tbasic, Expr]) -> Expr: ...\n+        @overload\n+        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic: ...\n+\n+        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic:\n+            ...\n+\n     def __neg__(self):\n         return self*S.NegativeOne\n \ndiff --git a/sympy/tensor/tests/test_tensor.py b/sympy/tensor/tests/test_tensor.py\nindex 500bc09295c8..4ebd7504d255 100644\n--- a/sympy/tensor/tests/test_tensor.py\n+++ b/sympy/tensor/tests/test_tensor.py\n@@ -1338,6 +1338,9 @@ def subs():\n         def simplify():\n             pass\n \n+        def xreplace():\n+            pass\n+\n     Lorentz = TensorIndexType('Lorentz', dim=4, dummy_name='L')\n     a = tensor_indices('a', Lorentz)\n     p = tensor_heads('p', [Lorentz])\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* core\n  * Added type annotations for `xreplace`. ([#30990](https://github.com/sympy/sympy/pull/30990) by [@hunterhogan](https://github.com/hunterhogan))\n\n  * Removed the unused `hack2` keyword argument from `Atom.xreplace`. ([#30990](https://github.com/sympy/sympy/pull/30990) by [@hunterhogan](https://github.com/hunterhogan))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    \ud83e\udd16 *This description was drafted by an AI agent (Claude Code) and revised by Hunter Hogan.*\n\n    #### References to other Issues or PRs\n\n    Related typing PRs: #30946 (`solveset`), #30965 (`piecewise_fold`).\n\n    #### Brief description of what is fixed or changed\n\n    - Annotates `Basic.xreplace` and adds type-checking-only overloads for some subclasses. \n    - `Atom.xreplace` replaced by `Atom._xreplace`\n    - Change `rule` parameter dictionary keys to TypeVars.\n\n    #### Other comments\n\n    <details><summary>Other</summary>\n    - `TensExpr.xreplace` needs `# type: ignore[override]`: mypy rejects a leading overload that `Expr.xreplace` lacks.\n    - Known gap: a `Symbol` statically typed as `Boolean` matches `Boolean`'s `Expr`-to-`Expr` overload, so `p.xreplace({p: sin(x)})` is typed `Boolean`.\n    </details>\n\n    #### AI Generation Disclosure\n\n    Generated with Claude Code (Claude Opus 5.5), Hunter Hogan, and Predator Energy Drink.\n\n    #### Release Notes\n\n    <!-- BEGIN RELEASE NOTES -->\n    * core\n      * Added type annotations for `xreplace`.\n      * Removed the unused `hack2` keyword argument from `Atom.xreplace`.\n    <!-- END RELEASE NOTES -->\n\n    \ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-08T12:06:24Z"
+    }
+  ],
+  "labels": [
+    "core",
+    "typing"
+  ],
+  "linked": [
+    {
+      "author": "hunterhogan",
+      "body": "\ud83e\udd16 This PR description was drafted by an AI agent (Claude Code).\n\n<!-- DO NOT DELETE OR REPLACE THIS TEMPLATE or the PR will be closed.\n\nRead our Policy on AI Generated Code and Communication at\nhttps://docs.sympy.org/dev/contributing/ai-generated-code-policy.html. -->\n\n#### References to other Issues or PRs\n\n#### Brief description of what is fixed or changed\n\nAnnotates `solveset`, `solveset_real`, and `solveset_complex` so type checkers infer `Set` as the return type.\n\n- `f: Basic | complex` and `symbol: Basic | None`, because both are passed through `sympify`, and internal callers (`sympy/calculus/singularities.py`) pass `Basic` and `Boolean` values.\n- `domain: Set`, return `-> Set`.\n\nAfter annotating the symbols in the signature, it was necessary to create new symbols in the function body if they object type changed, such as `f` to `expr`. The public API is unchanged. No behavior change.\n\n#### Other comments\n\n`mypy sympy`, `ruff`, `bin/test quality`, `sympy/solvers/tests/test_solveset.py`, `sympy/calculus` tests, and the `solveset.py` doctests pass.\n\n#### AI Generation Disclosure\n\nClaude Code (Claude Opus 5.5) generated code changes and drafted this PR description at my direction. Hunter \"The Human\" Hogan reviewed everything.\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* solvers\n    * Annotate the signatures of `solveset`, `solveset_real`, and `solveset_complex`.\n* calculus\n    * Annotate `singularities` signature and body: fix: return `Set`, not `set[Symbol]`.\n    * because free_symbol may not return `Symbol`, added a guard to narrow the types.\n    * clearer error messages\n<!-- END RELEASE NOTES -->\n",
+      "is_pull_request": true,
+      "merged_at": null,
+      "number": 30946,
+      "state": "open",
+      "title": "Annotate `solvers.solveset`"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "\ud83e\udd16 *This description was drafted by an AI agent (Claude Code); Hunter Hogan \ud83d\udc4b revised it.*\r\n\r\n#### References to other Issues or PRs\r\n\r\n* #30919 \r\n* #30945\r\n* Related typing PRs: #30946 (`solveset`): I had hoped typing this would shed a little light on `solveset`. It might help a little.\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\nAdds type annotations to `Piecewise`, `ExprCondPair`, and `piecewise_fold` in `sympy/functions/elementary/piecewise.py`. ~One behavior change: an Exception in `piecewise_fold` was made more specific.~\r\n\r\nEvery change has a specific need:\r\n\r\n- `Piecewise.__new__` overloads for the Boolean branch.\r\n- ~`Piecewise.__new__` `# type: ignore` similar to `Mul`, `Add`, and `AppliedUndef`.~\r\n- `evaluate: bool | None = True` in the overloads matches the `Add` and `Mul` stubs (Microsoft).\r\n- ~`newargs: list[ExprCondPair]`, `new_args: list[tuple[Basic, Boolean]]`: typed lists help the type checkers.~\r\n- `Piecewise.args -> tuple[ExprCondPair, ...]` under `TYPE_CHECKING`: eliminates some type-checker errors, such as `for e, c in pw.args` (\"Basic\" is not iterable).\r\n- `ExprCondPair.args -> tuple[Basic, Boolean]`, `expr -> Basic`, `cond -> Boolean`: `ExprCondPair.__new__` guarantees a Boolean condition: before, `cond` was inferred as `Basic` (e.g. `cond = pair.cond` in `Piecewise.__new__`).\r\n- `ExprCondPair.__iter__ -> Iterator[Basic]`: unpacking a pair was untyped.\r\n- `Undefined: NaN`: `S.NaN` is resolved dynamically, so its type was unknown.\r\n- `piecewise_fold` overloads: `Expr -> Expr`; `Boolean -> Boolean | Piecewise` (a Boolean can fold into a `Piecewise`); `Basic -> Basic`; non-`Basic` input is returned unchanged (`T -> T`).\r\n- `for pair in expr.args: e, c = pair.expr, pair.cond` and `p.expr`/`p.cond` in the nested comprehension: unpacking goes through `__iter__`, which can only give `Basic`; `.cond` gives the `Boolean` that `And` requires.\r\n- `exprs, conds = zip(*ec)`: `e` and `c` already hold a `Basic` and a `Boolean` in the `Piecewise` branch; `zip` gives tuples, and mypy rejects re-binding the names to a different type.\r\n- `isinstance(rv, Piecewise)` in the `evaluate=None` shortcut: `Piecewise(...)` may return a non-`Piecewise`, which has no `.cond`; that path previously raised `AttributeError`.\r\n- `ExprCondPair` branch (behavior change): `piecewise_fold(ExprCondPair(...))` with a `Piecewise` inside always raised `TypeError: cannot unpack non-iterable ...`, because the loop treated the pair's `(expr, cond)` as a sequence of pairs. It now raises a `TypeError` that names the `ExprCondPair`; a test is added to `test_piecewise_fold`.\r\n\r\n#### Other comments\r\n\r\n`mypy sympy`, `ruff check sympy`, `bin/test quality`, and the piecewise tests and doctests pass locally; the integrals, sets, logic, solveset, and continuous-RV tests also pass.\r\n\r\n#### AI Generation Disclosure\r\n\r\nGenerated with Claude Code (Claude Opus 5.5), reworked for three hours by Hunter Hogan, over-cleaned by Claude, Hunter lectured Claude, Claude corrected Hunter on a few points, Claude tidied up, and Hunter reviewed all changes. AI-generated-ish: the annotations and code changes in `sympy/functions/elementary/piecewise.py`, the added `raises` line in `sympy/functions/elementary/tests/test_piecewise.py`, and this description.\r\n\r\n#### Release Notes\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\n* functions\r\n  * Added type annotations for `Piecewise`, `ExprCondPair`, and `piecewise_fold`.\r\n<!-- END RELEASE NOTES -->\r\n\r\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\r\n\ud83d\udcaa Generated with [hard work](@hunterhogan)",
+      "is_pull_request": true,
+      "merged_at": null,
+      "number": 30965,
+      "state": "open",
+      "title": "\ud83e\udd16 Add type annotations to Piecewise and piecewise_fold"
+    }
+  ],
+  "merge_commit_sha": "a7a0fd12cfd6b0751aeedfe59a1a87c9d8c7e74e",
+  "merged_at": "2026-11-13T17:21:24Z",
+  "number": 30990,
+  "review_comments": [
+    {
+      "author": "oscarbenjamin",
+      "body": "I think that Poly needs to have a dummy xreplace method for type checking only because Poly.xreplace always returns a Poly.\n\nThe most important thing when working on typing in sympy right now is ensuring that a type checker can infer the types correctly when reading valid (non-pathological) code. Calling xreplace here on a Poly is perfectly reasonable and the type is predictable as well.",
+      "created_at": "2026-11-08T17:19:46Z",
+      "path": "sympy/concrete/summations.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "We should avoid using Any when possible.\n\nI think this should probably match the subs overload for the dict case although perhaps it should be strict and say that only Basic is allowed rather than also allowing complex (and implicitly flout/int/bool).",
+      "created_at": "2026-11-08T17:22:01Z",
+      "path": "sympy/core/basic.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "Since `xreplace` does not call `sympify` we should perhaps make it more strict about input types than `subs`.",
+      "created_at": "2026-11-08T17:31:35Z",
+      "path": "sympy/core/basic.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "The type checker thinks that `a` is Basic here so it should be possible to avoid using `getattr` here.\n\nActually this is the kind of hacky workaround that we should try to remove if improving typing. It should never have been allowed that the `a` here might not be `Basic` at runtime.\n\nI just removed this `getattr` hack and called xreplace directly. Then I ran the test suite and there were a few failures but we should just fix those.",
+      "created_at": "2026-11-08T17:33:05Z",
+      "path": "sympy/core/basic.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "The types should be declared so that this does not need type: ignore.",
+      "created_at": "2026-11-08T17:36:23Z",
+      "path": "sympy/matrices/matrixbase.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "I'm not sure if that means changing the types here or in Basic.xreplace.",
+      "created_at": "2026-11-08T17:36:43Z",
+      "path": "sympy/matrices/matrixbase.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "The proper way to fix something like this is to remove the hacky workaround as in gh-30994.",
+      "created_at": "2026-11-08T18:30:50Z",
+      "path": "sympy/core/basic.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "This needs updating after gh-30994 was merged.",
+      "created_at": "2026-11-08T21:11:50Z",
+      "path": "sympy/core/basic.py"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "0d164a8e90acf35235ae96de06e9139d89fae3f1",
+      "created_at": "2026-11-09T06:17:47Z",
+      "path": "sympy/concrete/summations.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "Why is this changed?",
+      "created_at": "2026-11-09T22:27:51Z",
+      "path": "sympy/core/add.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "I don't think Self should be used. It implies that e.g. an Add would xreplace to an Add which is not the case.",
+      "created_at": "2026-11-09T22:28:34Z",
+      "path": "sympy/core/basic.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "The values need not be Expr e.g.:\n```python\nIn [11]: p = Piecewise((x, Ne(x, 0)), (0, True))\n\nIn [12]: M = Matrix([p, 0])\n\nIn [13]: M.xreplace({Ne(x, 0): True})\nOut[13]: \n\u23a1x\u23a4\n\u23a2 \u23a5\n\u23a30\u23a6\n```\nThe common case would for both key and value to be Expr (or for `complex | float | int | bool` in the value). I'm not sure if it is better to focus on the common case rather than type completeness which is likely impossible.",
+      "created_at": "2026-11-09T22:31:30Z",
+      "path": "sympy/matrices/matrixbase.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "Why is type: ignore used here?",
+      "created_at": "2026-11-09T22:31:49Z",
+      "path": "sympy/tensor/tensor.py"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "It returns TensorIndex. I tried messing with TensExpr, but I couldn't get it to work.",
+      "created_at": "2026-11-10T09:45:39Z",
+      "path": "sympy/tensor/tensor.py"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "Widening to Basic creates conflicts with SExpr. \n\n> type completeness which is likely impossible\n\nI think it is premature today, but not impossible tomorrow.",
+      "created_at": "2026-11-10T10:17:06Z",
+      "path": "sympy/matrices/matrixbase.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "I think that maybe this type needs to have something like this to say what xreplace would return:\nhttps://github.com/sympy/sympy/blob/9ada6de8fa0b7dd9258af2e181a51d2fd07c7f61/sympy/core/expr.py#L77-L78",
+      "created_at": "2026-11-10T20:31:20Z",
+      "path": "sympy/tensor/tensor.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "I think that the first case here needs to be split into two:\n```python\n        @overload\n        def xreplace(self, rule: Mapping[Texpr, Expr]) -> Set: ...\n        @overload\n        def xreplace(self, rule: Mapping[Tbasic, Set]) -> Set: ...\n        @overload\n        def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic: ...\n```\nOtherwise e.g.\n```python\nIn [1]: s = S.Reals\n\nIn [2]: isinstance(s, Set)\nOut[2]: True\n\nIn [3]: isinstance(s.xreplace({s:sin(1)}), Set)\nOut[3]: False\n```",
+      "created_at": "2026-11-12T17:58:45Z",
+      "path": "sympy/sets/sets.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "Boolean.xreplace is similar",
+      "created_at": "2026-11-12T18:00:27Z",
+      "path": "sympy/sets/sets.py"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "Good plan. I've checked the other xreplace and added some tests, too.",
+      "created_at": "2026-11-12T19:22:10Z",
+      "path": "sympy/sets/sets.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "Did you forget to push?",
+      "created_at": "2026-11-12T20:09:09Z",
+      "path": "sympy/sets/sets.py"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "Worse. My computer has crashed twice. \ud83d\ude1e I'm working on it.",
+      "created_at": "2026-11-12T20:31:33Z",
+      "path": "sympy/sets/sets.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "We should probably make a whole separate thing in the test suite for this sort of thing.\n\nNumPy has a `numpy/typing/tests` suite that is primarily for testing how types are inferred by type checkers.\n\nWe probably need a `sympy/typing` package although I'm not sure what should or should not go in it or how it should be structured.\n\nI would preer not to add this kind of thing ad-hoc throughout the normal test suite though.",
+      "created_at": "2026-11-12T22:41:06Z",
+      "path": "sympy/core/tests/test_basic.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "I'm not proposing to add `sympy/testing` in this PR. We should open an issue to discuss that first if going that route.",
+      "created_at": "2026-11-12T22:43:34Z",
+      "path": "sympy/core/tests/test_basic.py"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "I'll remove the tests.\n\nIsolated _ad hoc_ is chaos; bounded trials are experience. Consider creating .../ad_hoc/typing to encourage devs to try things and look at what other people are doing, all with the knowledge that the directory is ephemeral.",
+      "created_at": "2026-11-12T23:12:58Z",
+      "path": "sympy/core/tests/test_basic.py"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-08T17:19:46Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-08T17:22:01Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-08T17:31:35Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-08T17:33:04Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-08T17:36:23Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-08T17:36:43Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-08T18:30:50Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-08T21:11:51Z"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "I'm checking where I'm at.\r\n\r\n- [x] Any\r\n- [x] Test failures\r\n- [x] Update description\r\n- [ ] Do not get frustrated with the AI",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-09T06:14:08Z"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-09T06:17:47Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-09T22:27:50Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-09T22:28:34Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-09T22:31:30Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-09T22:31:49Z"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T09:45:39Z"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T10:17:07Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T20:31:20Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-12T17:58:45Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-12T18:00:27Z"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-12T19:22:10Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-12T20:09:09Z"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-12T20:31:33Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-12T22:41:05Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-12T22:43:34Z"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-12T23:12:58Z"
+    }
+  ],
+  "title": "\ud83e\udd16 Annotate Basic.xreplace"
+}

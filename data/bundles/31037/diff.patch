@@ -1,0 +1,103 @@
+diff --git a/.mailmap b/.mailmap
+index eb0e4d5a1cc6..e86984d0467c 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -792,6 +792,7 @@ Henry Gebhardt <hsggebhardt@gmail.com>
+ Henry Metlov <genrih.metlov@gmail.com>
+ Himanshu <hs80941@gmail.com>
+ Himanshu Ladia <hladia199811@gmail.com>
++Hirata-Origami <117330860+Hirata-Origami@users.noreply.github.com>
+ Hiren Chalodiya <hirenchalodiya99@gmail.com>
+ Hong Xu <hong@topbug.net>
+ Hou-Rui <houruinus@gmail.com> Hou-Rui <13244639785@163.com>
+diff --git a/sympy/sets/sets.py b/sympy/sets/sets.py
+index 0e5166fba96f..69bd213dc86a 100644
+--- a/sympy/sets/sets.py
++++ b/sympy/sets/sets.py
+@@ -1276,7 +1276,7 @@ def as_relational(self, x):
+ 
+     @property
+     def _measure(self):
+-        return self.end - self.start
++        return Max(0, self.end - self.start)
+ 
+     def _kind(self):
+         return SetKind(NumberKind)
+diff --git a/sympy/sets/tests/test_sets.py b/sympy/sets/tests/test_sets.py
+index 9279f45ddcf9..840b75c86e08 100644
+--- a/sympy/sets/tests/test_sets.py
++++ b/sympy/sets/tests/test_sets.py
+@@ -747,12 +747,71 @@ def test_set_evalf():
+     assert FiniteSet(2, x).evalf() == FiniteSet(Float('2.0'), x)
+ 
+ 
++def test_Interval_measure_reversed_symbolic_endpoints():
++    # The measure of an interval whose endpoints turn out to be reversed is
++    # 0 (it is empty), not a negative number.
++    a, b = symbols('a b', real=True)
++    m = Interval(a, b).measure
++    assert m == Max(0, b - a)
++    assert m.subs({a: 3, b: 1}) == 0
++    assert m.subs({a: 1, b: 3}) == 2
++    assert Interval.open(a, b).measure == Max(0, b - a)
++    # a provably nonnegative length is unchanged
++    x = Symbol('x', positive=True)
++    assert Interval(0, x).measure == x
++
++
++def test_Interval_measure_assumptions():
++    n = Symbol('n', negative=True)
++    nonpos = Symbol('nonpos', nonpositive=True)
++    p = Symbol('p', positive=True)
++    nonneg = Symbol('nonneg', nonnegative=True)
++    inf_pos = Symbol('inf_pos', extended_positive=True, finite=False)
++    a = Symbol('a', real=True)
++
++    # sign information lets Max collapse
++    assert Interval(n, 0).measure == -n
++    assert Interval(n, p).measure == p - n
++    assert Interval(0, nonneg).measure == nonneg
++    assert Interval(nonpos, 0).measure == -nonpos
++    assert Interval(0, nonpos).measure == 0
++
++    # infinite endpoints
++    assert Interval(-oo, oo).measure is oo
++    assert Interval(0, oo).measure is oo
++    assert Interval(-oo, 0).measure is oo
++    assert Interval(-oo, a).measure is oo
++    assert Interval(a, oo).measure is oo
++    assert Interval(0, inf_pos).measure == inf_pos
++
++    # intervals that are provably empty have measure 0
++    assert Interval(0, n) is S.EmptySet
++    assert Interval(0, n).measure == 0
++    assert Interval.open(a, a) is S.EmptySet
++    assert Interval.open(a, a).measure == 0
++
++
++def test_Interval_zero_measure_not_always_empty():
++    a, b = symbols('a b', real=True)
++    nonpos = Symbol('nonpos', nonpositive=True)
++    # measure 0 does not imply EmptySet: a single point has measure 0
++    assert Interval(1, 1) == FiniteSet(1)
++    assert Interval(1, 1).measure == 0
++    assert Interval(a, a) == FiniteSet(a)
++    assert Interval(a, a).measure == 0
++    # empty intervals do have measure 0
++    assert Interval(3, 1) is S.EmptySet and S.EmptySet.measure == 0
++    # undetermined cases stay unevaluated rather than claiming EmptySet
++    assert Interval(a, b).is_empty is None
++    assert Interval(0, nonpos).is_empty is None
++
++
+ def test_measure():
+     a = Symbol('a', real=True)
+ 
+     assert Interval(1, 3).measure == 2
+-    assert Interval(0, a).measure == a
+-    assert Interval(1, a).measure == a - 1
++    assert Interval(0, a).measure == Max(0, a)
++    assert Interval(1, a).measure == Max(0, a - 1)
+ 
+     assert Union(Interval(1, 2), Interval(3, 4)).measure == 2
+     assert Union(Interval(1, 2), Interval(3, 4), FiniteSet(5, 6, 7)).measure \

@@ -1,0 +1,30 @@
+diff --git a/sympy/parsing/latex/lark/grammar/latex.lark b/sympy/parsing/latex/lark/grammar/latex.lark
+index 7024420a4341..b64ab7cd5793 100644
+--- a/sympy/parsing/latex/lark/grammar/latex.lark
++++ b/sympy/parsing/latex/lark/grammar/latex.lark
+@@ -117,9 +117,9 @@ NOT_EQUAL: /\\neq(?![a-zA-Z])/ | /\\ne(?![a-zA-Z])/
+ LT: "<"
+ // "\le" requires a negative lookahead to avoid matching as a prefix of "\left". Without the negative lookahead,
+ // LTE was matching the "\le" part of "\left", leaving behind "ft" as garbage tokens.
+-LTE: "\\leq" | /\\le(?![a-zA-Z])/ | "\\leqslant"   
++LTE: "\\leq" | /\\le(?![a-zA-Z])/ | "\\leqslant" | "\\leqq"
+ GT: ">"
+-GTE: "\\geq" | "\\ge" | "\\geqslant"
++GTE: "\\geq" | "\\ge" | "\\geqslant" | "\\geqq"
+ 
+ DIV_SYMBOL: CMD_DIV | DIV
+ MUL_SYMBOL: MUL | CMD_TIMES | CMD_CDOT
+diff --git a/sympy/parsing/tests/test_latex_lark.py b/sympy/parsing/tests/test_latex_lark.py
+index bd449076a868..ed0a1036d540 100644
+--- a/sympy/parsing/tests/test_latex_lark.py
++++ b/sympy/parsing/tests/test_latex_lark.py
+@@ -279,6 +279,9 @@ def _MatMul(a, b):
+     (r"x \le y", Le(x, y)),
+     (r"x \ge y", Ge(x, y)),
+     (r"x \leqslant y", Le(x, y)),
++    (r"x \geqslant y", Ge(x, y)),
++    (r"x \leqq y", Le(x, y)),
++    (r"x \geqq y", Ge(x, y)),
+     (r"x < y", StrictLessThan(x, y)),
+     (r"x \leq y", LessThan(x, y)),
+     (r"x > y", StrictGreaterThan(x, y)),

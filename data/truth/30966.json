@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "None.",
+  "author": "ish1416",
+  "entries": [
+    {
+      "submodule": "matrices",
+      "text": "Fixed an issue where differentiating a `Transpose` expression with respect to a scalar or matrix element dropped the transpose operation."
+    }
+  ],
+  "merged_at": "2026-11-06T19:08:49Z",
+  "number": 30966,
+  "overlap": {
+    "title_similarity": 0.4158415841584158,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* matrices\n  * Fixed an issue where differentiating a `Transpose` expression with respect to a scalar or matrix element dropped the transpose operation.",
+  "status": "entry",
+  "title": "fix(matrices): transpose inner derivative in Transpose._eval_derivative"
+}

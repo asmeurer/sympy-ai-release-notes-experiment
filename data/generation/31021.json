@@ -1,0 +1,108 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4225,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 14882,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 14882,
+      "cacheReadInputTokens": 23397,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0670357,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 516,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31021,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"matrices\",\"text\":\"Added `Conjugate`, a matrix expression for the elementwise complex conjugate of a matrix expression. `conjugate` and `adjoint` of matrix expressions, such as `adjoint(C**-2)` for a `MatrixSymbol` `C`, now give valid matrix expressions instead of raising `AttributeError`.\"}],\"reasoning\":\"The PR adds a new public matrix expression class `Conjugate` (exported from `sympy` and `sympy.matrices`), with printing support. It also fixes an `AttributeError` for the conjugate and adjoint of unevaluated matrix powers. The entry is based on the diff and the PR description.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "matrices",
+        "text": "Added `Conjugate`, a matrix expression for the elementwise complex conjugate of a matrix expression. `conjugate` and `adjoint` of matrix expressions, such as `adjoint(C**-2)` for a `MatrixSymbol` `C`, now give valid matrix expressions instead of raising `AttributeError`."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The PR adds a new public matrix expression class `Conjugate` (exported from `sympy` and `sympy.matrices`), with printing support. It also fixes an `AttributeError` for the conjugate and adjoint of unevaluated matrix powers. The entry is based on the diff and the PR description."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31021/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31021/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "matrices",
+            "text": "Added `Conjugate`, a matrix expression for the elementwise complex conjugate of a matrix expression. `conjugate` and `adjoint` of matrix expressions, such as `adjoint(C**-2)` for a `MatrixSymbol` `C`, now give valid matrix expressions instead of raising `AttributeError`."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The PR adds a new public matrix expression class `Conjugate` (exported from `sympy` and `sympy.matrices`), with printing support. It also fixes an `AttributeError` for the conjugate and adjoint of unevaluated matrix powers. The entry is based on the diff and the PR description."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0670357,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 14882,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 14882,
+    "cache_read_input_tokens": 23397,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 14441,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 14441,
+        "cache_read_input_tokens": 11919,
+        "input_tokens": 2,
+        "output_tokens": 322,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 516,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

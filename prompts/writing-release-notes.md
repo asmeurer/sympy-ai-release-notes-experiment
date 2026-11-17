@@ -1,0 +1,206 @@
+# Writing Release Notes
+
+[Release Notes](https://en.wikipedia.org/wiki/Release_notes) are very
+important. They let users know for each release what major changes were in
+that release. They also alert users to potential backwards incompatibilities.
+
+The [SymPy release notes](https://github.com/sympy/sympy/wiki/Release-Notes)
+have two components, the automated parts of the release notes, and the
+manually written parts.
+
+## Release Notes from Pull Request Descriptions
+
+Starting with SymPy 1.3, every pull request to SymPy must include the release
+notes entry in its description. The pull request template (the text that
+appears in the description automatically when the PR is created) has a block
+
+```markdown
+<!-- BEGIN RELEASE NOTES -->
+
+<!-- END RELEASE NOTES -->
+```
+
+You should write release notes entry between these two lines. An example
+release notes entry would look like
+
+```markdown
+<!-- BEGIN RELEASE NOTES -->
+* solvers
+  * Added a new solver for logarithmic equations.
+
+* functions
+  * Fixed a bug with log of integers.
+<!-- END RELEASE NOTES -->
+```
+
+Each header should be a [submodule name](https://github.com/sympy/sympy-bot/blob/master/sympy_bot/submodules.txt) and below it a Markdown list of changes for that submodule.
+
+If there is no release notes entry, write `NO ENTRY`. See the text [below](#what-makes-a-good-release-notes-entry) for the conditions on when a pull request should have no release notes entry.
+
+```markdown
+<!-- BEGIN RELEASE NOTES -->
+NO ENTRY
+<!-- END RELEASE NOTES -->
+```
+
+There is a [bot](https://github.com/sympy/sympy-bot) that automatically checks
+the PR description when a PR is opened or when it is edited to see if the
+release notes are valid.
+
+The release notes should be formatted with headers for each submodule that is
+changed, or `other` if the change is unrelated to a submodule. The [list of
+allowed
+submodules](https://github.com/sympy/sympy-bot/blob/master/sympy_bot/submodules.txt)
+is in the sympy-bot repo, and it should be updated if a new submodule is
+added. Note that the `physics` module is split into submodules, like
+`physics.quantum`, `physics.mechanics`, and so on.
+
+You can add multiple entries per pull request, although most pull requests
+should only require one entry.
+
+Both the author of the pull request and reviewers should feel free to edit the
+release notes in the pull request description. Also, you should feel free to
+edit the release notes file on the wiki after the bot is run to make any
+updates (this is why we keep the release notes on the wiki).
+
+The bot should guide you to write the release notes in the correct format. If
+you find any bugs, or see any ways it could be improved, open an
+[issue](https://github.com/sympy/sympy-bot/issues). The bot is still new, so
+there are many ways it could still be improved.
+
+One note about the bot: when the pull request description is edited, the bot
+reruns automatically and edits its existing comment, to avoid spamming the PR
+with comments. However, GitHub does not automatically refresh this comment on
+the page. You will need to reload your browser to see the latest status.
+
+Once the pull request is merged, the bot will automatically add the entry to
+the release notes. If the bot fails for some reason, they will need to be
+added manually. The bot should write a comment indicating that it failed, but
+it is worth double checking the notes to see if it worked, since the bot is
+still new and likely has bugs.
+
+The bot should only take a few seconds to run any operation, so if you do not
+see an update from it, there is likely a bug. Please open an
+[issue](https://github.com/sympy/sympy-bot/issues) and we will analyze the
+Heroku logs to see what is going on.
+
+### What Makes a Good Release Notes Entry?
+
+The most important thing to remember when writing a release notes entry is
+that it is intended for end users of SymPy, not its developers. The [1.2
+release
+notes](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.2#major-changes)
+provide many good examples of release notes entries. In general, the following
+guidelines should be followed:
+
+1. **Changes that are very minor, such as typo fixes or fixes that do not
+   affect end users of SymPy do not need release notes entries.** In this
+   case, just add `NO ENTRY` to the pull request description under `<!-- BEGIN
+   RELEASE NOTES -->` to appease the bot. Examples of things that **DO NOT need
+   release notes entries** include
+
+   - Typo fixes
+   - Changes to documentation (unless they are major)
+   - Changes to tests or new tests
+   - Changes to "developer files" (files that are not included in the release
+     tarball)
+   - Refactorings that do not affect end-user behavior (note, bug fixes and
+     performance improvements **do** affect end-user behavior and should have
+     release notes entries)
+
+2. **Release notes entries should be very short.** Typically they should be no
+   more than a single sentence. Every release notes entry automatically links
+   back to the pull request, so you can add more in depth details to the pull
+   request description for people who want to read more. To get an idea of how
+   short a typical entry should be, consider making your pull request title
+   the same as or similar to your release notes entry.
+
+   SymPy releases tend to contain hundreds of merged pull requests, so keeping
+   the entries short makes the release notes file manageable.
+
+   Even so, **release notes entries should be complete sentences**, which start with a capital letter and end with a period.
+
+3. **Do not include the pull request number or author names.** The [SymPy
+   Bot](https://github.com/sympy/sympy-bot) will add these to the entry
+   automatically.
+
+4. **Write release notes in a way that can be understood by end-users of
+   SymPy.** Do not reference implementation details that end-users would not
+   know about. If it helps, add a small code example to the entry.
+
+   For example,
+
+   **BAD**
+
+   ```markdown
+   * core
+     * Make `AppliedUndef.is_number = False`
+   ```
+
+   **GOOD**
+
+   ```markdown
+   * core
+     * Make `f(1).is_number` give False, where `f = Function('f')`.
+   ```
+
+   If a change fixes a bug, sometimes the best release notes entry is just
+   *"fixed a bug in the* X *function"*, or something similar.
+
+5. **Do not reference issue numbers in the release notes entry.** These should
+   be included in the pull request description, but not the release notes
+   entry. The bot will automatically add a link to the pull request to the
+   entry, so people will be able to find issues if they want.
+
+6. **Only changes since the previous release should be documented.** For
+   example, if a feature is added but then subsequently removed or updated, no
+   release notes entry should be added (and any prior entry should be edited
+   directly on the wiki).
+
+7. **Write release notes entries in the past tense.** The entries are intended
+   to be read after the change is already merged into master and part of the
+   release.
+
+8. **Phrase the release notes for the wiki.** Omit phrases first person like
+   "I have fixed", or references to the pull request like "this pull request
+   fixes". The release notes will appear on the release notes page on the
+   wiki, so they should be written from that point of view.
+
+9. **Release notes should be self contained.** Each bullet point of the release notes entry will be added to the release notes page separately. They should not reference each other, and they should not reference other text in the pull request description, which will not be added to the release notes page at all. 
+
+## Highlights
+
+At the top of the release notes are highlights for the release. These are
+written by hand. If you have a change or collection of changes that should be
+highlighted, feel free to edit the release notes entry. For example, a GSoC
+project whose changes are included in a release should be highlighted.
+
+## Backwards Compatibility Breaks and Deprecations
+
+Any backwards incompatible changes or deprecated code should be documented
+under this section. This also includes deprecated code that has been removed
+in this release. See the [Deprecating
+policy](https://github.com/sympy/sympy/wiki/Deprecating-Policy) for more
+information on how to deprecate things. This section, like the previous one,
+needs to be edited manually (the bot will not do it for you).
+
+## Changes
+
+This is where the bot adds release notes entries from pull requests. Feel free
+to edit these entries, but keep the formatting intact, or it may confuse the
+bot, particularly the formatting of submodule headers.
+
+The `## Changes` header is very important. It is how the bot finds the
+beginning of the release notes. If it is missing, the bot will fail and the
+release notes entry will have to be added manually.
+
+## Authors
+
+The list of authors in the release notes is generated automatically by the
+release script. It is output at the very end, and can be copied to the release
+notes (a future version may add it automatically).
+
+The `## Authors` header is very important in the release notes file. This is
+how the SymPy Bot finds the end of the release notes when adding new headers.
+If it is missing, it will fail, and the release notes entry will have to be
+added manually.

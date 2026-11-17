@@ -1,0 +1,133 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 8445,
+  "human_is": "B",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 7129,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 7129,
+      "cacheReadInputTokens": 15115,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.076731,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 833,
+      "provider": "firstParty",
+      "thinkingTokens": 111,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31073,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"no\",\"candidate_a\":{\"accuracy\":\"not_applicable\",\"overall\":5,\"problems\":[]},\"candidate_b\":{\"accuracy\":\"minor_inaccuracy\",\"overall\":2,\"problems\":[\"The PR only adds type annotations to a few methods and has no effect on runtime behavior, so it doesn't need an entry.\",\"It says \\\"signatures\\\" where it means type annotations. The methods already had signatures.\",\"It doesn't start with a capital letter and isn't in the past tense.\",\"It's vague about which methods changed, and it gives users nothing they can act on.\"]},\"same_substance\":false,\"preferred\":\"A\",\"strength\":\"clear\",\"rationale\":\"The diff only adds type hints to Set.intersect/intersection, Set.__contains__ and Union.__new__. It also changes an internal list to a tuple, which doesn't change behavior because simplify_union converts its input to a set anyway. End users see no change, so NO ENTRY is the right call. Candidate B adds an entry that isn't needed. It also calls the annotations \\\"signatures\\\", which is misleading, and it breaks the style rules: no capital letter and not in the past tense.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "not_applicable",
+      "overall": 5,
+      "problems": []
+    },
+    "candidate_b": {
+      "accuracy": "minor_inaccuracy",
+      "overall": 2,
+      "problems": [
+        "The PR only adds type annotations to a few methods and has no effect on runtime behavior, so it doesn't need an entry.",
+        "It says \"signatures\" where it means type annotations. The methods already had signatures.",
+        "It doesn't start with a capital letter and isn't in the past tense.",
+        "It's vague about which methods changed, and it gives users nothing they can act on."
+      ]
+    },
+    "preferred": "A",
+    "rationale": "The diff only adds type hints to Set.intersect/intersection, Set.__contains__ and Union.__new__. It also changes an internal list to a tuple, which doesn't change behavior because simplify_union converts its input to a set anyway. End users see no change, so NO ENTRY is the right call. Candidate B adds an entry that isn't needed. It also calls the annotations \"signatures\", which is misleading, and it breaks the style rules: no capital letter and not in the past tense.",
+    "same_substance": false,
+    "should_have_entry": "no",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31073/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31073/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "not_applicable",
+          "overall": 5,
+          "problems": []
+        },
+        "candidate_b": {
+          "accuracy": "minor_inaccuracy",
+          "overall": 2,
+          "problems": [
+            "The PR only adds type annotations to a few methods and has no effect on runtime behavior, so it doesn't need an entry.",
+            "It says \"signatures\" where it means type annotations. The methods already had signatures.",
+            "It doesn't start with a capital letter and isn't in the past tense.",
+            "It's vague about which methods changed, and it gives users nothing they can act on."
+          ]
+        },
+        "preferred": "A",
+        "rationale": "The diff only adds type hints to Set.intersect/intersection, Set.__contains__ and Union.__new__. It also changes an internal list to a tuple, which doesn't change behavior because simplify_union converts its input to a set anyway. End users see no change, so NO ENTRY is the right call. Candidate B adds an entry that isn't needed. It also calls the annotations \"signatures\", which is misleading, and it breaks the style rules: no capital letter and not in the past tense.",
+        "same_substance": false,
+        "should_have_entry": "no",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.076731,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 7129,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 7129,
+    "cache_read_input_tokens": 15115,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 1748,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 1748,
+        "cache_read_input_tokens": 10248,
+        "input_tokens": 2,
+        "output_tokens": 633,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 833,
+    "output_tokens_details": {
+      "thinking_tokens": 111
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

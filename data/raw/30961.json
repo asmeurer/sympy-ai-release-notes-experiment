@@ -1,0 +1,46 @@
+{
+  "additions": 11,
+  "author": "raman118",
+  "base": "master",
+  "body": "#### References to other Issues or PRs\r\n\r\nFixes #21616.\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\n`SetExpr(Interval(2, oo)) + oo` returned a nested singleton set instead of `{oo}`. Remove the extra set wrapper from the positive- and negative-infinity addition handlers. Tests cover bounded and unbounded intervals in both operand orders.\r\n\r\n#### Other comments\r\n\r\nThe regression failed before the fix. All 16 `SetExpr` tests, code-quality tests (6 passed), Ruff, and `bin/mailmap_check.py` passed.\r\n\r\n#### AI Generation Disclosure\r\n\r\nOpenAI Codex (GPT-6 Astra) generated all changes in `sympy/sets/handlers/add.py` and `sympy/sets/tests/test_setexpr.py`.\r\n\r\n#### Release Notes\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\n* sets\r\n  * Fixed interval addition with positive or negative infinity producing nested singleton sets in `SetExpr`.\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "raman118",
+      "message": "Fix nested singleton sets in interval infinity addition\n\nRemove the extra set wrapper in both infinity addition handlers and cover bounded and unbounded intervals in both operand orders.\n\nAI-generated changes by OpenAI Codex (GPT-6 Astra).",
+      "sha": "2f9bcec55de13493fcbd5d63f1fcbcbc63a25e5f"
+    }
+  ],
+  "created_at": "2026-11-06T03:46:08Z",
+  "deletions": 2,
+  "diff": "diff --git a/sympy/sets/handlers/add.py b/sympy/sets/handlers/add.py\nindex dbc8c2a100c4..0af265f2a799 100644\n--- a/sympy/sets/handlers/add.py\n+++ b/sympy/sets/handlers/add.py\n@@ -38,13 +38,13 @@ def _(x, y):\n def _(x, y):\n     if x.start is S.NegativeInfinity:\n         return Interval(-oo, oo)\n-    return FiniteSet({S.Infinity})\n+    return FiniteSet(S.Infinity)\n \n @_set_add.register(Interval, NegativeInfinity)\n def _(x, y):\n     if x.end is S.Infinity:\n         return Interval(-oo, oo)\n-    return FiniteSet({S.NegativeInfinity})\n+    return FiniteSet(S.NegativeInfinity)\n \n \n @_set_sub.register(Basic, Basic)\ndiff --git a/sympy/sets/tests/test_setexpr.py b/sympy/sets/tests/test_setexpr.py\nindex 1ba4efef99fe..4bb726cba2f0 100644\n--- a/sympy/sets/tests/test_setexpr.py\n+++ b/sympy/sets/tests/test_setexpr.py\n@@ -40,6 +40,15 @@ def test_Add_Mul():\n     assert (SetExpr(Interval(0, 1))*2).set == Interval(0, 2)\n \n \n+def test_interval_add_infinity():\n+    cases = [(Interval(2, oo), oo), (Interval(-oo, 2), -oo),\n+             (Interval(1, 2), oo), (Interval(1, 2), -oo)]\n+    for interval, infinity in cases:\n+        expr = SetExpr(interval)\n+        assert (expr + infinity).set == FiniteSet(infinity)\n+        assert (infinity + expr).set == FiniteSet(infinity)\n+\n+\n def test_Pow():\n     assert (SetExpr(Interval(0, 2))**2).set == Interval(0, 4)\n \n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* sets\n  * Fixed interval addition with positive or negative infinity producing nested singleton sets in `SetExpr`. ([#30961](https://github.com/sympy/sympy/pull/30961) by [@raman118](https://github.com/raman118))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    #### References to other Issues or PRs\r\n\r\n    Fixes #21616.\r\n\r\n    #### Brief description of what is fixed or changed\r\n\r\n    `SetExpr(Interval(2, oo)) + oo` returned a nested singleton set instead of `{oo}`. Remove the extra set wrapper from the positive- and negative-infinity addition handlers. Tests cover bounded and unbounded intervals in both operand orders.\r\n\r\n    #### Other comments\r\n\r\n    The regression failed before the fix. All 16 `SetExpr` tests, code-quality tests (6 passed), Ruff, and `bin/mailmap_check.py` passed.\r\n\r\n    #### AI Generation Disclosure\r\n\r\n    OpenAI Codex (GPT-6 Astra) generated all changes in `sympy/sets/handlers/add.py` and `sympy/sets/tests/test_setexpr.py`.\r\n\r\n    #### Release Notes\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    * sets\r\n      * Fixed interval addition with positive or negative infinity producing nested singleton sets in `SetExpr`.\r\n    <!-- END RELEASE NOTES -->\r\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-06T03:46:13Z"
+    },
+    {
+      "author": "smichr",
+      "body": "This appears to follow the `Wrapper(Container(Value))` model, now.  Thanks for looking into this.",
+      "created_at": "2026-11-06T05:10:49Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "smichr",
+      "body": "```python\r\n>>> SetExpr(Interval(2, oo)) + oo\r\nSetExpr(FiniteSet(FiniteSet(oo)))\r\n```\r\nI think that should be `SetExpr(FiniteSet(oo))`\r\n",
+      "is_pull_request": false,
+      "number": 21616,
+      "state": "closed",
+      "title": "Adding oo to SetExpr of Interval gives nested FiniteSet"
+    }
+  ],
+  "merge_commit_sha": "48651d5dbad0992eb3b4ca0412a52328da8362b9",
+  "merged_at": "2026-11-06T06:52:26Z",
+  "number": 30961,
+  "review_comments": [],
+  "reviews": [],
+  "title": "Fix nested sets in interval addition with infinity"
+}

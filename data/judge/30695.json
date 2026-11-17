@@ -1,0 +1,135 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 13086,
+  "human_is": "A",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 9620,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 9620,
+      "cacheReadInputTokens": 14125,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.10362099999999999,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1191,
+      "provider": "firstParty",
+      "thinkingTokens": 364,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30695,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"accurate\",\"overall\":2,\"problems\":[\"Describes the algorithm in implementation terms (recurrence over a parallelogram instead of a trapezoid), which users won't know about.\",\"Uses the present-tense imperative 'Compute' instead of the past tense.\",\"Too long and technical for a release notes entry; the 'linear factor for small/fixed n-k' detail belongs in the PR description.\"]},\"candidate_b\":{\"accuracy\":\"minor_inaccuracy\",\"overall\":4,\"problems\":[\"'Roughly half as long to compute large values' oversimplifies: about 2x holds when averaged over a full row, but the speedup for a single value depends on n-k. When k is small the speedup is negligible, and when n-k is small it is much more than 2x.\"]},\"same_substance\":true,\"preferred\":\"B\",\"strength\":\"clear\",\"rationale\":\"The diff only changes the internal _stirling1/_stirling2 recurrences so they skip unneeded entries, making numeric stirling(n, k) faster. That is a user-visible performance improvement, so it deserves an entry. Both candidates report a speedup of stirling. A is technically accurate but is written in implementation terms (parallelogram vs. trapezoid), is not in the past tense, and is long. B is short, in the past tense, and easy for users to follow, though its 'half as long' figure is a rough average and does not hold for every input.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "accurate",
+      "overall": 2,
+      "problems": [
+        "Describes the algorithm in implementation terms (recurrence over a parallelogram instead of a trapezoid), which users won't know about.",
+        "Uses the present-tense imperative 'Compute' instead of the past tense.",
+        "Too long and technical for a release notes entry; the 'linear factor for small/fixed n-k' detail belongs in the PR description."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "minor_inaccuracy",
+      "overall": 4,
+      "problems": [
+        "'Roughly half as long to compute large values' oversimplifies: about 2x holds when averaged over a full row, but the speedup for a single value depends on n-k. When k is small the speedup is negligible, and when n-k is small it is much more than 2x."
+      ]
+    },
+    "preferred": "B",
+    "rationale": "The diff only changes the internal _stirling1/_stirling2 recurrences so they skip unneeded entries, making numeric stirling(n, k) faster. That is a user-visible performance improvement, so it deserves an entry. Both candidates report a speedup of stirling. A is technically accurate but is written in implementation terms (parallelogram vs. trapezoid), is not in the past tense, and is long. B is short, in the past tense, and easy for users to follow, though its 'half as long' figure is a rough average and does not hold for every input.",
+    "same_substance": true,
+    "should_have_entry": "yes",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30695/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30695/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "accurate",
+          "overall": 2,
+          "problems": [
+            "Describes the algorithm in implementation terms (recurrence over a parallelogram instead of a trapezoid), which users won't know about.",
+            "Uses the present-tense imperative 'Compute' instead of the past tense.",
+            "Too long and technical for a release notes entry; the 'linear factor for small/fixed n-k' detail belongs in the PR description."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "minor_inaccuracy",
+          "overall": 4,
+          "problems": [
+            "'Roughly half as long to compute large values' oversimplifies: about 2x holds when averaged over a full row, but the speedup for a single value depends on n-k. When k is small the speedup is negligible, and when n-k is small it is much more than 2x."
+          ]
+        },
+        "preferred": "B",
+        "rationale": "The diff only changes the internal _stirling1/_stirling2 recurrences so they skip unneeded entries, making numeric stirling(n, k) faster. That is a user-visible performance improvement, so it deserves an entry. Both candidates report a speedup of stirling. A is technically accurate but is written in implementation terms (parallelogram vs. trapezoid), is not in the past tense, and is long. B is short, in the past tense, and easy for users to follow, though its 'half as long' figure is a rough average and does not hold for every input.",
+        "same_substance": true,
+        "should_have_entry": "yes",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.10362099999999999,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 9620,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 9620,
+    "cache_read_input_tokens": 14125,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 3105,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 3105,
+        "cache_read_input_tokens": 10320,
+        "input_tokens": 2,
+        "output_tokens": 991,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1191,
+    "output_tokens_details": {
+      "thinking_tokens": 364
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

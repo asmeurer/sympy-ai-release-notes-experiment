@@ -1,0 +1,53 @@
+diff --git a/sympy/core/basic.py b/sympy/core/basic.py
+index 901fc4773f7a..179ede76f724 100644
+--- a/sympy/core/basic.py
++++ b/sympy/core/basic.py
+@@ -2067,7 +2067,7 @@ def count_ops(self, visual=False):
+         from .function import count_ops
+         return count_ops(self, visual)
+ 
+-    def doit(self, **hints):
++    def doit(self, **hints: Any) -> Basic:
+         """Evaluate objects that are not evaluated by default like limits,
+         integrals, sums and products. All objects of this kind will be
+         evaluated recursively, unless some species were excluded via 'hints'
+@@ -2408,7 +2408,7 @@ def _xreplace(self, rule: Mapping[Any, Basic]) -> tuple[Basic, bool]:
+             return rule[self], True
+         return self, False
+ 
+-    def doit(self, **hints):
++    def doit(self, **hints: Any) -> Self:
+         return self
+ 
+     @classmethod
+diff --git a/sympy/core/expr.py b/sympy/core/expr.py
+index 6e38bb28f899..901a960659bb 100644
+--- a/sympy/core/expr.py
++++ b/sympy/core/expr.py
+@@ -105,6 +105,9 @@ def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic:
+         def simplify(self, **kwargs) -> Expr:
+             ...
+ 
++        def doit(self, **hints: Any) -> Expr:
++            ...
++
+         def evalf(self, n: int | None = 15, subs: dict[Basic, Basic | float] | None = None,
+                   maxn: int = 100, chop: bool | int = False, strict: bool  = False,
+                   quad: str | None = None, verbose: bool = False) -> Expr:
+diff --git a/sympy/tensor/tensor.py b/sympy/tensor/tensor.py
+index 65f931b7d35f..e2e3e7fe0132 100644
+--- a/sympy/tensor/tensor.py
++++ b/sympy/tensor/tensor.py
+@@ -2480,6 +2480,12 @@ class TensAdd(TensExpr, AssocOp):
+     [x + 1, y + 2, z + 3, t + 4]
+     """
+ 
++    if TYPE_CHECKING:
++
++        @property
++        def args(self) -> tuple[Expr, ...]:
++            ...
++
+     def __new__(cls, *args, **kw_args):
+         args = [_sympify(x) for x in args if x]
+         args = TensAdd._tensAdd_flatten(args)

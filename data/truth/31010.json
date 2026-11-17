@@ -1,0 +1,25 @@
+{
+  "ai_disclosure": "An AI coding assistant (Google DeepMind Antigravity) was used for exploratory analysis of issue #30900 and drafting initial test cases. All code changes in `special.py`, mathematical arguments, and test executions were manually inspected and validated against the local SymPy test suite.",
+  "author": "vyassoham",
+  "entries": [
+    {
+      "submodule": "matrices",
+      "text": "Fixed `Trace(MatrixUnit(...))` evaluating to 0 for diagonal matrix units larger than 1x1."
+    },
+    {
+      "submodule": "matrices",
+      "text": "Fixed `MatrixUnit.is_square` returning a SymPy boolean atom instead of a Python boolean."
+    }
+  ],
+  "merged_at": "2026-11-12T15:09:49Z",
+  "number": 31010,
+  "overlap": {
+    "title_similarity": 0.375,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* matrices\n  * Fixed `Trace(MatrixUnit(...))` evaluating to 0 for diagonal matrix units larger than 1x1.\n  * Fixed `MatrixUnit.is_square` returning a SymPy boolean atom instead of a Python boolean.",
+  "status": "entry",
+  "title": "matrices: fix trace evaluation and is_square for MatrixUnit"
+}

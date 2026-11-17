@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "Solution checked with ChatGPT and modification of proposed solution accepted.",
+  "author": "smichr",
+  "entries": [
+    {
+      "submodule": "core",
+      "text": "fixed a condition that allowed a hollow multiplication by 1 to remain in a final expression"
+    }
+  ],
+  "merged_at": "2026-11-09T18:33:57Z",
+  "number": 31007,
+  "overlap": {
+    "title_similarity": 0.37593984962406013,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* core\n  * fixed a condition that allowed a hollow multiplication by 1 to remain in a final expression",
+  "status": "entry",
+  "title": "factor_terms: watch for unwanted hollow mul"
+}

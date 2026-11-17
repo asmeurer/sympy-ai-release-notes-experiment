@@ -1,0 +1,43 @@
+diff --git a/sympy/printing/pytorch.py b/sympy/printing/pytorch.py
+index 62da8fbc7623..2693d1a89d65 100644
+--- a/sympy/printing/pytorch.py
++++ b/sympy/printing/pytorch.py
+@@ -293,6 +293,8 @@ def _print_polygamma(self, expr):
+     _ones = "ones"
+     _zeros = "zeros"
+ 
+-def torch_code(expr, requires_grad=False, dtype="torch.float64", **settings):
+-    printer = TorchPrinter(settings={'requires_grad': requires_grad, 'dtype': dtype})
+-    return printer.doprint(expr, **settings)
++def torch_code(expr, requires_grad=False, dtype="torch.float64", assign_to=None,
++               **settings):
++    settings.update(requires_grad=requires_grad, dtype=dtype)
++    printer = TorchPrinter(settings=settings)
++    return printer.doprint(expr, assign_to=assign_to)
+diff --git a/sympy/printing/tests/test_torch.py b/sympy/printing/tests/test_torch.py
+index a1e9951697ff..86d1e0351910 100644
+--- a/sympy/printing/tests/test_torch.py
++++ b/sympy/printing/tests/test_torch.py
+@@ -41,6 +41,22 @@
+     m3x3sympy = Matrix(llo)
+ 
+ 
++def test_torch_code_settings():
++    assert torch_code(sin(x), fully_qualified_modules=False) == 'sin(x)'
++    assert torch_code(sin(x), fully_qualified_modules=True) == 'torch.sin(x)'
++    assert torch_code(Matrix([[x]]), requires_grad=True, dtype='torch.float32',
++                      fully_qualified_modules=False) == \
++        'tensor([[x]], dtype=torch.float32, requires_grad=True)'
++
++
++def test_torch_code_assign_to():
++    assert torch_code(x + 1, assign_to='y') == 'y = x + 1'
++    assert torch_code(Matrix([[x]]), assign_to='y') == \
++        'y = torch.tensor([[x]], dtype=torch.float64)'
++    assert torch_code(sin(x), assign_to='y', fully_qualified_modules=False) == \
++        'y = sin(x)'
++
++
+ def _compare_torch_matrix(variables, expr):
+     f = lambdify(variables, expr, 'torch')
+ 

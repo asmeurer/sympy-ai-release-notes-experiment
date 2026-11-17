@@ -1,0 +1,31 @@
+diff --git a/.mailmap b/.mailmap
+index 240be98ab55f..a01548b96f7b 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -905,6 +905,7 @@ Jiri Kuncar <jiri.kuncar@gmail.com>
+ Jisoo Song <jeesoo9595@snu.ac.kr> JSS95 <52185322+JSS95@users.noreply.github.com>
+ Jisoo Song <jeesoo9595@snu.ac.kr> mcpl-sympy <59268464+mcpl-sympy@users.noreply.github.com>
+ Jithin D. George <jithindgeorge93@gmail.com>
++Jiya Kaushik <pk1057591@gmail.com>
+ Jo Liss <joliss42@gmail.com>
+ Joachim Durchholz <jo@durchholz.org> <jo@durchholz.org>
+ Joachim Durchholz <jo@durchholz.org> <toolforger@durchholz.org>
+diff --git a/sympy/core/numbers.py b/sympy/core/numbers.py
+index a28874f87b15..cf0e74068961 100644
+--- a/sympy/core/numbers.py
++++ b/sympy/core/numbers.py
+@@ -2053,12 +2053,12 @@ def __rmod__(self, other: Expr | complex) -> Expr:
+             return Rational.__rmod__(self, other)
+         return Rational.__rmod__(self, other)
+ 
++    @overload
++    def __pow__(self, other: Integer | int, mod: Integer | int) -> Integer: ...
+     @overload
+     def __pow__(self, other: _NonNegativeInteger, mod: None = None) -> Integer: ...
+     @overload
+     def __pow__(self, other: Expr | complex, mod: None = None) -> Expr: ...
+-    @overload
+-    def __pow__(self, other: Integer | int, mod: Integer | int) -> Integer: ...
+ 
+     def __pow__(self, other: Expr | complex, mod: Integer | int | None = None) -> Expr:
+         if mod is not None:

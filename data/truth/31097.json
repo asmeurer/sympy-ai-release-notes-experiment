@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "Assisted by Google Gemini in tracing the residual error and structuring the regression test cases.",
+  "author": "hardikkaurani",
+  "entries": [
+    {
+      "submodule": "matrices",
+      "text": "Fixed `QRsolve` and `A.inv(method='QR')` returning incorrect results for complex matrices by using `Q.H` instead of `Q.T`."
+    }
+  ],
+  "merged_at": "2026-11-14T18:45:16Z",
+  "number": 31097,
+  "overlap": {
+    "title_similarity": 0.3699421965317919,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* matrices\n  * Fixed `QRsolve` and `A.inv(method='QR')` returning incorrect results for complex matrices by using `Q.H` instead of `Q.T`.",
+  "status": "entry",
+  "title": "matrices: use Q.H instead of Q.T in QRsolve for complex matrices"
+}

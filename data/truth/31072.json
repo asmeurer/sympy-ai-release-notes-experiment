@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "OpenAI Codex generated the changes in `sympy/printing/pycode.py`, `sympy/printing/tests/test_pycode.py`, and `sympy/utilities/tests/test_lambdify.py`.",
+  "author": "raman118",
+  "entries": [
+    {
+      "submodule": "printing",
+      "text": "Fixed a `RecursionError` when printing floating-point constants with `CmathPrinter`, including when using `lambdify` with the `\"cmath\"` module."
+    }
+  ],
+  "merged_at": "2026-11-13T16:57:15Z",
+  "number": 31072,
+  "overlap": {
+    "title_similarity": 0.3655913978494624,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* printing\n  * Fixed a `RecursionError` when printing floating-point constants with `CmathPrinter`, including when using `lambdify` with the `\"cmath\"` module.",
+  "status": "entry",
+  "title": "printing: use Python float literals in the cmath printer"
+}

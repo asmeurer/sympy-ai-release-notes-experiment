@@ -1,0 +1,41 @@
+{
+  "additions": 8,
+  "author": "raman118",
+  "base": "master",
+  "body": "#### References to other Issues or PRs\r\n\r\nFixes #24593.\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\nRemoved `\\nobreak` from the LaTeX output of bounded `Idx` objects. This prevents the command from appearing visibly in affected Jupyter notebook renderers while preserving the index label and range.\r\n\r\nAdded regression tests for bounded and unbounded indices and updated existing indexed-expression tests.\r\n\r\n#### Other comments\r\n\r\nValidation:\r\n- LaTeX printer tests: 178 passed, 2 xfailed.\r\n- Code-quality tests: 6 passed.\r\n- Ruff and local author checks passed.\r\n\r\n#### AI Generation Disclosure\r\n\r\nThe contributor used OpenAI Codex to generate changes in `sympy/printing/latex.py` and `sympy/printing/tests/test_latex.py` and draft this description. The exact runtime model identifier was unavailable.\r\n\r\n#### Release Notes\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\n* printing\r\n  * Fixed LaTeX rendering of bounded indices in notebook renderers that do not support `\\nobreak`.\r\n<!-- END RELEASE NOTES -->",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "raman118",
+      "message": "Remove nobreak from LaTeX index ranges\n\nPreserve bounded index notation while avoiding a command unsupported by older notebook math renderers.\n\nAI-generated changes by OpenAI Codex.",
+      "sha": "bfddca3c32dc35eea1a404217f9016831e34904e"
+    }
+  ],
+  "created_at": "2026-11-07T02:48:37Z",
+  "deletions": 2,
+  "diff": "diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py\nindex fe44b0e89ba2..7cf4169a6df6 100644\n--- a/sympy/printing/latex.py\n+++ b/sympy/printing/latex.py\n@@ -825,7 +825,7 @@ def _print_Idx(self, expr):\n                 lower = self._print(expr.lower)\n             else:\n                 lower = self._print(S.Zero)\n-            interval = '{lower}\\\\mathrel{{..}}\\\\nobreak {upper}'.format(\n+            interval = '{lower}\\\\mathrel{{..}}{upper}'.format(\n                     lower = lower, upper = upper)\n             return '{{{label}}}_{{{interval}}}'.format(\n                 label = label, interval = interval)\ndiff --git a/sympy/printing/tests/test_latex.py b/sympy/printing/tests/test_latex.py\nindex 31bd0afc79b5..562d9eb47f45 100644\n--- a/sympy/printing/tests/test_latex.py\n+++ b/sympy/printing/tests/test_latex.py\n@@ -905,7 +905,7 @@ def test_latex_indexed():\n     assert indexed_latex == r'\\overline{{\\Psi}_{0}} {\\Psi}_{0}'\n \n     # Symbol('gamma') gives r'\\gamma'\n-    interval = '\\\\mathrel{..}\\\\nobreak '\n+    interval = r'\\mathrel{..}'\n     assert latex(Indexed('x1', Symbol('i'))) == r'{x_{1}}_{i}'\n     assert latex(Indexed('x2', Idx('i'))) == r'{x_{2}}_{i}'\n     assert latex(Indexed('x3', Idx('i', Symbol('N')))) == r'{x_{3}}_{{i}_{0'+interval+'N - 1}}'\n@@ -916,6 +916,12 @@ def test_latex_indexed():\n     assert latex(IndexedBase('a_b')) == r'a_{b}'\n \n \n+def test_latex_Idx():\n+    assert latex(Idx('j', 5)) == r'{j}_{0\\mathrel{..}4}'\n+    assert latex(Idx('j', (-2, 2))) == r'{j}_{-2\\mathrel{..}2}'\n+    assert latex(Idx('j')) == 'j'\n+\n+\n def test_latex_derivatives():\n     # regular \"d\" for ordinary derivatives\n     assert latex(diff(x**3, x, evaluate=False)) == \\\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* printing\n  * Fixed LaTeX rendering of bounded indices in notebook renderers that do not support `\\nobreak`. ([#30977](https://github.com/sympy/sympy/pull/30977) by [@raman118](https://github.com/raman118))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    #### References to other Issues or PRs\r\n\r\n    Fixes #24593.\r\n\r\n    #### Brief description of what is fixed or changed\r\n\r\n    Removed `\\nobreak` from the LaTeX output of bounded `Idx` objects. This prevents the command from appearing visibly in affected Jupyter notebook renderers while preserving the index label and range.\r\n\r\n    Added regression tests for bounded and unbounded indices and updated existing indexed-expression tests.\r\n\r\n    #### Other comments\r\n\r\n    Validation:\r\n    - LaTeX printer tests: 178 passed, 2 xfailed.\r\n    - Code-quality tests: 6 passed.\r\n    - Ruff and local author checks passed.\r\n\r\n    #### AI Generation Disclosure\r\n\r\n    The contributor used OpenAI Codex to generate changes in `sympy/printing/latex.py` and `sympy/printing/tests/test_latex.py` and draft this description. The exact runtime model identifier was unavailable.\r\n\r\n    #### Release Notes\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    * printing\r\n      * Fixed LaTeX rendering of bounded indices in notebook renderers that do not support `\\nobreak`.\r\n    <!-- END RELEASE NOTES -->\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-07T02:48:45Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "Davide-sd",
+      "body": "On Jupyter notebook I get this:\r\n\r\n```python\r\nfrom sympy import *\r\ninit_printing(use_latex=True)\r\nj = Idx(\"j\", 5)\r\nj\r\n```\r\n\r\n![image](https://user-images.githubusercontent.com/9921777/214582697-6171103c-f07c-4983-99e6-5a496cb99790.png)\r\n\r\n```python\r\nprint(latex(j))\r\n# {j}_{0\\mathrel{..}\\nobreak 4}\r\n```\r\n",
+      "is_pull_request": false,
+      "number": 24593,
+      "state": "closed",
+      "title": "Latex printer - weird output with Idx objects"
+    }
+  ],
+  "merge_commit_sha": "9c154ed11993ce606e631c2f881ad0875cec3b03",
+  "merged_at": "2026-11-07T08:56:54Z",
+  "number": 30977,
+  "review_comments": [],
+  "reviews": [],
+  "title": "Remove nobreak from LaTeX index ranges"
+}

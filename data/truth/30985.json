@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "Not used",
+  "author": "hunterhogan",
+  "entries": [
+    {
+      "submodule": "other",
+      "text": "Fix typo"
+    }
+  ],
+  "merged_at": "2026-11-08T18:56:50Z",
+  "number": 30985,
+  "overlap": {
+    "title_similarity": 0.6666666666666666,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* other\n    * Fix typo",
+  "status": "entry",
+  "title": "fix: typo in path"
+}

@@ -1,0 +1,60 @@
+diff --git a/sympy/combinatorics/tensor_can.py b/sympy/combinatorics/tensor_can.py
+index c03c6e1edbcd..e4cb74af4e55 100644
+--- a/sympy/combinatorics/tensor_can.py
++++ b/sympy/combinatorics/tensor_can.py
+@@ -950,8 +950,8 @@ def get_symmetric_group_sgs(n, antisym=False):
+     >>> get_symmetric_group_sgs(3)
+     ([0, 1], [(4)(0 1), (4)(1 2)])
+     """
+-    if n == 1:
+-        return [], [Permutation(list(range(3)))]
++    if n in (0, 1):
++        return [], [Permutation(list(range(n + 2)))]
+     gens = [Permutation(n - 1)(i, i + 1)._array_form for i in range(n - 1)]
+     if antisym == 0:
+         gens = [x + [n, n + 1] for x in gens]
+diff --git a/sympy/combinatorics/tests/test_tensor_can.py b/sympy/combinatorics/tests/test_tensor_can.py
+index 40dbc846eaa8..4dabf522ad05 100644
+--- a/sympy/combinatorics/tests/test_tensor_can.py
++++ b/sympy/combinatorics/tests/test_tensor_can.py
+@@ -25,6 +25,10 @@ def test_dummy_sgs():
+         Perm(9)(2,4)(3,5)]]
+ 
+ def test_get_symmetric_group_sgs():
++    assert get_symmetric_group_sgs(0) == ([], [Permutation(1)])
++    assert get_symmetric_group_sgs(0, 1) == ([], [Permutation(1)])
++    assert get_symmetric_group_sgs(1) == ([], [Permutation(2)])
++    assert get_symmetric_group_sgs(1, 1) == ([], [Permutation(2)])
+     assert get_symmetric_group_sgs(2) == ([0], [Permutation(3)(0,1)])
+     assert get_symmetric_group_sgs(2, 1) == ([0], [Permutation(0,1)(2,3)])
+     assert get_symmetric_group_sgs(3) == ([0,1], [Permutation(4)(0,1), Permutation(4)(1,2)])
+@@ -33,6 +37,15 @@ def test_get_symmetric_group_sgs():
+     assert get_symmetric_group_sgs(4, 1) == ([0,1,2], [Permutation(0,1)(4,5), Permutation(1,2)(4,5), Permutation(2,3)(4,5)])
+ 
+ 
++def test_bsgs_direct_product_zero_rank():
++    zero = get_symmetric_group_sgs(0)
++    assert bsgs_direct_product(*zero, *zero) == zero
++    for antisym in (False, True):
++        group = get_symmetric_group_sgs(2, antisym)
++        assert bsgs_direct_product(*zero, *group) == group
++        assert bsgs_direct_product(*group, *zero) == group
++
++
+ def test_canonicalize_no_slot_sym():
+     # cases in which there is no slot symmetry after fixing the
+     # free indices; here and in the following if the symmetry of the
+diff --git a/sympy/tensor/tests/test_tensor.py b/sympy/tensor/tests/test_tensor.py
+index 68ff918adff2..4080eed25f6e 100644
+--- a/sympy/tensor/tests/test_tensor.py
++++ b/sympy/tensor/tests/test_tensor.py
+@@ -496,7 +496,8 @@ def test_TensorSymmetry():
+         TensorSymmetry.no_symmetry(3)
+     assert TensorSymmetry(get_symmetric_group_sgs(2)) == \
+         TensorSymmetry(*get_symmetric_group_sgs(2))
+-    # TODO: add check for *get_symmetric_group_sgs(0)
++    assert TensorSymmetry.fully_symmetric(0) == \
++        TensorSymmetry(*get_symmetric_group_sgs(0))
+     sym = TensorSymmetry.fully_symmetric(-3)
+     assert sym.rank == 3
+     assert sym.base == Tuple(0, 1)

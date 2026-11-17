@@ -1,0 +1,63 @@
+{
+  "additions": 9,
+  "author": "hunterhogan",
+  "base": "master",
+  "body": "\ud83e\udd16 *This description was drafted by an AI agent (Claude Code).*\n\n#### References to other Issues or PRs\n\n\n#### Brief description of what is fixed or changed\n\nType annotations in `sympy/core/mul.py`:\n\n- `Mul.__neg__ -> Expr` \n- `Mul.as_ordered_factors(order: str | Symbol | MonomKey | None = None) -> list[Expr]`\n- `Mul._sorted_args -> tuple[Expr, ...]`, plus `is_Mul` and `_kind_dispatcher` attribute annotations.\n- `.. py:class:: MonomKey` in `doc/src/modules/core.rst` so the documented signature resolves.\n\nNo runtime changes.\n\n#### Other comments\n\nran some tests.\n\n#### AI Generation Disclosure\n\nClaude Code (Claude Opus 5.5) \n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* core\n    * mul\n        * Add types to 3 Mul attributes\n<!-- END RELEASE NOTES -->\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "Hunter Hogan",
+      "message": "Annotate Mul.__neg__ and Mul.as_ordered_factors\n\nMul.__neg__ returns Expr: _from_args returns the lone factor when only\none remains. The order parameter of as_ordered_factors reaches\nmonomial_key through sort_key, so it takes monomial_key's order type.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "3d6d61ffe1a93c6ee5e33aab91019b9fe1ca214c"
+    }
+  ],
+  "created_at": "2026-11-10T12:26:17Z",
+  "deletions": 5,
+  "diff": "diff --git a/doc/src/modules/core.rst b/doc/src/modules/core.rst\nindex e497574f7b62..7df61daf427b 100644\n--- a/doc/src/modules/core.rst\n+++ b/doc/src/modules/core.rst\n@@ -211,6 +211,8 @@ mul\n ---\n .. module:: sympy.core.mul\n \n+.. py:class:: MonomKey\n+\n .. autoclass:: Mul\n    :members:\n \ndiff --git a/sympy/core/mul.py b/sympy/core/mul.py\nindex 6b0bccc86f0e..edd6a02dc583 100644\n--- a/sympy/core/mul.py\n+++ b/sympy/core/mul.py\n@@ -22,6 +22,8 @@\n \n if TYPE_CHECKING:\n     from .numbers import Number\n+    from .symbol import Symbol\n+    from sympy.polys.orderings import MonomKey\n \n \n # internal marker to indicate:\n@@ -164,10 +166,10 @@ class Mul(Expr, AssocOp):\n     \"\"\"\n     __slots__ = ()\n \n-    is_Mul = True\n+    is_Mul: bool = True\n \n     _args_type = Expr\n-    _kind_dispatcher = KindDispatcher(\"Mul_kind_dispatcher\", commutative=True)\n+    _kind_dispatcher: KindDispatcher = KindDispatcher(\"Mul_kind_dispatcher\", commutative=True)\n \n     identity: ClassVar[Expr]\n \n@@ -191,7 +193,7 @@ def could_extract_minus_sign(self):\n         c = self.args[0]\n         return c.is_Number and c.is_extended_negative\n \n-    def __neg__(self):\n+    def __neg__(self) -> Expr:\n         c, args = self.as_coeff_mul()\n         if args[0] is not S.ComplexInfinity:\n             c = -c\n@@ -2094,7 +2096,7 @@ def as_content_primitive(self, radical=False, clear=True):\n         # e.g. (2+2*x)*(3+3*x) should be (6, (1 + x)**2) not (6, (1+x)*(1+x))\n         return coef, self.func(*args)\n \n-    def as_ordered_factors(self, order=None):\n+    def as_ordered_factors(self, order: str | Symbol | MonomKey | None = None) -> list[Expr]:\n         \"\"\"Transform an expression into an ordered list of factors.\n \n         Examples\n@@ -2112,7 +2114,7 @@ def as_ordered_factors(self, order=None):\n         return cpart + ncpart\n \n     @property\n-    def _sorted_args(self):\n+    def _sorted_args(self) -> tuple[Expr, ...]:\n         return tuple(self.as_ordered_factors())\n \n mul = AssocOpDispatcher('mul')\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* core\n  * mul ([#31024](https://github.com/sympy/sympy/pull/31024) by [@hunterhogan](https://github.com/hunterhogan))\n\n  * Add types to 3 Mul attributes ([#31024](https://github.com/sympy/sympy/pull/31024) by [@hunterhogan](https://github.com/hunterhogan))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    \ud83e\udd16 *This description was drafted by an AI agent (Claude Code).*\n\n    #### References to other Issues or PRs\n\n\n    #### Brief description of what is fixed or changed\n\n    Type annotations in `sympy/core/mul.py`:\n\n    - `Mul.__neg__ -> Expr` \n    - `Mul.as_ordered_factors(order: str | Symbol | MonomKey | None = None) -> list[Expr]`\n    - `Mul._sorted_args -> tuple[Expr, ...]`, plus `is_Mul` and `_kind_dispatcher` attribute annotations.\n    - `.. py:class:: MonomKey` in `doc/src/modules/core.rst` so the documented signature resolves.\n\n    No runtime changes.\n\n    #### Other comments\n\n    ran some tests.\n\n    #### AI Generation Disclosure\n\n    Claude Code (Claude Opus 5.5) \n\n    #### Release Notes\n\n    <!-- BEGIN RELEASE NOTES -->\n    * core\n        * mul\n            * Add types to 3 Mul attributes\n    <!-- END RELEASE NOTES -->\n\n    \ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-10T12:26:23Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "Looks good.",
+      "created_at": "2026-11-10T22:17:45Z"
+    }
+  ],
+  "labels": [],
+  "linked": [],
+  "merge_commit_sha": "506f3002d054295e85db4f39626715d88939250c",
+  "merged_at": "2026-11-10T22:17:50Z",
+  "number": 31024,
+  "review_comments": [
+    {
+      "author": "oscarbenjamin",
+      "body": "Is this necessary?",
+      "created_at": "2026-11-10T22:16:51Z",
+      "path": "sympy/core/mul.py"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "No, it is 100% not necessary.\n\nI annotate everything because it makes it much easier for me to annotate the package correctly. In VS Code, adding that annotation prevents inferred Ghost Annotations on later lines. Sympy has the mypy rule against redeclarations, so by adding the annotation at the first opportunity, 1) VS Code displays fewer inferred annotations, 2) mypy will prevent later redeclarations, and 3) the type checkers diagnose incompatible redeclarations.",
+      "created_at": "2026-11-11T01:56:36Z",
+      "path": "sympy/core/mul.py"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-10T22:16:50Z"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-11T01:56:37Z"
+    }
+  ],
+  "title": "\ud83e\udd16 Annotate Mul.__neg__ and Mul.as_ordered_factors"
+}

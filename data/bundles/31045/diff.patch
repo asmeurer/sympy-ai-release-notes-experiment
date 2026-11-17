@@ -1,0 +1,915 @@
+diff --git a/sympy/codegen/cfunctions.py b/sympy/codegen/cfunctions.py
+index 86bedd864e41..ba4143d2d7eb 100644
+--- a/sympy/codegen/cfunctions.py
++++ b/sympy/codegen/cfunctions.py
+@@ -8,7 +8,7 @@
+ """
+ from __future__ import annotations
+ from mpmath.libmp import prec_to_dps
+-from sympy.core.function import ArgumentIndexError, Function
++from sympy.core.function import ArgumentIndexError, DefinedFunction
+ from sympy.core.numbers import Rational
+ from sympy.core.power import Pow
+ from sympy.core.singleton import S
+@@ -20,7 +20,7 @@ def _expm1(x):
+     return exp(x) - S.One
+ 
+ 
+-class expm1(Function):
++class expm1(DefinedFunction):
+     """
+     Represents the exponential function minus one.
+ 
+@@ -85,7 +85,7 @@ def _log1p(x):
+     return log(x + S.One)
+ 
+ 
+-class log1p(Function):
++class log1p(DefinedFunction):
+     """
+     Represents the natural logarithm of a number plus one.
+ 
+@@ -167,7 +167,7 @@ def _eval_is_nonnegative(self):
+ def _exp2(x):
+     return Pow(_Two, x)
+ 
+-class exp2(Function):
++class exp2(DefinedFunction):
+     """
+     Represents the exponential function with base two.
+ 
+@@ -223,7 +223,7 @@ def _log2(x):
+     return log(x)/log(_Two)
+ 
+ 
+-class log2(Function):
++class log2(DefinedFunction):
+     """
+     Represents the logarithm function with base two.
+ 
+@@ -287,7 +287,7 @@ def _fma(x, y, z):
+     return x*y + z
+ 
+ 
+-class fma(Function):
++class fma(DefinedFunction):
+     """
+     Represents "fused multiply add".
+ 
+@@ -335,7 +335,7 @@ def _log10(x):
+     return log(x)/log(_Ten)
+ 
+ 
+-class log10(Function):
++class log10(DefinedFunction):
+     """
+     Represents the logarithm function with base ten.
+ 
+@@ -388,7 +388,7 @@ def _Sqrt(x):
+     return Pow(x, S.Half)
+ 
+ 
+-class Sqrt(Function):  # 'sqrt' already defined in sympy.functions.elementary.miscellaneous
++class Sqrt(DefinedFunction):  # 'sqrt' already defined in sympy.functions.elementary.miscellaneous
+     """
+     Represents the square root function.
+ 
+@@ -438,7 +438,7 @@ def _Cbrt(x):
+     return Pow(x, Rational(1, 3))
+ 
+ 
+-class Cbrt(Function):  # 'cbrt' already defined in sympy.functions.elementary.miscellaneous
++class Cbrt(DefinedFunction):  # 'cbrt' already defined in sympy.functions.elementary.miscellaneous
+     """
+     Represents the cube root function.
+ 
+@@ -489,7 +489,7 @@ def _hypot(x, y):
+     return sqrt(Pow(x, 2) + Pow(y, 2))
+ 
+ 
+-class hypot(Function):
++class hypot(DefinedFunction):
+     """
+     Represents the hypotenuse function.
+ 
+diff --git a/sympy/codegen/fnodes.py b/sympy/codegen/fnodes.py
+index ed6d83189821..d42b0b20caa9 100644
+--- a/sympy/codegen/fnodes.py
++++ b/sympy/codegen/fnodes.py
+@@ -13,7 +13,7 @@
+ from sympy.core.basic import Basic
+ from sympy.core.containers import Tuple
+ from sympy.core.expr import Expr
+-from sympy.core.function import Function
++from sympy.core.function import DefinedFunction
+ from sympy.core.numbers import Float, Integer
+ from sympy.core.symbol import Str
+ from sympy.core.sympify import sympify
+@@ -617,7 +617,7 @@ class FortranReturn(Token):
+     _construct_return_value = staticmethod(sympify)
+ 
+ 
+-class FFunction(Function):
++class FFunction(DefinedFunction):
+     _required_standard = 77
+ 
+     def _fcode(self, printer):
+diff --git a/sympy/codegen/numpy_nodes.py b/sympy/codegen/numpy_nodes.py
+index b0621098eaa2..2f541c3b248b 100644
+--- a/sympy/codegen/numpy_nodes.py
++++ b/sympy/codegen/numpy_nodes.py
+@@ -1,6 +1,6 @@
+ from __future__ import annotations
+ from mpmath.libmp import prec_to_dps
+-from sympy.core.function import Add, ArgumentIndexError, Function
++from sympy.core.function import Add, ArgumentIndexError, DefinedFunction
+ from sympy.core.power import Pow
+ from sympy.core.singleton import S
+ from sympy.core.sorting import default_sort_key
+@@ -31,7 +31,7 @@ def _logaddexp2(x1, x2, *, evaluate=True):
+                    _exp2(x2, evaluate=evaluate), evaluate=evaluate))
+ 
+ 
+-class logaddexp(Function):
++class logaddexp(DefinedFunction):
+     """ Logarithm of the sum of exponentiations of the inputs.
+ 
+     Helper class for use with e.g. numpy.logaddexp
+@@ -44,7 +44,7 @@ class logaddexp(Function):
+     nargs = 2
+ 
+     def __new__(cls, *args):
+-        return Function.__new__(cls, *sorted(args, key=default_sort_key))
++        return DefinedFunction.__new__(cls, *sorted(args, key=default_sort_key))
+ 
+     def fdiff(self, argindex=1):
+         """
+@@ -73,7 +73,7 @@ def _eval_simplify(self, *args, **kwargs):
+             return logaddexp(a, b)
+ 
+ 
+-class logaddexp2(Function):
++class logaddexp2(DefinedFunction):
+     """ Logarithm of the sum of exponentiations of the inputs in base-2.
+ 
+     Helper class for use with e.g. numpy.logaddexp2
+@@ -86,7 +86,7 @@ class logaddexp2(Function):
+     nargs = 2
+ 
+     def __new__(cls, *args):
+-        return Function.__new__(cls, *sorted(args, key=default_sort_key))
++        return DefinedFunction.__new__(cls, *sorted(args, key=default_sort_key))
+ 
+     def fdiff(self, argindex=1):
+         """
+@@ -147,7 +147,7 @@ class amax(Token):
+     _construct_axis = staticmethod(sympify)
+ 
+ 
+-class maximum(Function):
++class maximum(DefinedFunction):
+     """ Element-wise maximum of array elements.
+ 
+     Helper class for use with e.g. numpy.maximum
+@@ -163,7 +163,7 @@ def _eval_rewrite_as_Max(self, *args):
+         return Max(*self.args)
+ 
+ 
+-class minimum(Function):
++class minimum(DefinedFunction):
+     """ Element-wise minimum of array elements.
+ 
+     Helper class for use with e.g. numpy.minimum
+diff --git a/sympy/codegen/scipy_nodes.py b/sympy/codegen/scipy_nodes.py
+index 8ad8e2fcf1fa..32cad14fa140 100644
+--- a/sympy/codegen/scipy_nodes.py
++++ b/sympy/codegen/scipy_nodes.py
+@@ -1,6 +1,6 @@
+ from __future__ import annotations
+ from mpmath.libmp import prec_to_dps
+-from sympy.core.function import Add, ArgumentIndexError, Function
++from sympy.core.function import Add, ArgumentIndexError, DefinedFunction
+ from sympy.core.power import Pow
+ from sympy.core.singleton import S
+ from sympy.functions.elementary.exponential import log
+@@ -11,7 +11,7 @@ def _cosm1(x, *, evaluate=True):
+     return Add(cos(x, evaluate=evaluate), -S.One, evaluate=evaluate)
+ 
+ 
+-class cosm1(Function):
++class cosm1(DefinedFunction):
+     """ Minus one plus cosine of x, i.e. cos(x) - 1. For use when x is close to zero.
+ 
+     Helper class for use with e.g. scipy.special.cosm1
+@@ -47,7 +47,7 @@ def _powm1(x, y, *, evaluate=True):
+     return Add(Pow(x, y, evaluate=evaluate), -S.One, evaluate=evaluate)
+ 
+ 
+-class powm1(Function):
++class powm1(DefinedFunction):
+     """ Minus one plus x to the power of y, i.e. x**y - 1. For use when x is close to one or y is close to zero.
+ 
+     Helper class for use with e.g. scipy.special.powm1
+diff --git a/sympy/combinatorics/graycode.py b/sympy/combinatorics/graycode.py
+index d810133fc17c..55df399b54fd 100644
+--- a/sympy/combinatorics/graycode.py
++++ b/sympy/combinatorics/graycode.py
+@@ -54,7 +54,7 @@ class GrayCode(Basic):
+     _current = 0
+     _rank = None
+ 
+-    def __new__(cls: type[GrayCode], n: int, *args: Any, **kw_args: Any) -> GrayCode:
++    def __new__(cls: type[GrayCode], n: Integer | int, *args: Any, **kw_args: Any) -> GrayCode:
+         """
+         Default constructor.
+ 
+diff --git a/sympy/combinatorics/schur_number.py b/sympy/combinatorics/schur_number.py
+index 3a9adac05744..efcd06e7d806 100644
+--- a/sympy/combinatorics/schur_number.py
++++ b/sympy/combinatorics/schur_number.py
+@@ -6,11 +6,11 @@
+ import math
+ from sympy.core import S
+ from sympy.core.basic import Basic
+-from sympy.core.function import Function
++from sympy.core.function import DefinedFunction
+ from sympy.core.numbers import Integer
+ 
+ 
+-class SchurNumber(Function):
++class SchurNumber(DefinedFunction):
+     r"""
+     This function creates a SchurNumber object
+     which is evaluated for `k \le 5` otherwise only
+diff --git a/sympy/core/cache.py b/sympy/core/cache.py
+index 2731343a0e32..38a23f876c0a 100644
+--- a/sympy/core/cache.py
++++ b/sympy/core/cache.py
+@@ -1,7 +1,14 @@
+ """ Caching facility for SymPy """
+ from __future__ import annotations
+ from importlib import import_module
+-from typing import Callable
++from typing import Any, Callable, Protocol, TypeVar
++
++_F = TypeVar('_F', bound=Callable[..., Any])
++
++
++class _CacheDecorator(Protocol):
++    def __call__(self, func: _F, /) -> _F: ...
++
+ 
+ class _cache(list):
+     """ List of cached functions """
+@@ -142,6 +149,8 @@ def _getenv(key, default=None):
+             'SYMPY_CACHE_SIZE must be a valid integer or None. ' + \
+             'Got: %s' % SYMPY_CACHE_SIZE)
+ 
++cacheit: _CacheDecorator
++
+ if USE_CACHE == 'no':
+     cacheit = __cacheit_nocache
+ elif USE_CACHE == 'yes':
+diff --git a/sympy/core/evalf.py b/sympy/core/evalf.py
+index 780e3cc70863..b5d6963c16b3 100644
+--- a/sympy/core/evalf.py
++++ b/sympy/core/evalf.py
+@@ -38,7 +38,7 @@
+     from sympy.functions.elementary.exponential import exp, log
+     from sympy.functions.elementary.complexes import Abs, re, im
+     from sympy.functions.elementary.integers import ceiling, floor
+-    from sympy.functions.elementary.trigonometric import atan
++    from sympy.functions.elementary.trigonometric import atan, sin, cos, tan
+     from .numbers import Float, Rational, Integer, AlgebraicNumber, Number
+ 
+ LG10 = math.log2(10)
+@@ -951,7 +951,7 @@ def evalf_exp(expr: 'exp', prec: int, options: OPT_DICT) -> TMP_RES:
+     return evalf_pow(Pow(S.Exp1, expr.exp, evaluate=False), prec, options)
+ 
+ 
+-def evalf_trig(v: Expr, prec: int, options: OPT_DICT) -> TMP_RES:
++def evalf_trig(v: cos | sin | tan, prec: int, options: OPT_DICT) -> TMP_RES:
+     """
+     This function handles sin , cos and tan of complex arguments.
+ 
+@@ -972,7 +972,7 @@ def evalf_trig(v: Expr, prec: int, options: OPT_DICT) -> TMP_RES:
+     re, im, re_acc, im_acc = evalf(arg, xprec, options)
+     if im:
+         if 'subs' in options:
+-            v = v.subs(options['subs'])
++            v = v.subs(options['subs']) # type: ignore
+         return evalf(v._eval_evalf(prec), prec, options) # type: ignore
+     if not re:
+         if isinstance(v, cos):
+diff --git a/sympy/core/power.py b/sympy/core/power.py
+index 04e356aff9a3..9ac16fbac167 100644
+--- a/sympy/core/power.py
++++ b/sympy/core/power.py
+@@ -1,5 +1,5 @@
+ from __future__ import annotations
+-from typing import Callable, TYPE_CHECKING
++from typing import Callable, TYPE_CHECKING, overload, Literal
+ from itertools import product
+ 
+ from .sympify import _sympify
+@@ -133,8 +133,19 @@ def kind(self):
+         else:
+             return UndefinedKind
+ 
++    @overload
++    def __new__(
++        cls, b: Expr | complex, e: Expr | complex, evaluate: Literal[False]
++    ) -> Pow: ...
++    @overload
++    def __new__( # type: ignore[misc]
++        cls, b: Expr | complex, e: Expr | complex, evaluate: bool | None = None
++    ) -> Expr: ...
++
+     @cacheit
+-    def __new__(cls, b: Expr | complex, e: Expr | complex, evaluate=None) -> Expr: # type: ignore
++    def __new__( # type: ignore[misc]
++        cls, b: Expr | complex, e: Expr | complex, evaluate: bool | None = None
++    ) -> Expr:
+         if evaluate is None:
+             evaluate = global_parameters.evaluate
+ 
+diff --git a/sympy/functions/elementary/exponential.py b/sympy/functions/elementary/exponential.py
+index 718853315c27..aad09d4884d4 100644
+--- a/sympy/functions/elementary/exponential.py
++++ b/sympy/functions/elementary/exponential.py
+@@ -18,9 +18,10 @@
+ from sympy.functions.elementary.miscellaneous import sqrt
+ from sympy.ntheory import multiplicity, perfect_power
+ from sympy.ntheory.factor_ import factorint
+-from typing import TYPE_CHECKING
++from typing import TYPE_CHECKING, overload
+ 
+ if TYPE_CHECKING:
++    from typing import Literal
+     from sympy.core.expr import Expr
+ 
+ # NOTE IMPORTANT
+@@ -40,6 +41,11 @@ class ExpBase(DefinedFunction):
+     unbranched = True
+     _singularities = (S.ComplexInfinity,)
+ 
++    if TYPE_CHECKING:
++        @property
++        def args(self) -> tuple[Expr]:
++            ...
++
+     @property
+     def kind(self):
+         return self.exp.kind
+@@ -77,7 +83,7 @@ def as_numer_denom(self):
+         return self, S.One
+ 
+     @property
+-    def exp(self):
++    def exp(self) -> Expr:
+         """
+         Returns the exponent of the function.
+         """
+@@ -641,7 +647,37 @@ class log(DefinedFunction):
+ 
+     """
+ 
+-    args: tuple[Expr]
++    if TYPE_CHECKING:
++
++        @overload
++        def __new__(
++            cls,
++            arg: Expr | complex,
++            base: Expr | complex | None = None,
++            *,
++            evaluate: Literal[False],
++        ) -> log: ...
++        @overload
++        def __new__( # type: ignore[misc]
++            cls,
++            arg: Expr | complex,
++            base: Expr | complex | None = None,
++            *,
++            evaluate: bool = True,
++        ) -> Expr: ...
++
++        def __new__( # type: ignore[misc]
++            cls,
++            arg: Expr | complex,
++            base: Expr | complex | None = None,
++            *,
++            evaluate: bool = True,
++        ) -> Expr:
++            ...
++
++        @property
++        def args(self) -> tuple[Expr]:
++            ...
+ 
+     _singularities = (S.Zero, S.ComplexInfinity)
+ 
+diff --git a/sympy/functions/elementary/hyperbolic.py b/sympy/functions/elementary/hyperbolic.py
+index 511fc997beb3..d5bbd37191b5 100644
+--- a/sympy/functions/elementary/hyperbolic.py
++++ b/sympy/functions/elementary/hyperbolic.py
+@@ -1,4 +1,5 @@
+ from __future__ import annotations
++from typing import TYPE_CHECKING
+ from sympy.core import S, sympify, cacheit
+ from sympy.core.add import Add
+ from sympy.core.function import DefinedFunction, ArgumentIndexError
+@@ -18,6 +19,11 @@
+ from sympy.polys.specialpolys import symmetric_poly
+ 
+ 
++if TYPE_CHECKING:
++    from typing import ClassVar
++    from sympy.core.expr import Expr
++
++
+ def _rewrite_hyperbolics_as_exp(expr):
+     return expr.xreplace({h: h.rewrite(exp)
+         for h in expr.atoms(HyperbolicFunction)})
+@@ -1025,7 +1031,7 @@ class ReciprocalHyperbolicFunction(HyperbolicFunction):
+     """Base class for reciprocal functions of hyperbolic functions. """
+ 
+     #To be defined in class
+-    _reciprocal_of = None
++    _reciprocal_of: ClassVar[type[HyperbolicFunction]]
+     _is_even: FuzzyBool = None
+     _is_odd: FuzzyBool = None
+ 
+@@ -1239,7 +1245,10 @@ def _eval_is_positive(self):
+ class InverseHyperbolicFunction(DefinedFunction):
+     """Base class for inverse hyperbolic functions."""
+ 
+-    pass
++    if TYPE_CHECKING:
++        @property
++        def args(self) -> tuple[Expr]:
++            ...
+ 
+ 
+ class asinh(InverseHyperbolicFunction):
+diff --git a/sympy/functions/elementary/trigonometric.py b/sympy/functions/elementary/trigonometric.py
+index 6dae2cb890a0..0a911ac2cccf 100644
+--- a/sympy/functions/elementary/trigonometric.py
++++ b/sympy/functions/elementary/trigonometric.py
+@@ -23,8 +23,10 @@
+ from sympy.polys.specialpolys import symmetric_poly
+ from sympy.utilities.iterables import numbered_symbols
+ from typing import TYPE_CHECKING
++from typing import cast
+ 
+ if TYPE_CHECKING:
++    from typing import ClassVar
+     from sympy.core.expr import Expr
+ 
+ 
+@@ -48,6 +50,11 @@ def _imaginary_unit_as_coefficient(arg):
+ class TrigonometricFunction(DefinedFunction):
+     """Base class for trigonometric functions. """
+ 
++    if TYPE_CHECKING:
++        @property
++        def args(self) -> tuple[Expr]:
++            ...
++
+     unbranched = True
+     _singularities = (S.ComplexInfinity,)
+ 
+@@ -871,7 +878,7 @@ def _eval_rewrite_as_sqrt(self, arg: Expr, **kwargs):
+         apart = ipartfrac(*denoms)
+         decomp = (pi_coeff.p * Rational(n, d) for n, d in zip(apart, denoms))
+         X = [(x[1], x[0]*pi) for x in zip(decomp, numbered_symbols('z'))]
+-        pcls = cos(sum(x[0] for x in X))._eval_expand_trig().subs(X)
++        pcls = cast('cos', cos(sum(x[0] for x in X)))._eval_expand_trig().subs(X)
+ 
+         if not FC or len(FC) == 1:
+             return pcls
+@@ -1645,7 +1652,8 @@ def _eval_subs(self, old, new):
+ class ReciprocalTrigonometricFunction(TrigonometricFunction):
+     """Base class for reciprocal functions of trigonometric functions. """
+ 
+-    _reciprocal_of = None       # mandatory, to be defined in subclass
++    # mandatory, to be defined in subclass
++    _reciprocal_of: ClassVar[type[TrigonometricFunction]]
+     _singularities = (S.ComplexInfinity,)
+ 
+     is_zero = False # Assuming that the subclasses are sec and csc
+diff --git a/sympy/integrals/meijerint.py b/sympy/integrals/meijerint.py
+index 73eef1365def..09955ea0b074 100644
+--- a/sympy/integrals/meijerint.py
++++ b/sympy/integrals/meijerint.py
+@@ -36,7 +36,7 @@
+ from sympy.core.containers import Tuple
+ from sympy.core.exprtools import factor_terms
+ from sympy.core.function import (expand, expand_mul, expand_power_base,
+-                                 expand_trig, Function)
++                                 expand_trig, DefinedFunction, Function)
+ from sympy.core.mul import Mul
+ from sympy.core.intfunc import ilcm
+ from sympy.core.numbers import Rational, pi
+@@ -106,7 +106,7 @@ def constant(a):
+     table[()] = [(a, constant(a), True, True)]
+ 
+     # [P], Section 8.
+-    class IsNonPositiveInteger(Function):
++    class IsNonPositiveInteger(DefinedFunction):
+ 
+         @classmethod
+         def eval(cls, arg):
+diff --git a/sympy/integrals/transforms.py b/sympy/integrals/transforms.py
+index 853e3e416a8b..83d7a1b46855 100644
+--- a/sympy/integrals/transforms.py
++++ b/sympy/integrals/transforms.py
+@@ -5,7 +5,7 @@
+ from sympy.core import S, pi
+ from sympy.core.add import Add
+ from sympy.core.function import (
+-    AppliedUndef, count_ops, expand, expand_mul, Function)
++    AppliedUndef, count_ops, expand, expand_mul, DefinedFunction)
+ from sympy.core.mul import Mul
+ from sympy.core.intfunc import igcd, ilcm
+ from sympy.core.sorting import default_sort_key
+@@ -58,7 +58,7 @@ def __init__(self, transform, function, msg):
+         self.function = function
+ 
+ 
+-class IntegralTransform(Function):
++class IntegralTransform(DefinedFunction):
+     """
+     Base class for integral transforms.
+ 
+diff --git a/sympy/matrices/expressions/hadamard.py b/sympy/matrices/expressions/hadamard.py
+index baef8706d841..c93841f51c09 100644
+--- a/sympy/matrices/expressions/hadamard.py
++++ b/sympy/matrices/expressions/hadamard.py
+@@ -1,5 +1,6 @@
+ from __future__ import annotations
+ from collections import Counter
++from typing import TYPE_CHECKING
+ 
+ from sympy.core import Mul, sympify
+ from sympy.core.add import Add
+@@ -14,6 +15,10 @@
+ from sympy.utilities.exceptions import sympy_deprecation_warning
+ 
+ 
++if TYPE_CHECKING:
++    from sympy.core.expr import Expr
++
++
+ def hadamard_product(*matrices):
+     """
+     Return the elementwise (aka Hadamard) product of matrices.
+@@ -326,7 +331,7 @@ class HadamardPower(MatrixExpr):
+         a^{\circ b} = a^b
+     """
+ 
+-    def __new__(cls, base, exp):
++    def __new__(cls, base: Expr | complex, exp: Expr | complex) -> Expr: # type: ignore
+         base = sympify(base)
+         exp = sympify(exp)
+ 
+@@ -339,13 +344,18 @@ def __new__(cls, base, exp):
+         obj = super().__new__(cls, base, exp)
+         return obj
+ 
++    if TYPE_CHECKING:
++        @property
++        def args(self) -> tuple[Expr, Expr]:
++            ...
++
+     @property
+-    def base(self):
+-        return self._args[0]
++    def base(self) -> Expr:
++        return self.args[0]
+ 
+     @property
+-    def exp(self):
+-        return self._args[1]
++    def exp(self) -> Expr:
++        return self.args[1]
+ 
+     @property
+     def shape(self):
+diff --git a/sympy/matrices/expressions/kronecker.py b/sympy/matrices/expressions/kronecker.py
+index ce964c9e7f33..17a2cf7d5bf6 100644
+--- a/sympy/matrices/expressions/kronecker.py
++++ b/sympy/matrices/expressions/kronecker.py
+@@ -438,7 +438,7 @@ def kronecker_mat_add(expr):
+     krons = []
+     for group in args.values():
+         # Greedily merge each addend into the first mergeable partner:
+-        merged: list[tuple] = []
++        merged = []
+         for pair in map(_coeff_kron, group):
+             for i, other in enumerate(merged):
+                 combined = _kronecker_merge_add(other, pair)
+diff --git a/sympy/ntheory/generate.py b/sympy/ntheory/generate.py
+index a461a2f85e8a..a2c5c09ea9f9 100644
+--- a/sympy/ntheory/generate.py
++++ b/sympy/ntheory/generate.py
+@@ -3,7 +3,7 @@
+ 
+ """
+ from __future__ import annotations
+-from typing import Iterator, Callable, overload, SupportsIndex, Literal
++from typing import Iterator, Callable, overload, SupportsIndex, Literal, TYPE_CHECKING
+ from bisect import bisect, bisect_left
+ from itertools import count
+ # Using arrays for sieving instead of lists greatly reduces
+@@ -17,11 +17,15 @@
+ from sympy.utilities.misc import as_int
+ 
+ 
++if TYPE_CHECKING:
++    from sympy.core.expr import Expr
++
++
+ def _as_int_ceiling(a) -> int:
+     """ Wrapping ceiling in as_int will raise an error if there was a problem
+         determining whether the expression was exactly an integer or not."""
+     from sympy.functions.elementary.integers import ceiling
+-    return as_int(ceiling(a))
++    return as_int(ceiling(a)) # type: ignore
+ 
+ 
+ class Sieve:
+@@ -555,7 +559,7 @@ def prime(nth: SupportsIndex) -> int:
+ The `sympy.ntheory.generate.primepi` has been moved to `sympy.functions.combinatorial.numbers.primepi`.""",
+ deprecated_since_version="1.13",
+ active_deprecations_target='deprecated-ntheory-symbolic-functions')
+-def primepi(n: SupportsIndex) -> int:
++def primepi(n: SupportsIndex) -> Expr:
+     r""" Represents the prime counting function pi(n) = the number
+         of prime numbers less than or equal to n.
+ 
+diff --git a/sympy/parsing/mathematica.py b/sympy/parsing/mathematica.py
+index f617dc64d535..ea8ffa518738 100644
+--- a/sympy/parsing/mathematica.py
++++ b/sympy/parsing/mathematica.py
+@@ -2,7 +2,7 @@
+ import re
+ import typing
+ from itertools import product
+-from typing import Any, Callable
++from typing import Any, Callable, TYPE_CHECKING, cast
+ 
+ import sympy
+ from sympy import Mul, Add, Pow, Rational, log, exp, sqrt, cos, sin, tan, asin, acos, acot, asec, acsc, sinh, cosh, tanh, asinh, \
+@@ -17,6 +17,10 @@
+ from sympy.utilities.exceptions import sympy_deprecation_warning
+ 
+ 
++if TYPE_CHECKING:
++    from sympy.core.expr import Expr
++
++
+ def mathematica(s, additional_translations=None):
+     sympy_deprecation_warning(
+         """The ``mathematica`` function for the Mathematica parser is now
+@@ -1569,8 +1573,14 @@ def _derivative_to_sympy(self, expr: list, recurse: Callable):
+         if not all(isinstance(o, str) and o.isdigit() for o in orders):
+             return None
+         orders = [int(o) for o in orders]
+-        func = (self._node_conversions.get(fname, Function(fname))
+-                if isinstance(fname, str) else recurse(fname))
++        func = cast(
++            "Callable[..., Expr]",
++            (
++                self._node_conversions.get(fname, Function(fname))
++                if isinstance(fname, str)
++                else recurse(fname)
++            ),
++        )
+         if bare:
+             # Nothing is applied to it, so the derivative operator itself is the
+             # value: ``f'`` becomes ``Lambda(_x, Derivative(f(_x), _x))``.
+diff --git a/sympy/physics/biomechanics/curve.py b/sympy/physics/biomechanics/curve.py
+index 9419ea5527f4..898a00c7e177 100644
+--- a/sympy/physics/biomechanics/curve.py
++++ b/sympy/physics/biomechanics/curve.py
+@@ -4,7 +4,7 @@
+ from dataclasses import dataclass
+ 
+ from sympy.core.expr import UnevaluatedExpr
+-from sympy.core.function import ArgumentIndexError, Function
++from sympy.core.function import ArgumentIndexError, DefinedFunction
+ from sympy.core.numbers import Float, Integer
+ from sympy.functions.elementary.exponential import exp, log
+ from sympy.functions.elementary.hyperbolic import cosh, sinh
+@@ -25,7 +25,7 @@
+ ]
+ 
+ 
+-class CharacteristicCurveFunction(Function):
++class CharacteristicCurveFunction(DefinedFunction):
+     """Base class for all musculotendon characteristic curve functions."""
+ 
+     @classmethod
+@@ -1735,13 +1735,13 @@ def _latex(self, printer):
+ @dataclass(frozen=True)
+ class CharacteristicCurveCollection:
+     """Simple data container to group together related characteristic curves."""
+-    tendon_force_length: CharacteristicCurveFunction
+-    tendon_force_length_inverse: CharacteristicCurveFunction
+-    fiber_force_length_passive: CharacteristicCurveFunction
+-    fiber_force_length_passive_inverse: CharacteristicCurveFunction
+-    fiber_force_length_active: CharacteristicCurveFunction
+-    fiber_force_velocity: CharacteristicCurveFunction
+-    fiber_force_velocity_inverse: CharacteristicCurveFunction
++    tendon_force_length: type[CharacteristicCurveFunction]
++    tendon_force_length_inverse: type[CharacteristicCurveFunction]
++    fiber_force_length_passive: type[CharacteristicCurveFunction]
++    fiber_force_length_passive_inverse: type[CharacteristicCurveFunction]
++    fiber_force_length_active: type[CharacteristicCurveFunction]
++    fiber_force_velocity: type[CharacteristicCurveFunction]
++    fiber_force_velocity_inverse: type[CharacteristicCurveFunction]
+ 
+     def __iter__(self):
+         """Iterator support for ``CharacteristicCurveCollection``."""
+diff --git a/sympy/physics/quantum/dagger.py b/sympy/physics/quantum/dagger.py
+index c579e08c3ac5..75f70adb3fcf 100644
+--- a/sympy/physics/quantum/dagger.py
++++ b/sympy/physics/quantum/dagger.py
+@@ -93,4 +93,4 @@ def __new__(cls, arg, evaluate=True):
+         return Expr.__new__(cls, sympify(arg))
+ 
+ adjoint.__name__ = "Dagger"
+-adjoint._sympyrepr = lambda a, b: "Dagger(%s)" % b._print(a.args[0])
++adjoint._sympyrepr = lambda a, b: "Dagger(%s)" % b._print(a.args[0]) # type: ignore
+diff --git a/sympy/physics/quantum/gate.py b/sympy/physics/quantum/gate.py
+index f465d5b4ac9c..842bc4da6bb0 100644
+--- a/sympy/physics/quantum/gate.py
++++ b/sympy/physics/quantum/gate.py
+@@ -865,7 +865,7 @@ def _eval_commutator_PhaseGate(self, other, **hints):
+ #-----------------------------------------------------------------------------
+ 
+ 
+-class CNotGate(HermitianOperator, CGate, TwoQubitGate):
++class CNotGate(HermitianOperator, CGate, TwoQubitGate): # type: ignore
+     """Two qubit controlled-NOT.
+ 
+     This gate performs the NOT or X gate on the target qubit if the control
+diff --git a/sympy/physics/quantum/state.py b/sympy/physics/quantum/state.py
+index 3b10ff0c5efa..f5b07209e5c3 100644
+--- a/sympy/physics/quantum/state.py
++++ b/sympy/physics/quantum/state.py
+@@ -4,7 +4,7 @@
+ from sympy.core.cache import cacheit
+ from sympy.core.containers import Tuple
+ from sympy.core.expr import Expr
+-from sympy.core.function import Function
++from sympy.core.function import DefinedFunction
+ from sympy.core.numbers import oo, equal_valued
+ from sympy.core.singleton import S
+ from sympy.functions.elementary.complexes import conjugate
+@@ -654,7 +654,7 @@ def dual_class(self):
+         return OrthogonalKet
+ 
+ 
+-class Wavefunction(Function):
++class Wavefunction(DefinedFunction):
+     """Class for representations in continuous bases
+ 
+     This class takes an expression and coordinates in its constructor. It can
+diff --git a/sympy/physics/secondquant.py b/sympy/physics/secondquant.py
+index 7c61db8e6573..60758c99d93f 100644
+--- a/sympy/physics/secondquant.py
++++ b/sympy/physics/secondquant.py
+@@ -15,7 +15,7 @@
+ from sympy.core.cache import cacheit
+ from sympy.core.containers import Tuple
+ from sympy.core.expr import Expr
+-from sympy.core.function import Function
++from sympy.core.function import DefinedFunction, Function
+ from sympy.core.mul import Mul
+ from sympy.core.numbers import I
+ from sympy.core.power import Pow
+@@ -1652,7 +1652,7 @@ def __repr__(self):
+         return repr(self.basis)
+ 
+ 
+-class Commutator(Function):
++class Commutator(DefinedFunction):
+     """
+     The Commutator:  [A, B] = A*B - B*A
+ 
+diff --git a/sympy/physics/wigner.py b/sympy/physics/wigner.py
+index cff7dafb8572..00f624411cab 100644
+--- a/sympy/physics/wigner.py
++++ b/sympy/physics/wigner.py
+@@ -66,7 +66,7 @@
+ from __future__ import annotations
+ from sympy.concrete.summations import Sum
+ from sympy.core.add import Add
+-from sympy.core.function import Function
++from sympy.core.function import DefinedFunction
+ from sympy.core.numbers import (I, Integer, pi)
+ from sympy.core.singleton import S
+ from sympy.core.symbol import Dummy
+@@ -943,7 +943,7 @@ def real_gaunt(l_1, l_2, l_3, mu_1, mu_2, mu_3, prec=None):
+     return ugnt
+ 
+ 
+-class Wigner3j(Function):
++class Wigner3j(DefinedFunction):
+ 
+     def doit(self, **hints):
+         if all(obj.is_number for obj in self.args):
+diff --git a/sympy/series/formal.py b/sympy/series/formal.py
+index d1513cef28d9..ce4bbb658e8e 100644
+--- a/sympy/series/formal.py
++++ b/sympy/series/formal.py
+@@ -6,7 +6,7 @@
+ from sympy.core.numbers import (nan, oo, zoo)
+ from sympy.core.add import Add
+ from sympy.core.expr import Expr
+-from sympy.core.function import Derivative, Function, expand
++from sympy.core.function import Derivative, DefinedFunction, Function, expand
+ from sympy.core.mul import Mul
+ from sympy.core.numbers import Rational
+ from sympy.core.relational import Eq
+@@ -956,7 +956,7 @@ def compute_fps(f, x, x0=0, dir=1, hyper=True, order=4, rational=True,
+     return _compute_fps(f, x, x0, dir, hyper, order, rational, full)
+ 
+ 
+-class Coeff(Function):
++class Coeff(DefinedFunction):
+     """
+     Coeff(p, x, n) represents the nth coefficient of the polynomial p in x
+     """
+diff --git a/sympy/simplify/gammasimp.py b/sympy/simplify/gammasimp.py
+index 98751a5466e5..c96077fe1f62 100644
+--- a/sympy/simplify/gammasimp.py
++++ b/sympy/simplify/gammasimp.py
+@@ -1,5 +1,6 @@
+ from __future__ import annotations
+ from sympy.core import Function, S, Mul, Pow, Add
++from sympy.core.function import DefinedFunction
+ from sympy.core.sorting import ordered, default_sort_key
+ from sympy.core.function import expand_func
+ from sympy.core.symbol import Dummy
+@@ -461,7 +462,7 @@ def update_ST(expr):
+     return expr
+ 
+ 
+-class _rf(Function):
++class _rf(DefinedFunction):
+     @classmethod
+     def eval(cls, a, b):
+         if b.is_Integer:
+diff --git a/sympy/solvers/ode/single.py b/sympy/solvers/ode/single.py
+index 41796eee5159..228d1280ba0a 100644
+--- a/sympy/solvers/ode/single.py
++++ b/sympy/solvers/ode/single.py
+@@ -9,7 +9,7 @@
+ from sympy.core import Add, S, Pow, Rational
+ from sympy.core.cache import cached_property
+ from sympy.core.exprtools import factor_terms
+-from sympy.core.function import AppliedUndef, Derivative, diff, Function, expand, Subs, _mexpand
++from sympy.core.function import AppliedUndef, Derivative, diff, DefinedFunction, Function, expand, Subs, _mexpand
+ from sympy.core.numbers import zoo
+ from sympy.core.relational import Equality, Eq
+ from sympy.core.symbol import Symbol, Dummy, Wild
+@@ -425,7 +425,7 @@ def _get_diffx(var):
+ 
+         if diffcls is None:
+             # A class that behaves like Derivative wrt var but is "invertible".
+-            class diffx(Function):
++            class diffx(DefinedFunction):
+                 def inverse(self):
+                     # don't use integrate here because fx has been replaced by _t
+                     # in the equation; integrals will not be correct while solve
+diff --git a/sympy/tensor/array/expressions/array_expressions.py b/sympy/tensor/array/expressions/array_expressions.py
+index 379e3b6105db..42a823f54520 100644
+--- a/sympy/tensor/array/expressions/array_expressions.py
++++ b/sympy/tensor/array/expressions/array_expressions.py
+@@ -622,7 +622,7 @@ def _collect_scalar_coefficients(cls, args):
+         tuple are merged by summing their coefficients.  Addends whose
+         summed coefficient is zero are dropped.
+         """
+-        coeff_map: dict[tuple, Expr] = {}
++        coeff_map = {}
+         for arg in args:
+             coeff, arrays = _array_term_as_coeff_arrays(arg)
+             if arrays in coeff_map:
+diff --git a/sympy/tensor/array/expressions/from_matrix_to_array.py b/sympy/tensor/array/expressions/from_matrix_to_array.py
+index dd977e89c310..9e8fa5843687 100644
+--- a/sympy/tensor/array/expressions/from_matrix_to_array.py
++++ b/sympy/tensor/array/expressions/from_matrix_to_array.py
+@@ -78,8 +78,8 @@ def convert_matrix_to_array(expr: Basic) -> Basic:
+                 return _array_tensor_product(*[base for i in range(expr.exp)])
+             d = Dummy("d")
+             return _array_elementwise_apply_func(Lambda(d, d**expr.exp), base)
+-        if (expr.exp > 0) == True:
+-            return _array_tensor_product(*[base for i in range(expr.exp)])
++        if isinstance(exp := expr.exp, Integer) and exp > 0:
++            return _array_tensor_product(*[base for i in range(exp)])
+         else:
+             return expr
+     elif isinstance(expr, MatPow):

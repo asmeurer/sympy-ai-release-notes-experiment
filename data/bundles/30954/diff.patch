@@ -1,0 +1,47 @@
+diff --git a/.mailmap b/.mailmap
+index f65870107d50..1be0532e8f97 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -1942,6 +1942,9 @@ prsdx <prsdx.dev@gmail.com>
+ prshnt19 <prashant.rawat216@gmail.com>
+ rahil-amin <rahilamin201@gmail.com>
+ rahuldan <rahul02013@gmail.com>
++raman118 <rcho38706@gmail.com>
++raman118 <rcho38706@gmail.com> Doremon <113814705+raman118@users.noreply.github.com>
++raman118 <rcho38706@gmail.com> Doremon <rcho38706@gmail.com>
+ ramvenkat98 <ramvenkat98@gmail.com>
+ rathmann <rathmann.os@gmail.com> <peter@ubuntu.ubuntu-domain>
+ rationa-kunal <kunalgk1999@gmail.com> kunal <kunalgk1999@gmail.com>
+diff --git a/sympy/vector/tests/test_vector.py b/sympy/vector/tests/test_vector.py
+index 445fd06fc0a4..a99b16c6f8fd 100644
+--- a/sympy/vector/tests/test_vector.py
++++ b/sympy/vector/tests/test_vector.py
+@@ -24,6 +24,11 @@
+ a, b, c = symbols('a b c')
+ 
+ 
++def test_vector_constructor():
++    raises(TypeError, lambda: Vector())
++    raises(TypeError, lambda: Vector(a, b, c))
++
++
+ def test_cross():
+     v1 = C.x * i + C.z * C.z * j
+     v2 = C.x * i + C.y * j + C.z * k
+diff --git a/sympy/vector/vector.py b/sympy/vector/vector.py
+index e344a9abe5db..ba3ee1eb48bd 100644
+--- a/sympy/vector/vector.py
++++ b/sympy/vector/vector.py
+@@ -37,6 +37,12 @@ class Vector(BasisDependent):
+ 
+     kind: VectorKind = VectorKind()
+ 
++    def __new__(cls, *args, **kwargs):
++        if cls is Vector:
++            raise TypeError("Vector cannot be instantiated directly. "
++                            "Use CoordSys3D basis vectors to construct a vector.")
++        return super().__new__(cls, *args, **kwargs)
++
+     @property
+     def components(self):
+         """

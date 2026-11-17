@@ -1,0 +1,83 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 5068,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 2244,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 2244,
+      "cacheReadInputTokens": 2260,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.027412,
+      "inputTokens": 2,
+      "maxOutputTokens": 128000,
+      "outputTokens": 450,
+      "provider": "firstParty",
+      "thinkingTokens": 154,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 2,
+  "number": 31012,
+  "permission_denials": [],
+  "result_text": "{\"disclosure\":\"ai_assist\",\"entry_looks_ai_written\":\"likely\",\"evidence\":\"The disclosure names a DeepSeek coding agent and says it generated the changes in four listed code and test files, with the owner reviewing them; it never says the agent wrote the description or release notes. However, the whole description is in a polished agent register, with a redundant inline 'AI disclosure' line, precise test counts and numeric verification bullets. The entry reads like a compressed version of its 'Brief description' section, using the same 'dropping the argument' framing and a tidy '(e.g. `exp(z + 1)` was treated as `exp(z)`)' parenthetical.\"}",
+  "structured_output": {
+    "disclosure": "ai_assist",
+    "entry_looks_ai_written": "likely",
+    "evidence": "The disclosure names a DeepSeek coding agent and says it generated the changes in four listed code and test files, with the owner reviewing them; it never says the agent wrote the description or release notes. However, the whole description is in a polished agent register, with a redundant inline 'AI disclosure' line, precise test counts and numeric verification bullets. The entry reads like a compressed version of its 'Brief description' section, using the same 'dropping the argument' framing and a tidy '(e.g. `exp(z + 1)` was treated as `exp(z)`)' parenthetical."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "disclosure": "ai_assist",
+        "entry_looks_ai_written": "likely",
+        "evidence": "The disclosure names a DeepSeek coding agent and says it generated the changes in four listed code and test files, with the owner reviewing them; it never says the agent wrote the description or release notes. However, the whole description is in a polished agent register, with a redundant inline 'AI disclosure' line, precise test counts and numeric verification bullets. The entry reads like a compressed version of its 'Brief description' section, using the same 'dropping the argument' framing and a tidy '(e.g. `exp(z + 1)` was treated as `exp(z)`)' parenthetical."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.027412,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 2244,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 2244,
+    "cache_read_input_tokens": 2260,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 2,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 2244,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 2244,
+        "cache_read_input_tokens": 2260,
+        "input_tokens": 2,
+        "output_tokens": 450,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 450,
+    "output_tokens_details": {
+      "thinking_tokens": 154
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

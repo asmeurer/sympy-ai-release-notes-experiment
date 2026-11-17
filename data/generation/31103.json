@@ -1,0 +1,108 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4002,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 9299,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 9299,
+      "cacheReadInputTokens": 23397,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0442037,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 466,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31103,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"printing\",\"text\":\"Fixed the string and code printers (including Python, C, Julia, and Octave) omitting parentheses around a reciprocal in a denominator, which previously printed `x/1/y` instead of `x/(1/y)`.\"}],\"reasoning\":\"The diff fixes a user-visible printing bug: missing parentheses when a reciprocal appears in a denominator of unevaluated expressions, across the string and code printers. The rest (shared helper refactoring, tests) is internal, so the entry describes only the bug fix.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "printing",
+        "text": "Fixed the string and code printers (including Python, C, Julia, and Octave) omitting parentheses around a reciprocal in a denominator, which previously printed `x/1/y` instead of `x/(1/y)`."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The diff fixes a user-visible printing bug: missing parentheses when a reciprocal appears in a denominator of unevaluated expressions, across the string and code printers. The rest (shared helper refactoring, tests) is internal, so the entry describes only the bug fix."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31103/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31103/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "printing",
+            "text": "Fixed the string and code printers (including Python, C, Julia, and Octave) omitting parentheses around a reciprocal in a denominator, which previously printed `x/1/y` instead of `x/(1/y)`."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The diff fixes a user-visible printing bug: missing parentheses when a reciprocal appears in a denominator of unevaluated expressions, across the string and code printers. The rest (shared helper refactoring, tests) is internal, so the entry describes only the bug fix."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0442037,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 9299,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 9299,
+    "cache_read_input_tokens": 23397,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 8858,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 8858,
+        "cache_read_input_tokens": 11919,
+        "input_tokens": 2,
+        "output_tokens": 272,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 466,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

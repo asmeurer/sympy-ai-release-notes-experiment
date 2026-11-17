@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "AI tool: DeepSeek Harness coding agent (deepseek-flash). It generated the changes in\n`sympy/matrices/expressions/applyfunc.py`, `sympy/tensor/array/expressions/array_expressions.py`,\n`sympy/matrices/expressions/tests/test_applyfunc.py` and\n`sympy/tensor/array/expressions/tests/test_arrayexpr_derivatives.py`.\nThe account owner reviewed the changes and the test results before submission.",
+  "author": "rynwang",
+  "entries": [
+    {
+      "submodule": "matrices",
+      "text": "Fixed the elementwise derivative rules dropping the argument of the differentiated function (e.g. `exp(z + 1)` was treated as `exp(z)`)."
+    }
+  ],
+  "merged_at": "2026-11-09T20:03:24Z",
+  "number": 31012,
+  "overlap": {
+    "title_similarity": 0.3978494623655914,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* matrices\n  * Fixed the elementwise derivative rules dropping the argument of the differentiated function (e.g. `exp(z + 1)` was treated as `exp(z)`).",
+  "status": "entry",
+  "title": "fix: keep the function argument in elementwise derivative rules"
+}

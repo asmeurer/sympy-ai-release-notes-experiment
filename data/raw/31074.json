@@ -1,0 +1,35 @@
+{
+  "additions": 11,
+  "author": "hunterhogan",
+  "base": "master",
+  "body": "\ud83e\udd16 *This description was drafted by an AI agent (Claude Code).*\n\n#### References to other Issues or PRs\n\n\n#### Brief description of what is fixed or changed\n\nType annotations for `doit`:\n\n- `Basic.doit`\n- `Atom.doit`\n- `TYPE_CHECKING` `Expr.doit`.\n- `TYPE_CHECKING` `TensAdd.doit`.\n\n#### Other comments\n\n#### AI Generation Disclosure\n\nClaude Code (Claude Opus 5.5)\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* core\n    * Annotate signatures of Basic.doit, Atom.doit, and Expr.doit\n\n* tensor\n    * Annotate TensAdd.doit\n<!-- END RELEASE NOTES -->\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n",
+  "changed_files": 3,
+  "commits": [
+    {
+      "author": "Hunter Hogan",
+      "message": "Annotate doit\n\nBasic.doit returns Basic, Atom.doit returns Self, and Expr declares\ndoit -> Expr. TensAdd declares Expr args so TensAdd.doit type checks.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "8f19d150434edc4f5b6defaada3f378bd67850d9"
+    }
+  ],
+  "created_at": "2026-11-13T16:35:58Z",
+  "deletions": 2,
+  "diff": "diff --git a/sympy/core/basic.py b/sympy/core/basic.py\nindex 901fc4773f7a..179ede76f724 100644\n--- a/sympy/core/basic.py\n+++ b/sympy/core/basic.py\n@@ -2067,7 +2067,7 @@ def count_ops(self, visual=False):\n         from .function import count_ops\n         return count_ops(self, visual)\n \n-    def doit(self, **hints):\n+    def doit(self, **hints: Any) -> Basic:\n         \"\"\"Evaluate objects that are not evaluated by default like limits,\n         integrals, sums and products. All objects of this kind will be\n         evaluated recursively, unless some species were excluded via 'hints'\n@@ -2408,7 +2408,7 @@ def _xreplace(self, rule: Mapping[Any, Basic]) -> tuple[Basic, bool]:\n             return rule[self], True\n         return self, False\n \n-    def doit(self, **hints):\n+    def doit(self, **hints: Any) -> Self:\n         return self\n \n     @classmethod\ndiff --git a/sympy/core/expr.py b/sympy/core/expr.py\nindex 6e38bb28f899..901a960659bb 100644\n--- a/sympy/core/expr.py\n+++ b/sympy/core/expr.py\n@@ -105,6 +105,9 @@ def xreplace(self, rule: Mapping[Tbasic, Basic]) -> Basic:\n         def simplify(self, **kwargs) -> Expr:\n             ...\n \n+        def doit(self, **hints: Any) -> Expr:\n+            ...\n+\n         def evalf(self, n: int | None = 15, subs: dict[Basic, Basic | float] | None = None,\n                   maxn: int = 100, chop: bool | int = False, strict: bool  = False,\n                   quad: str | None = None, verbose: bool = False) -> Expr:\ndiff --git a/sympy/tensor/tensor.py b/sympy/tensor/tensor.py\nindex 65f931b7d35f..e2e3e7fe0132 100644\n--- a/sympy/tensor/tensor.py\n+++ b/sympy/tensor/tensor.py\n@@ -2480,6 +2480,12 @@ class TensAdd(TensExpr, AssocOp):\n     [x + 1, y + 2, z + 3, t + 4]\n     \"\"\"\n \n+    if TYPE_CHECKING:\n+\n+        @property\n+        def args(self) -> tuple[Expr, ...]:\n+            ...\n+\n     def __new__(cls, *args, **kw_args):\n         args = [_sympify(x) for x in args if x]\n         args = TensAdd._tensAdd_flatten(args)\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* core\n  * Annotate signatures of Basic.doit, Atom.doit, and Expr.doit ([#31074](https://github.com/sympy/sympy/pull/31074) by [@hunterhogan](https://github.com/hunterhogan))\n\n* tensor\n  * Annotate TensAdd.doit ([#31074](https://github.com/sympy/sympy/pull/31074) by [@hunterhogan](https://github.com/hunterhogan))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    \ud83e\udd16 *This description was drafted by an AI agent (Claude Code).*\n\n    #### References to other Issues or PRs\n\n\n    #### Brief description of what is fixed or changed\n\n    Type annotations for `doit`:\n\n    - `Basic.doit`\n    - `Atom.doit`\n    - `TYPE_CHECKING` `Expr.doit`.\n    - `TYPE_CHECKING` `TensAdd.doit`.\n\n    #### Other comments\n\n    #### AI Generation Disclosure\n\n    Claude Code (Claude Opus 5.5)\n\n    #### Release Notes\n\n    <!-- BEGIN RELEASE NOTES -->\n    * core\n        * Annotate signatures of Basic.doit, Atom.doit, and Expr.doit\n\n    * tensor\n        * Annotate TensAdd.doit\n    <!-- END RELEASE NOTES -->\n\n    \ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-13T16:36:03Z"
+    }
+  ],
+  "labels": [
+    "core",
+    "typing"
+  ],
+  "linked": [],
+  "merge_commit_sha": "6ffeb6a50455758eeaba894f13e296ef4be508f1",
+  "merged_at": "2026-11-13T21:21:40Z",
+  "number": 31074,
+  "review_comments": [],
+  "reviews": [],
+  "title": "\ud83e\udd16 Annotate doit"
+}

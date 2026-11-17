@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "The contributor used OpenAI Codex (GPT-6 Astra) to generate the changes in `sympy/printing/pretty/pretty.py` and `sympy/printing/pretty/tests/test_pretty.py` and draft this description.",
+  "author": "raman118",
+  "entries": [
+    {
+      "submodule": "printing",
+      "text": "Fixed pretty-printing sequences with symbolic bounds by displaying their constructor notation instead of raising `NotImplementedError`."
+    }
+  ],
+  "merged_at": "2026-11-06T21:58:03Z",
+  "number": 30972,
+  "overlap": {
+    "title_similarity": 0.49142857142857144,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* printing\n  * Fixed pretty-printing sequences with symbolic bounds by displaying their constructor notation instead of raising `NotImplementedError`.",
+  "status": "entry",
+  "title": "Pretty-print sequences with symbolic bounds"
+}

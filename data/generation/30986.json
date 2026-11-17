@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 10164,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 13100,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 13100,
+      "cacheReadInputTokens": 71663,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0697123,
+      "inputTokens": 8,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1013,
+      "provider": "firstParty",
+      "thinkingTokens": 293,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 6,
+  "number": 30986,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":true,\"entries\":[],\"reasoning\":\"This PR fixes a regression from #30882, a PR numbered only about 100 below this one and merged shortly before it. That makes it very likely the regression was never in a release, so users never saw the bug. I couldn't confirm that from the repo. Moving `linear_coeffs` to `exprtools` keeps the `solveset` import working, and the rest is tests and internal `_monotonic_sign` logic.\"}",
+  "structured_output": {
+    "entries": [],
+    "no_entry": true,
+    "reasoning": "This PR fixes a regression from #30882, a PR numbered only about 100 below this one and merged shortly before it. That makes it very likely the regression was never in a release, so users never saw the bug. I couldn't confirm that from the repo. Moving `linear_coeffs` to `exprtools` keeps the `solveset` import working, and the rest is tests and internal `_monotonic_sign` logic."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30986/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30986/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "output_mode": "content",
+        "path": "<repo>/work/sympy/sympy/release.py",
+        "pattern": "__version__ ="
+      },
+      "name": "Grep"
+    },
+    {
+      "input": {
+        "output_mode": "count",
+        "path": "<repo>/work/sympy/release",
+        "pattern": "monotonic|30882"
+      },
+      "name": "Grep"
+    },
+    {
+      "input": {
+        "entries": [],
+        "no_entry": true,
+        "reasoning": "This PR fixes a regression from #30882, a PR numbered only about 100 below this one and merged shortly before it. That makes it very likely the regression was never in a release, so users never saw the bug. I couldn't confirm that from the repo. Moving `linear_coeffs` to `exprtools` keeps the `solveset` import working, and the rest is tests and internal `_monotonic_sign` logic."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0697123,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 13100,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 13100,
+    "cache_read_input_tokens": 71663,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 8,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 198,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 198,
+        "cache_read_input_tokens": 24380,
+        "input_tokens": 2,
+        "output_tokens": 293,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1013,
+    "output_tokens_details": {
+      "thinking_tokens": 293
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

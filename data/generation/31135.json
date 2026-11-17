@@ -1,0 +1,108 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 5060,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 1820,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 1820,
+      "cacheReadInputTokens": 23397,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0153277,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 570,
+      "provider": "firstParty",
+      "thinkingTokens": 101,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31135,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"core\",\"text\":\"Fixed a bug where `And`, `Or`, and other lattice operations created with `evaluate=False` from an iterator such as a generator lost their arguments.\"}],\"reasoning\":\"The diff converts args to a tuple before building the object and its `_argset` in the lattice-op `__new__` with evaluate=False. Previously an iterator input was consumed, so arguments were dropped. This is a user-visible bug fix in core/operations.py. The wording about iterators is inferred from the diff, since the PR text gives no detail.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "core",
+        "text": "Fixed a bug where `And`, `Or`, and other lattice operations created with `evaluate=False` from an iterator such as a generator lost their arguments."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The diff converts args to a tuple before building the object and its `_argset` in the lattice-op `__new__` with evaluate=False. Previously an iterator input was consumed, so arguments were dropped. This is a user-visible bug fix in core/operations.py. The wording about iterators is inferred from the diff, since the PR text gives no detail."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31135/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31135/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "core",
+            "text": "Fixed a bug where `And`, `Or`, and other lattice operations created with `evaluate=False` from an iterator such as a generator lost their arguments."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The diff converts args to a tuple before building the object and its `_argset` in the lattice-op `__new__` with evaluate=False. Previously an iterator input was consumed, so arguments were dropped. This is a user-visible bug fix in core/operations.py. The wording about iterators is inferred from the diff, since the PR text gives no detail."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0153277,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 1820,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 1820,
+    "cache_read_input_tokens": 23397,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 1379,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 1379,
+        "cache_read_input_tokens": 11919,
+        "input_tokens": 2,
+        "output_tokens": 376,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 570,
+    "output_tokens_details": {
+      "thinking_tokens": 101
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

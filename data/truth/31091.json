@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "Claude Code",
+  "author": "hunterhogan",
+  "entries": [
+    {
+      "submodule": "core",
+      "text": "Annotate `Expr.coeff` signature."
+    }
+  ],
+  "merged_at": "2026-11-15T22:11:35Z",
+  "number": 31091,
+  "overlap": {
+    "title_similarity": 0.5909090909090909,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* core\n    * Annotate `Expr.coeff` signature.",
+  "status": "entry",
+  "title": "Type Expr.coeff"
+}

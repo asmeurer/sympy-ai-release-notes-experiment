@@ -1,0 +1,108 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 6084,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 32460,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 32460,
+      "cacheReadInputTokens": 15785,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.1382165,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 679,
+      "provider": "firstParty",
+      "thinkingTokens": 173,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30940,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"other\",\"text\":\"Removed `setup.py`; SymPy's packaging metadata now lives entirely in `pyproject.toml`, so commands such as `python setup.py install` or `python setup.py test` no longer work and SymPy should be built and installed with standard tools such as `pip`.\"}],\"reasoning\":\"The PR deletes setup.py and moves all packaging metadata to pyproject.toml, which affects anyone building or installing SymPy from source or using `setup.py test`/`setup.py antlr`; the entry is based on the diff. The sdist also no longer includes AGENTS.md and CLAUDE.md, which I left out as too minor.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "other",
+        "text": "Removed `setup.py`; SymPy's packaging metadata now lives entirely in `pyproject.toml`, so commands such as `python setup.py install` or `python setup.py test` no longer work and SymPy should be built and installed with standard tools such as `pip`."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The PR deletes setup.py and moves all packaging metadata to pyproject.toml, which affects anyone building or installing SymPy from source or using `setup.py test`/`setup.py antlr`; the entry is based on the diff. The sdist also no longer includes AGENTS.md and CLAUDE.md, which I left out as too minor."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30940/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30940/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "other",
+            "text": "Removed `setup.py`; SymPy's packaging metadata now lives entirely in `pyproject.toml`, so commands such as `python setup.py install` or `python setup.py test` no longer work and SymPy should be built and installed with standard tools such as `pip`."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The PR deletes setup.py and moves all packaging metadata to pyproject.toml, which affects anyone building or installing SymPy from source or using `setup.py test`/`setup.py antlr`; the entry is based on the diff. The sdist also no longer includes AGENTS.md and CLAUDE.md, which I left out as too minor."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.1382165,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 32460,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 32460,
+    "cache_read_input_tokens": 15785,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 24289,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 24289,
+        "cache_read_input_tokens": 11978,
+        "input_tokens": 2,
+        "output_tokens": 485,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 679,
+    "output_tokens_details": {
+      "thinking_tokens": 173
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

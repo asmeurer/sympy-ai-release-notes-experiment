@@ -1,0 +1,139 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 9778,
+  "human_is": "A",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 8014,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 8014,
+      "cacheReadInputTokens": 15186,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0873852,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1011,
+      "provider": "firstParty",
+      "thinkingTokens": 192,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31027,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"borderline\",\"candidate_a\":{\"accuracy\":\"wrong\",\"overall\":1,\"problems\":[\"The diff adds seven set singletons, not eight.\",\"It is not a complete sentence and is not in the past tense.\",\"It is vague and uses internal language ('singleton', 'types'): a user can't tell that it means type annotations for S.Integers, S.Reals and the others.\",\"It doesn't say the change only affects static type checking.\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"The change only affects type checking, so it is borderline whether it needs an entry at all.\",\"It doesn't mention the StochasticProcess annotation changes, including that __new__ no longer accepts **kwargs. This omission is minor.\"]},\"same_substance\":false,\"preferred\":\"B\",\"strength\":\"clear\",\"rationale\":\"The PR adds class-level type annotations to SingletonRegistry so that type checkers recognize seven set singletons (S.Complexes, S.Integers, S.Naturals, S.Naturals0, S.Rationals, S.Reals, S.UniversalSet). It also annotates the stochastic-process code. Candidate B names exactly those seven singletons and correctly says the change is for type checkers. It is a complete past-tense sentence that a user can understand. Candidate A's \\\"Add 8 more types\\\" gets the count wrong, isn't a proper sentence, and is too vague for users to learn what changed.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "wrong",
+      "overall": 1,
+      "problems": [
+        "The diff adds seven set singletons, not eight.",
+        "It is not a complete sentence and is not in the past tense.",
+        "It is vague and uses internal language ('singleton', 'types'): a user can't tell that it means type annotations for S.Integers, S.Reals and the others.",
+        "It doesn't say the change only affects static type checking."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "The change only affects type checking, so it is borderline whether it needs an entry at all.",
+        "It doesn't mention the StochasticProcess annotation changes, including that __new__ no longer accepts **kwargs. This omission is minor."
+      ]
+    },
+    "preferred": "B",
+    "rationale": "The PR adds class-level type annotations to SingletonRegistry so that type checkers recognize seven set singletons (S.Complexes, S.Integers, S.Naturals, S.Naturals0, S.Rationals, S.Reals, S.UniversalSet). It also annotates the stochastic-process code. Candidate B names exactly those seven singletons and correctly says the change is for type checkers. It is a complete past-tense sentence that a user can understand. Candidate A's \"Add 8 more types\" gets the count wrong, isn't a proper sentence, and is too vague for users to learn what changed.",
+    "same_substance": false,
+    "should_have_entry": "borderline",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31027/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31027/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "wrong",
+          "overall": 1,
+          "problems": [
+            "The diff adds seven set singletons, not eight.",
+            "It is not a complete sentence and is not in the past tense.",
+            "It is vague and uses internal language ('singleton', 'types'): a user can't tell that it means type annotations for S.Integers, S.Reals and the others.",
+            "It doesn't say the change only affects static type checking."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "The change only affects type checking, so it is borderline whether it needs an entry at all.",
+            "It doesn't mention the StochasticProcess annotation changes, including that __new__ no longer accepts **kwargs. This omission is minor."
+          ]
+        },
+        "preferred": "B",
+        "rationale": "The PR adds class-level type annotations to SingletonRegistry so that type checkers recognize seven set singletons (S.Complexes, S.Integers, S.Naturals, S.Naturals0, S.Rationals, S.Reals, S.UniversalSet). It also annotates the stochastic-process code. Candidate B names exactly those seven singletons and correctly says the change is for type checkers. It is a complete past-tense sentence that a user can understand. Candidate A's \"Add 8 more types\" gets the count wrong, isn't a proper sentence, and is too vague for users to learn what changed.",
+        "same_substance": false,
+        "should_have_entry": "borderline",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0873852,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 8014,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 8014,
+    "cache_read_input_tokens": 15186,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 2562,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 2562,
+        "cache_read_input_tokens": 10319,
+        "input_tokens": 2,
+        "output_tokens": 811,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1011,
+    "output_tokens_details": {
+      "thinking_tokens": 192
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

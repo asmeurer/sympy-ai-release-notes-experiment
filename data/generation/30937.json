@@ -1,0 +1,98 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 3934,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 8643,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 8643,
+      "cacheReadInputTokens": 23397,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0405597,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 364,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30937,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":true,\"entries\":[],\"reasoning\":\"The PR only simplifies the GitHub pull request template and moves contributor guidance into the developer docs. That is a workflow and developer-documentation change that doesn't affect people who use SymPy, so it needs no entry.\"}",
+  "structured_output": {
+    "entries": [],
+    "no_entry": true,
+    "reasoning": "The PR only simplifies the GitHub pull request template and moves contributor guidance into the developer docs. That is a workflow and developer-documentation change that doesn't affect people who use SymPy, so it needs no entry."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30937/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30937/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [],
+        "no_entry": true,
+        "reasoning": "The PR only simplifies the GitHub pull request template and moves contributor guidance into the developer docs. That is a workflow and developer-documentation change that doesn't affect people who use SymPy, so it needs no entry."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0405597,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 8643,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 8643,
+    "cache_read_input_tokens": 23397,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 8202,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 8202,
+        "cache_read_input_tokens": 11919,
+        "input_tokens": 2,
+        "output_tokens": 170,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 364,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

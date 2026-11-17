@@ -1,0 +1,85 @@
+diff --git a/sympy/testing/runtests.py b/sympy/testing/runtests.py
+index 6fdd28c1acdb..eeb605064265 100644
+--- a/sympy/testing/runtests.py
++++ b/sympy/testing/runtests.py
+@@ -1892,7 +1892,7 @@ def __init__(self):
+         # floats in the 'want' string may contain ellipses
+         want_floats = got_floats + r'(\.{3})?'
+ 
+-        front_sep = r'\s|\+|\-|\*|,'
++        front_sep = r'[\s+\-*,()\[\]{}:=/]'
+         back_sep = front_sep + r'|j|e'
+ 
+         fbeg = r'^%s(?=%s|$)' % (got_floats, back_sep)
+@@ -1918,6 +1918,11 @@ def check_output(self, want, got, optionflags):
+         if got == want:
+             return True
+ 
++        # Ellipses may hide floats, so leave the output unchanged and
++        # use doctest's ordinary text matching rather than float substitution.
++        if optionflags & pdoctest.ELLIPSIS and '...' in want:
++            return super().check_output(want, got, optionflags)
++
+         # TODO parse integers as well ?
+         # Parse floats and compare them. If some of the parsed floats contain
+         # ellipses, skip the comparison.
+diff --git a/sympy/testing/tests/test_runtests.py b/sympy/testing/tests/test_runtests.py
+index 6b3d1fd4fe56..358a10e3de10 100644
+--- a/sympy/testing/tests/test_runtests.py
++++ b/sympy/testing/tests/test_runtests.py
+@@ -1,8 +1,9 @@
+ from __future__ import annotations
+ 
+ import os
++from doctest import ELLIPSIS, NORMALIZE_WHITESPACE
+ 
+-from sympy.testing.runtests import convert_to_native_paths
++from sympy.testing.runtests import SymPyOutputChecker, convert_to_native_paths
+ 
+ 
+ def test_convert_to_native_paths():
+@@ -14,3 +15,44 @@ def test_convert_to_native_paths():
+         r".\sympy\solvers",
+     ]
+     assert set(convert_to_native_paths(paths)) == {expected}
++
++
++def test_sympy_output_checker_ellipsis():
++    checker = SymPyOutputChecker()
++
++    # An ellipsis can hide several floating-point coefficients.
++    got = 'Force(0.814, 1.06, 0.162, 0.0633, 0.433, -8.149, -0.374, 0.886)'
++    want = 'Force(0.814, ..., -8.149, -0.374, 0.886)'
++    assert checker.check_output(want, got, ELLIPSIS)
++
++    # Without ELLIPSIS the output must not match, and an incorrect
++    # visible number must not be hidden by the wildcard.
++    assert not checker.check_output(want, got, 0)
++    assert not checker.check_output(
++        'Force(0.814, ..., -8.149, -0.374, 0.999)', got, ELLIPSIS)
++
++    # The standard doctest matcher also normalizes whitespace.
++    assert checker.check_output(
++        'Force(0.814, ...,\n -8.149, -0.374, 0.886)',
++        got, ELLIPSIS | NORMALIZE_WHITESPACE)
++
++    # Approximate float matching without an ellipsis is unchanged.
++    assert checker.check_output('0.60000', '0.6000001', 0)
++    assert checker.check_output('1.0, 2.0', '1.000001, 2.0', ELLIPSIS)
++
++    # Approximate floats can be surrounded by brackets.
++    for left, right in ('()', '[]', '{}'):
++        want = f'{left}1.0, 2.0{right}'
++        assert checker.check_output(
++            want, f'{left}1.000001, 2.000001{right}', ELLIPSIS)
++        assert not checker.check_output(
++            want, f'{left}1.000001, 2.001{right}', ELLIPSIS)
++
++    # Other single-character separators are accepted as well.
++    for sep in '=:/':
++        assert checker.check_output(
++            f'1.0{sep}2.0', f'1.000001{sep}2.000001', ELLIPSIS)
++
++    # With an ellipsis, visible floats must match exactly.
++    assert not checker.check_output(
++        'f(1.0, ..., 2.0)', 'f(1.000001, x, 2.0)', ELLIPSIS)

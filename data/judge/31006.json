@@ -1,0 +1,141 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 14539,
+  "human_is": "A",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 23238,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 23238,
+      "cacheReadInputTokens": 15348,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.2171096,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1406,
+      "provider": "firstParty",
+      "thinkingTokens": 341,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31006,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"minor_inaccuracy\",\"overall\":2,\"problems\":[\"Three sentences long, against the guide's one-sentence norm; it reads like a design note.\",\"Uses 'Implemented complete symbolic formula', which describes the implementation instead of the behavior a user sees; it never says that negative steps used to raise IndexError, that out-of-bounds slices now clip instead of erroring, or that this matches Python/NumPy.\",\"Not consistently past tense ('Users are encouraged...').\",\"Gives assumption names as attributes (is_integer, is_positive, is_nonnegative) rather than the symbol keywords (integer=True, positive=True) a user would actually pass.\",\"Contains a grammar slip: 'such that evaluation of shape, or MatrixElement can simplify better'.\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"Does not mention that shapes of slices of symbolic-size matrices can now be complicated Max/Min/sign expressions unless the symbols have positive or integer assumptions. This is a visible behavior change.\",\"'Fixed' slightly undersells the change: negative steps are a newly supported feature, not only a bug fix.\"]},\"same_substance\":false,\"preferred\":\"B\",\"strength\":\"clear\",\"rationale\":\"The diff rewrites how MatrixSlice resolves slices. Negative steps such as X[::-1, :] now work. Out-of-bounds slice bounds now clip instead of raising IndexError; for example, X[0:12, :] on a 10x20 matrix now has shape (10, 20). Negative bounds are wrapped and clipped the way Python does it, and the resulting shapes can be symbolic Max/Min expressions. Candidate B states these user-visible behaviors in one accurate, concrete sentence with an example. Candidate A is three sentences of implementation-flavored wording, never says what used to fail, and is mostly taken up by advice. That advice (shapes of symbolic matrices get complicated without assumptions) is a real effect, but it is poorly worded and gives the assumptions as attribute names rather than the keywords a user passes.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "minor_inaccuracy",
+      "overall": 2,
+      "problems": [
+        "Three sentences long, against the guide's one-sentence norm; it reads like a design note.",
+        "Uses 'Implemented complete symbolic formula', which describes the implementation instead of the behavior a user sees; it never says that negative steps used to raise IndexError, that out-of-bounds slices now clip instead of erroring, or that this matches Python/NumPy.",
+        "Not consistently past tense ('Users are encouraged...').",
+        "Gives assumption names as attributes (is_integer, is_positive, is_nonnegative) rather than the symbol keywords (integer=True, positive=True) a user would actually pass.",
+        "Contains a grammar slip: 'such that evaluation of shape, or MatrixElement can simplify better'."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "Does not mention that shapes of slices of symbolic-size matrices can now be complicated Max/Min/sign expressions unless the symbols have positive or integer assumptions. This is a visible behavior change.",
+        "'Fixed' slightly undersells the change: negative steps are a newly supported feature, not only a bug fix."
+      ]
+    },
+    "preferred": "B",
+    "rationale": "The diff rewrites how MatrixSlice resolves slices. Negative steps such as X[::-1, :] now work. Out-of-bounds slice bounds now clip instead of raising IndexError; for example, X[0:12, :] on a 10x20 matrix now has shape (10, 20). Negative bounds are wrapped and clipped the way Python does it, and the resulting shapes can be symbolic Max/Min expressions. Candidate B states these user-visible behaviors in one accurate, concrete sentence with an example. Candidate A is three sentences of implementation-flavored wording, never says what used to fail, and is mostly taken up by advice. That advice (shapes of symbolic matrices get complicated without assumptions) is a real effect, but it is poorly worded and gives the assumptions as attribute names rather than the keywords a user passes.",
+    "same_substance": false,
+    "should_have_entry": "yes",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31006/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31006/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "minor_inaccuracy",
+          "overall": 2,
+          "problems": [
+            "Three sentences long, against the guide's one-sentence norm; it reads like a design note.",
+            "Uses 'Implemented complete symbolic formula', which describes the implementation instead of the behavior a user sees; it never says that negative steps used to raise IndexError, that out-of-bounds slices now clip instead of erroring, or that this matches Python/NumPy.",
+            "Not consistently past tense ('Users are encouraged...').",
+            "Gives assumption names as attributes (is_integer, is_positive, is_nonnegative) rather than the symbol keywords (integer=True, positive=True) a user would actually pass.",
+            "Contains a grammar slip: 'such that evaluation of shape, or MatrixElement can simplify better'."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "Does not mention that shapes of slices of symbolic-size matrices can now be complicated Max/Min/sign expressions unless the symbols have positive or integer assumptions. This is a visible behavior change.",
+            "'Fixed' slightly undersells the change: negative steps are a newly supported feature, not only a bug fix."
+          ]
+        },
+        "preferred": "B",
+        "rationale": "The diff rewrites how MatrixSlice resolves slices. Negative steps such as X[::-1, :] now work. Out-of-bounds slice bounds now clip instead of raising IndexError; for example, X[0:12, :] on a 10x20 matrix now has shape (10, 20). Negative bounds are wrapped and clipped the way Python does it, and the resulting shapes can be symbolic Max/Min expressions. Candidate B states these user-visible behaviors in one accurate, concrete sentence with an example. Candidate A is three sentences of implementation-flavored wording, never says what used to fail, and is mostly taken up by advice. That advice (shapes of symbolic matrices get complicated without assumptions) is a real effect, but it is poorly worded and gives the assumptions as attribute names rather than the keywords a user passes.",
+        "same_substance": false,
+        "should_have_entry": "yes",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.2171096,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 23238,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 23238,
+    "cache_read_input_tokens": 15348,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 17624,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 17624,
+        "cache_read_input_tokens": 10481,
+        "input_tokens": 2,
+        "output_tokens": 1206,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1406,
+    "output_tokens_details": {
+      "thinking_tokens": 341
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 8425,
+  "human_is": "A",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 9530,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 9530,
+      "cacheReadInputTokens": 15234,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0963028,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 850,
+      "provider": "firstParty",
+      "thinkingTokens": 74,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30984,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"accurate\",\"overall\":3,\"problems\":[\"It describes the fix as an implementation detail (switching `floor` to `ceiling`) and never states the effect a user would notice: the last row or column was dropped and the shape was too small.\",\"A reader has to work out for themselves when the old result was wrong (only when the length is not divisible by the step).\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":5,\"problems\":[\"Slightly long at two sentences, but the concrete example earns its place.\"]},\"same_substance\":false,\"preferred\":\"B\",\"strength\":\"clear\",\"rationale\":\"The merged diff changes `MatrixSlice.shape` to use `ceiling` instead of `floor` when the step is greater than 1. Before, the shape was too small and the last row or column was dropped whenever the length wasn't divisible by the step: for example, `X[::2, ::2]` on a 5x5 matrix gave `(2, 2)` instead of `(3, 3)`. This is a bug fix users can see, so it needs an entry. Both candidates are accurate. A only names the floor-to-ceiling swap, an implementation detail. B describes what users saw and gives a correct example taken straight from the new tests, so B is clearly better.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "accurate",
+      "overall": 3,
+      "problems": [
+        "It describes the fix as an implementation detail (switching `floor` to `ceiling`) and never states the effect a user would notice: the last row or column was dropped and the shape was too small.",
+        "A reader has to work out for themselves when the old result was wrong (only when the length is not divisible by the step)."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 5,
+      "problems": [
+        "Slightly long at two sentences, but the concrete example earns its place."
+      ]
+    },
+    "preferred": "B",
+    "rationale": "The merged diff changes `MatrixSlice.shape` to use `ceiling` instead of `floor` when the step is greater than 1. Before, the shape was too small and the last row or column was dropped whenever the length wasn't divisible by the step: for example, `X[::2, ::2]` on a 5x5 matrix gave `(2, 2)` instead of `(3, 3)`. This is a bug fix users can see, so it needs an entry. Both candidates are accurate. A only names the floor-to-ceiling swap, an implementation detail. B describes what users saw and gives a correct example taken straight from the new tests, so B is clearly better.",
+    "same_substance": false,
+    "should_have_entry": "yes",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30984/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30984/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "accurate",
+          "overall": 3,
+          "problems": [
+            "It describes the fix as an implementation detail (switching `floor` to `ceiling`) and never states the effect a user would notice: the last row or column was dropped and the shape was too small.",
+            "A reader has to work out for themselves when the old result was wrong (only when the length is not divisible by the step)."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 5,
+          "problems": [
+            "Slightly long at two sentences, but the concrete example earns its place."
+          ]
+        },
+        "preferred": "B",
+        "rationale": "The merged diff changes `MatrixSlice.shape` to use `ceiling` instead of `floor` when the step is greater than 1. Before, the shape was too small and the last row or column was dropped whenever the length wasn't divisible by the step: for example, `X[::2, ::2]` on a 5x5 matrix gave `(2, 2)` instead of `(3, 3)`. This is a bug fix users can see, so it needs an entry. Both candidates are accurate. A only names the floor-to-ceiling swap, an implementation detail. B describes what users saw and gives a correct example taken straight from the new tests, so B is clearly better.",
+        "same_substance": false,
+        "should_have_entry": "yes",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0963028,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 9530,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 9530,
+    "cache_read_input_tokens": 15234,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 4030,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 4030,
+        "cache_read_input_tokens": 10367,
+        "input_tokens": 2,
+        "output_tokens": 650,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 850,
+    "output_tokens_details": {
+      "thinking_tokens": 74
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

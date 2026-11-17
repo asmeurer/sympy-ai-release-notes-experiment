@@ -1,0 +1,83 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 5138,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 2192,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 2192,
+      "cacheReadInputTokens": 2260,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.027575999999999996,
+      "inputTokens": 2,
+      "maxOutputTokens": 128000,
+      "outputTokens": 479,
+      "provider": "firstParty",
+      "thinkingTokens": 208,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 2,
+  "number": 31077,
+  "permission_denials": [],
+  "result_text": "{\"disclosure\":\"ai_assist\",\"entry_looks_ai_written\":\"likely\",\"evidence\":\"The disclosure says only that AI was used to explore test cases, and that the contributor reviewed and tested the change. The entry is a clean, generic summary that restates the conventional-commit title (\\\"Refined unitary matrix inverse to `Adjoint`...\\\"), and it sits in a polished, AI-style description with bold numbered sections, LaTeX, and phrasing like \\\"with zero regressions\\\". That suggests it was generated alongside the description rather than typed separately, though one sentence is limited evidence.\"}",
+  "structured_output": {
+    "disclosure": "ai_assist",
+    "entry_looks_ai_written": "likely",
+    "evidence": "The disclosure says only that AI was used to explore test cases, and that the contributor reviewed and tested the change. The entry is a clean, generic summary that restates the conventional-commit title (\"Refined unitary matrix inverse to `Adjoint`...\"), and it sits in a polished, AI-style description with bold numbered sections, LaTeX, and phrasing like \"with zero regressions\". That suggests it was generated alongside the description rather than typed separately, though one sentence is limited evidence."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "disclosure": "ai_assist",
+        "entry_looks_ai_written": "likely",
+        "evidence": "The disclosure says only that AI was used to explore test cases, and that the contributor reviewed and tested the change. The entry is a clean, generic summary that restates the conventional-commit title (\"Refined unitary matrix inverse to `Adjoint`...\"), and it sits in a polished, AI-style description with bold numbered sections, LaTeX, and phrasing like \"with zero regressions\". That suggests it was generated alongside the description rather than typed separately, though one sentence is limited evidence."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.027575999999999996,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 2192,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 2192,
+    "cache_read_input_tokens": 2260,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 2,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 2192,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 2192,
+        "cache_read_input_tokens": 2260,
+        "input_tokens": 2,
+        "output_tokens": 479,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 479,
+    "output_tokens_details": {
+      "thinking_tokens": 208
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

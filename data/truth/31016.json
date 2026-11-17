@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "I used Claude Code (Claude Sonnet 5.5) to help find the cause and to write the change and tests. I reviewed it and ran the tests myself.",
+  "author": "adityaanikam",
+  "entries": [
+    {
+      "submodule": "solvers",
+      "text": "Fixed wrong results from `solveset` for `Mod(b**x, m) = r` when `b` shares a factor with `m`; these are now left unevaluated."
+    }
+  ],
+  "merged_at": "2026-11-11T08:01:14Z",
+  "number": 31016,
+  "overlap": {
+    "title_similarity": 0.5027932960893855,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* solvers\n  * Fixed wrong results from `solveset` for `Mod(b**x, m) = r` when `b` shares a factor with `m`; these are now left unevaluated.",
+  "status": "entry",
+  "title": "\ud83e\udd16 Fix wrong solveset results for modular powers with a non-coprime base"
+}

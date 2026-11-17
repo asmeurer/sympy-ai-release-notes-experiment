@@ -1,0 +1,151 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 13789,
+  "human_is": "A",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 11370,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 11370,
+      "cacheReadInputTokens": 45467,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.1285854,
+      "inputTokens": 8,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1425,
+      "provider": "firstParty",
+      "thinkingTokens": 315,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 6,
+  "number": 30924,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"minor_inaccuracy\",\"overall\":2,\"problems\":[\"Says the recursion error happened 'when printing'. The infinite recursion was in evalf_mul itself under evaluate(False), for example when building And(Eq(0, Add(x, Mul(-1, I)))). It was not a printing bug.\",\"The entries are not complete sentences: they start with lowercase letters and have no final periods.\",\"'Products' is vague. The accuracy improvement applies to numerical evaluation of unevaluated products that have exact complex rational factors, and to nested Muls.\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"A bit long: two claims are packed into one sentence.\"]},\"same_substance\":false,\"preferred\":\"B\",\"strength\":\"clear\",\"rationale\":\"The PR rewrote evalf_mul so it no longer does symbolic Mul multiplication. That removes the infinite recursion under evaluate(False) (issue #30874). It also gathers exact complex rational factors, including those inside nested unevaluated Muls, into one exact coefficient, which improves accuracy. Candidate B states both changes correctly, places the recursion in evalf, and gives a concrete example. Candidate A wrongly says the recursion happened when printing, does not use proper sentences, and its accuracy claim is vague.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "minor_inaccuracy",
+      "overall": 2,
+      "problems": [
+        "Says the recursion error happened 'when printing'. The infinite recursion was in evalf_mul itself under evaluate(False), for example when building And(Eq(0, Add(x, Mul(-1, I)))). It was not a printing bug.",
+        "The entries are not complete sentences: they start with lowercase letters and have no final periods.",
+        "'Products' is vague. The accuracy improvement applies to numerical evaluation of unevaluated products that have exact complex rational factors, and to nested Muls."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "A bit long: two claims are packed into one sentence."
+      ]
+    },
+    "preferred": "B",
+    "rationale": "The PR rewrote evalf_mul so it no longer does symbolic Mul multiplication. That removes the infinite recursion under evaluate(False) (issue #30874). It also gathers exact complex rational factors, including those inside nested unevaluated Muls, into one exact coefficient, which improves accuracy. Candidate B states both changes correctly, places the recursion in evalf, and gives a concrete example. Candidate A wrongly says the recursion happened when printing, does not use proper sentences, and its accuracy claim is vague.",
+    "same_substance": false,
+    "should_have_entry": "yes",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30924/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30924/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "glob": "linked.md",
+        "output_mode": "content",
+        "path": "<repo>/work/judge-runs/30924",
+        "pattern": "recursion|print|str\\("
+      },
+      "name": "Grep"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30924/linked.md",
+        "limit": 34
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "minor_inaccuracy",
+          "overall": 2,
+          "problems": [
+            "Says the recursion error happened 'when printing'. The infinite recursion was in evalf_mul itself under evaluate(False), for example when building And(Eq(0, Add(x, Mul(-1, I)))). It was not a printing bug.",
+            "The entries are not complete sentences: they start with lowercase letters and have no final periods.",
+            "'Products' is vague. The accuracy improvement applies to numerical evaluation of unevaluated products that have exact complex rational factors, and to nested Muls."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "A bit long: two claims are packed into one sentence."
+          ]
+        },
+        "preferred": "B",
+        "rationale": "The PR rewrote evalf_mul so it no longer does symbolic Mul multiplication. That removes the infinite recursion under evaluate(False) (issue #30874). It also gathers exact complex rational factors, including those inside nested unevaluated Muls, into one exact coefficient, which improves accuracy. Candidate B states both changes correctly, places the recursion in evalf, and gives a concrete example. Candidate A wrongly says the recursion happened when printing, does not use proper sentences, and its accuracy claim is vague.",
+        "same_substance": false,
+        "should_have_entry": "yes",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.1285854,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 11370,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 11370,
+    "cache_read_input_tokens": 45467,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 8,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 847,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 847,
+        "cache_read_input_tokens": 15390,
+        "input_tokens": 2,
+        "output_tokens": 804,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1425,
+    "output_tokens_details": {
+      "thinking_tokens": 315
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

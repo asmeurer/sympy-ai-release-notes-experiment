@@ -1,0 +1,468 @@
+diff --git a/sympy/__init__.py b/sympy/__init__.py
+index 5cddc23c2318..68a961834959 100644
+--- a/sympy/__init__.py
++++ b/sympy/__init__.py
+@@ -196,7 +196,7 @@ def __sympy_debug():
+         BlockDiagMatrix, BlockMatrix, FunctionMatrix, Identity, Inverse,
+         MatAdd, MatMul, MatPow, MatrixExpr, MatrixSymbol, Trace, Transpose,
+         ZeroMatrix, OneMatrix, blockcut, block_collapse, matrix_symbols,
+-        Adjoint, hadamard_product, HadamardProduct, HadamardPower,
++        Adjoint, Conjugate, hadamard_product, HadamardProduct, HadamardPower,
+         Determinant, det, diagonalize_vector, DiagMatrix, DiagonalMatrix,
+         DiagonalOf, trace, DotProduct, kronecker_product, KroneckerProduct,
+         PermutationMatrix, MatrixPermute, Permanent, per, rot_ccw_axis1,
+@@ -436,7 +436,7 @@ def __sympy_debug():
+     'BlockDiagMatrix', 'BlockMatrix', 'FunctionMatrix', 'Identity', 'Inverse',
+     'MatAdd', 'MatMul', 'MatPow', 'MatrixExpr', 'MatrixSymbol', 'Trace',
+     'Transpose', 'ZeroMatrix', 'OneMatrix', 'blockcut', 'block_collapse',
+-    'matrix_symbols', 'Adjoint', 'hadamard_product', 'HadamardProduct',
++    'matrix_symbols', 'Adjoint', 'Conjugate', 'hadamard_product', 'HadamardProduct',
+     'HadamardPower', 'Determinant', 'det', 'diagonalize_vector', 'DiagMatrix',
+     'DiagonalMatrix', 'DiagonalOf', 'trace', 'DotProduct',
+     'kronecker_product', 'KroneckerProduct', 'PermutationMatrix',
+diff --git a/sympy/core/tests/test_args.py b/sympy/core/tests/test_args.py
+index a4e40325c83d..5f2c4e750119 100644
+--- a/sympy/core/tests/test_args.py
++++ b/sympy/core/tests/test_args.py
+@@ -3382,6 +3382,12 @@ def test_sympy__matrices__expressions__adjoint__Adjoint():
+     assert _test_args(Adjoint(MatrixSymbol('A', 3, 5)))
+ 
+ 
++def test_sympy__matrices__expressions__conjugate__Conjugate():
++    from sympy.matrices.expressions.conjugate import Conjugate
++    from sympy.matrices.expressions import MatrixSymbol
++    assert _test_args(Conjugate(MatrixSymbol('A', 3, 5)))
++
++
+ def test_sympy__matrices__expressions__trace__Trace():
+     from sympy.matrices.expressions.trace import Trace
+     from sympy.matrices.expressions import MatrixSymbol
+diff --git a/sympy/matrices/__init__.py b/sympy/matrices/__init__.py
+index ba8b1657ca48..dde5104cd21b 100644
+--- a/sympy/matrices/__init__.py
++++ b/sympy/matrices/__init__.py
+@@ -29,6 +29,7 @@
+     MatrixSlice, BlockDiagMatrix, BlockMatrix, FunctionMatrix, Identity,
+     Inverse, MatAdd, MatMul, MatPow, MatrixExpr, MatrixSymbol, Trace,
+     Transpose, ZeroMatrix, OneMatrix, blockcut, block_collapse, matrix_symbols, Adjoint,
++    Conjugate,
+     hadamard_product, HadamardProduct, HadamardPower, Determinant, det,
+     diagonalize_vector, DiagMatrix, DiagonalMatrix, DiagonalOf, trace,
+     DotProduct, kronecker_product, KroneckerProduct,
+@@ -62,7 +63,7 @@
+     'MatrixSlice', 'BlockDiagMatrix', 'BlockMatrix', 'FunctionMatrix',
+     'Identity', 'Inverse', 'MatAdd', 'MatMul', 'MatPow', 'MatrixExpr',
+     'MatrixSymbol', 'Trace', 'Transpose', 'ZeroMatrix', 'OneMatrix',
+-    'blockcut', 'block_collapse', 'matrix_symbols', 'Adjoint',
++    'blockcut', 'block_collapse', 'matrix_symbols', 'Adjoint', 'Conjugate',
+     'hadamard_product', 'HadamardProduct', 'HadamardPower', 'Determinant',
+     'det', 'diagonalize_vector', 'DiagMatrix', 'DiagonalMatrix',
+     'DiagonalOf', 'trace', 'DotProduct', 'kronecker_product',
+diff --git a/sympy/matrices/expressions/__init__.py b/sympy/matrices/expressions/__init__.py
+index 039743212a83..c4b3b592080f 100644
+--- a/sympy/matrices/expressions/__init__.py
++++ b/sympy/matrices/expressions/__init__.py
+@@ -14,6 +14,7 @@
+ from .determinant import Determinant, det, Permanent, per
+ from .transpose import Transpose
+ from .adjoint import Adjoint
++from .conjugate import Conjugate
+ from .hadamard import hadamard_product, HadamardProduct, hadamard_power, HadamardPower
+ from .diagonal import DiagonalMatrix, DiagonalOf, DiagMatrix, diagonalize_vector
+ from .dotproduct import DotProduct
+@@ -49,6 +50,7 @@
+     'Transpose',
+ 
+     'Adjoint',
++    'Conjugate',
+ 
+     'hadamard_product', 'HadamardProduct', 'hadamard_power', 'HadamardPower',
+ 
+diff --git a/sympy/matrices/expressions/blockmatrix.py b/sympy/matrices/expressions/blockmatrix.py
+index f3f9ab3431cf..9464100afa49 100644
+--- a/sympy/matrices/expressions/blockmatrix.py
++++ b/sympy/matrices/expressions/blockmatrix.py
+@@ -191,6 +191,11 @@ def _eval_adjoint(self):
+             Matrix(self.blockshape[0], self.blockshape[1], self.blocks).adjoint()
+         )
+ 
++    def _eval_conjugate(self):
++        return BlockMatrix(
++            Matrix(self.blockshape[0], self.blockshape[1], self.blocks).conjugate()
++        )
++
+     def _eval_trace(self):
+         if self.rowblocksizes == self.colblocksizes:
+             blocks = [self.blocks[i, i] for i in range(self.blockshape[0])]
+diff --git a/sympy/matrices/expressions/conjugate.py b/sympy/matrices/expressions/conjugate.py
+new file mode 100644
+index 000000000000..8fb1bf4bb12d
+--- /dev/null
++++ b/sympy/matrices/expressions/conjugate.py
+@@ -0,0 +1,100 @@
++from __future__ import annotations
++
++from sympy.core.sympify import _sympify
++from sympy.matrices.expressions.matexpr import MatrixExpr
++
++
++class Conjugate(MatrixExpr):
++    """
++    The elementwise complex conjugate of a matrix expression.
++
++    This is a symbolic object that simply stores its argument without
++    evaluating it. To actually compute the conjugate, use the ``conjugate()``
++    function, or the ``.conjugate()`` method of matrices.
++
++    Examples
++    ========
++
++    >>> from sympy import MatrixSymbol, Conjugate, conjugate
++    >>> A = MatrixSymbol('A', 3, 5)
++    >>> Conjugate(A)
++    Conjugate(A)
++    >>> Conjugate(A).shape
++    (3, 5)
++    >>> Conjugate(A).T
++    Adjoint(A)
++    >>> Conjugate(A).adjoint()
++    A.T
++    >>> Conjugate(Conjugate(A)).doit()
++    A
++    """
++    is_Conjugate = True
++
++    def __new__(cls, mat):
++        mat = _sympify(mat)
++        if not mat.is_Matrix:
++            raise TypeError("argument to Conjugate must be a matrix")
++        return super().__new__(cls, mat)
++
++    def doit(self, **hints):
++        from sympy.functions.elementary.complexes import conjugate
++        arg = self.arg.doit(**hints) if hints.get('deep', True) else self.arg
++        return conjugate(arg)
++
++    @property
++    def arg(self):
++        return self.args[0]
++
++    @property
++    def shape(self):
++        return self.arg.shape
++
++    def _entry(self, i, j, **kwargs):
++        from sympy.functions.elementary.complexes import conjugate
++        return conjugate(self.arg._entry(i, j, **kwargs))
++
++    def _eval_adjoint(self):
++        return self.arg.transpose()
++
++    def _eval_transpose(self):
++        return self.arg.adjoint()
++
++    def _eval_conjugate(self):
++        return self.arg
++
++    def _eval_trace(self):
++        from sympy.matrices.expressions.trace import Trace
++        from sympy.functions.elementary.complexes import conjugate
++        return conjugate(Trace(self.arg))
++
++    def _eval_determinant(self):
++        from sympy.matrices.expressions.determinant import det
++        from sympy.functions.elementary.complexes import conjugate
++        return conjugate(det(self.arg))
++
++
++from sympy.assumptions.ask import ask, Q
++from sympy.assumptions.refine import handlers_dict
++
++
++def refine_Conjugate(expr, assumptions):
++    """
++    Refine a Conjugate matrix expression under assumptions.
++
++    Examples
++    ========
++
++    >>> from sympy import MatrixSymbol, Q, assuming, refine
++    >>> from sympy.matrices.expressions.conjugate import Conjugate
++    >>> X = MatrixSymbol('X', 2, 2)
++    >>> with assuming(Q.real_elements(X)):
++    ...     print(refine(Conjugate(X)))
++    X
++    """
++    if ask(Q.real_elements(expr.arg), assumptions):
++        return expr.arg
++
++    return expr
++
++
++handlers_dict['Conjugate'] = refine_Conjugate
+diff --git a/sympy/matrices/expressions/matadd.py b/sympy/matrices/expressions/matadd.py
+index 01e449af35b6..a147dc472db9 100644
+--- a/sympy/matrices/expressions/matadd.py
++++ b/sympy/matrices/expressions/matadd.py
+@@ -5,7 +5,7 @@
+ from sympy.core import Basic, sympify
+ from sympy.core.add import add, Add, _could_extract_minus_sign
+ from sympy.core.sorting import default_sort_key
+-from sympy.functions import adjoint
++from sympy.functions import adjoint, conjugate
+ from sympy.matrices.matrixbase import MatrixBase
+ from sympy.matrices.expressions.transpose import transpose
+ from sympy.strategies import (rm_id, unpack, flatten, sort, condition,
+@@ -89,6 +89,9 @@ def _eval_transpose(self):
+     def _eval_adjoint(self):
+         return MatAdd(*[adjoint(arg) for arg in self.args]).doit()
+ 
++    def _eval_conjugate(self):
++        return MatAdd(*[conjugate(arg) for arg in self.args]).doit()
++
+     def _eval_trace(self):
+         from .trace import trace
+         return Add(*[trace(arg) for arg in self.args]).doit()
+diff --git a/sympy/matrices/expressions/matexpr.py b/sympy/matrices/expressions/matexpr.py
+index 7c6d349fd4c6..57e0604e1c52 100644
+--- a/sympy/matrices/expressions/matexpr.py
++++ b/sympy/matrices/expressions/matexpr.py
+@@ -184,8 +184,8 @@ def is_square(self) -> bool | None:
+         return None
+ 
+     def _eval_conjugate(self):
+-        from sympy.matrices.expressions.adjoint import Adjoint
+-        return Adjoint(Transpose(self))
++        from sympy.matrices.expressions.conjugate import Conjugate
++        return Conjugate(self)
+ 
+     def as_real_imag(self, deep=True, **hints):
+         return self._eval_as_real_imag()
+diff --git a/sympy/matrices/expressions/matmul.py b/sympy/matrices/expressions/matmul.py
+index 1c90326bedea..a77e34be6dc0 100644
+--- a/sympy/matrices/expressions/matmul.py
++++ b/sympy/matrices/expressions/matmul.py
+@@ -5,7 +5,7 @@
+ from sympy.core.mul import mul, Mul
+ from sympy.core.numbers import Number, Integer
+ from sympy.core.symbol import Dummy
+-from sympy.functions import adjoint
++from sympy.functions import adjoint, conjugate
+ from sympy.strategies import (rm_id, unpack, typed, flatten, exhaust,
+         do_one, new)
+ from sympy.matrices.exceptions import NonInvertibleMatrixError
+@@ -199,6 +199,9 @@ def _eval_transpose(self):
+     def _eval_adjoint(self):
+         return MatMul(*[adjoint(arg) for arg in self.args[::-1]]).doit()
+ 
++    def _eval_conjugate(self):
++        return MatMul(*[conjugate(arg) for arg in self.args]).doit()
++
+     def _eval_trace(self):
+         factor, mmul = self.as_coeff_mmul()
+         if factor != 1:
+diff --git a/sympy/matrices/expressions/matpow.py b/sympy/matrices/expressions/matpow.py
+index 4ab28a7763c5..f0b1a949faae 100644
+--- a/sympy/matrices/expressions/matpow.py
++++ b/sympy/matrices/expressions/matpow.py
+@@ -100,7 +100,7 @@ def _eval_conjugate(self):
+         base, exp = self.args
+         if exp.is_integer and exp.is_nonnegative:
+             return MatPow(base.conjugate(), exp)
+-        return None
++        return super()._eval_conjugate()
+ 
+     def _eval_derivative(self, x):
+         assert not hasattr(x, "shape")
+diff --git a/sympy/matrices/expressions/tests/test_adjoint.py b/sympy/matrices/expressions/tests/test_adjoint.py
+index dd46e3dd0419..c035168a53f9 100644
+--- a/sympy/matrices/expressions/tests/test_adjoint.py
++++ b/sympy/matrices/expressions/tests/test_adjoint.py
+@@ -1,7 +1,7 @@
+ from __future__ import annotations
+ from sympy.core import symbols, S
+ from sympy.functions import adjoint, conjugate, transpose
+-from sympy.matrices.expressions import MatrixSymbol, Adjoint, trace, Transpose
++from sympy.matrices.expressions import MatrixSymbol, Adjoint, trace, Transpose, Conjugate
+ from sympy.matrices import eye, Matrix
+ 
+ n, m, l, k, p = symbols('n m l k p', integer=True)
+@@ -19,7 +19,8 @@ def test_adjoint():
+     assert isinstance(Adjoint(Adjoint(A)), Adjoint)
+ 
+     assert conjugate(Adjoint(A)) == Transpose(A)
+-    assert transpose(Adjoint(A)) == Adjoint(Transpose(A))
++    assert transpose(Adjoint(A)) == Conjugate(A)
++    assert Adjoint(Transpose(A)).doit() == Conjugate(A)
+ 
+     assert Adjoint(eye(3)).doit() == eye(3)
+ 
+diff --git a/sympy/matrices/expressions/tests/test_conjugate.py b/sympy/matrices/expressions/tests/test_conjugate.py
+new file mode 100644
+index 000000000000..80d4d61ad690
+--- /dev/null
++++ b/sympy/matrices/expressions/tests/test_conjugate.py
+@@ -0,0 +1,100 @@
++from __future__ import annotations
++
++from sympy.core.symbol import symbols
++from sympy.core.numbers import I
++from sympy.matrices.expressions import MatrixSymbol, Adjoint, Transpose
++from sympy.matrices.expressions.conjugate import Conjugate
++from sympy.matrices import Matrix
++from sympy.assumptions import Q, assuming, refine
++from sympy.testing.pytest import raises
++
++
++def test_conjugate():
++    n, m = symbols('n m', integer=True, positive=True)
++    A = MatrixSymbol('A', n, m)
++    B = MatrixSymbol('B', m, n)
++
++    cA = Conjugate(A)
++    assert cA.shape == (n, m)
++    assert cA.arg == A
++
++    # Inverse properties
++    assert cA.conjugate() == A
++    assert Conjugate(cA).doit() == A
++
++    # Transposition and Adjoint duality
++    assert cA.T == Adjoint(A)
++    assert cA.transpose() == Adjoint(A)
++    assert cA.adjoint() == A.T
++
++    # Multiplication compatibility
++    prod = cA * B
++    assert prod.shape == (n, n)
++
++    # Invalid input
++    raises(TypeError, lambda: Conjugate(1))
++
++
++def test_conjugate_klein_four_group():
++    n, m = symbols('n m', integer=True, positive=True)
++    A = MatrixSymbol('A', n, m)
++
++    # The Klein 4-group generated by Transpose and Conjugate:
++    # Transpose o Conjugate == Conjugate o Transpose == Adjoint
++    assert Conjugate(A).transpose() == Adjoint(A)
++    assert Conjugate(A).adjoint() == Transpose(A)
++    assert Adjoint(A).transpose() == Conjugate(A)
++    assert Adjoint(A).conjugate() == Transpose(A)
++
++
++def test_conjugate_entry():
++    M = Matrix([[1 + I, 2], [3 - 2*I, 4*I]])
++    cM = Conjugate(M)
++    assert cM.shape == (2, 2)
++    assert cM[0, 0] == 1 - I
++    assert cM[0, 1] == 2
++    assert cM[1, 0] == 3 + 2*I
++    assert cM[1, 1] == -4*I
++
++
++def test_conjugate_refine():
++    n = symbols('n', integer=True, positive=True)
++    X = MatrixSymbol('X', n, n)
++    with assuming(Q.real_elements(X)):
++        assert refine(Conjugate(X)) == X
++
++
++def test_conjugate_printing():
++    from sympy import pretty, latex
++    n = symbols('n', integer=True, positive=True)
++    A = MatrixSymbol('A', n, n)
++    cA = Conjugate(A)
++    assert str(cA) == 'Conjugate(A)'
++    assert latex(cA) == r'\overline{A}'
++    assert '_' in pretty(cA)
++
++
++def test_conjugate_matmul_matadd():
++    n = symbols('n', integer=True, positive=True)
++    A = MatrixSymbol('A', n, n)
++    B = MatrixSymbol('B', n, n)
++    assert (A * B).conjugate() == Conjugate(A) * Conjugate(B)
++    assert (I * A).conjugate() == -I * Conjugate(A)
++    assert (A + B).conjugate() == Conjugate(A) + Conjugate(B)
++
++
++def test_matpow_conjugate_issue_16498():
++    from sympy.functions import adjoint
++    n = symbols('n', integer=True, positive=True)
++    C = MatrixSymbol('C', n, n)
++    B = MatrixSymbol('B', n, n)
++
++    # Issue #16498: conjugate of negative / complex matrix power must not fail with AttributeError
++    adj_inv = adjoint(C**(-2))
++    assert isinstance(adj_inv, Conjugate)
++    assert adj_inv.shape == (n, n)
++    assert (adj_inv * B).shape == (n, n)
++
++    adj_cmplx = adjoint(C**I)
++    assert isinstance(adj_cmplx, Conjugate)
++    assert adj_cmplx.shape == (n, n)
+diff --git a/sympy/matrices/expressions/tests/test_matpow.py b/sympy/matrices/expressions/tests/test_matpow.py
+index 281d467536e7..70a3040b7c5f 100644
+--- a/sympy/matrices/expressions/tests/test_matpow.py
++++ b/sympy/matrices/expressions/tests/test_matpow.py
+@@ -261,3 +261,8 @@ def test_adjoint_conjugate_power():
+     assert (X**I).conjugate() == conjugate(X**I)
+     assert (X**z).adjoint() == conjugate(X.T**z)
+     assert (X**z).conjugate() == conjugate(X**z)
++
++    # Issue #30900 / #16498: conjugate/adjoint of negative powers preserves shape and matrix operations
++    B = MatrixSymbol('B', n, n)
++    assert (X**(-2)).adjoint().shape == (n, n)
++    assert ((X**(-2)).adjoint() * B).shape == (n, n)
+diff --git a/sympy/matrices/expressions/tests/test_transpose.py b/sympy/matrices/expressions/tests/test_transpose.py
+index 7bb9bbe87798..be338ef5e614 100644
+--- a/sympy/matrices/expressions/tests/test_transpose.py
++++ b/sympy/matrices/expressions/tests/test_transpose.py
+@@ -1,6 +1,6 @@
+ from __future__ import annotations
+ from sympy.functions import adjoint, conjugate, transpose
+-from sympy.matrices.expressions import MatrixSymbol, Adjoint, trace, Transpose
++from sympy.matrices.expressions import MatrixSymbol, Adjoint, trace, Transpose, Conjugate
+ from sympy.matrices import eye, Matrix
+ from sympy.assumptions.ask import Q
+ from sympy.assumptions.refine import refine
+@@ -22,7 +22,8 @@ def test_transpose():
+     assert transpose(Transpose(A)) == A
+     assert isinstance(Transpose(Transpose(A)), Transpose)
+ 
+-    assert adjoint(Transpose(A)) == Adjoint(Transpose(A))
++    assert adjoint(Transpose(A)) == Conjugate(A)
++    assert Adjoint(Transpose(A)).doit() == Conjugate(A)
+     assert conjugate(Transpose(A)) == Adjoint(A)
+ 
+     assert Transpose(eye(3)).doit() == eye(3)
+diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py
+index 085114def624..059120e9b34b 100644
+--- a/sympy/printing/latex.py
++++ b/sympy/printing/latex.py
+@@ -1844,6 +1844,9 @@ def _print_Adjoint(self, expr):
+             else:
+                 return r"%s^{%s}" % (s, adjoint_style)
+ 
++    def _print_Conjugate(self, expr, exp=None):
++        return self._print_conjugate(expr, exp=exp)
++
+     def _print_MatMul(self, expr):
+         from sympy import MatMul
+ 
+diff --git a/sympy/printing/pretty/pretty.py b/sympy/printing/pretty/pretty.py
+index fd50dd8f6cd1..2143e848b380 100644
+--- a/sympy/printing/pretty/pretty.py
++++ b/sympy/printing/pretty/pretty.py
+@@ -893,6 +893,9 @@ def _print_Adjoint(self, expr):
+         pform = pform**dag
+         return pform
+ 
++    def _print_Conjugate(self, expr):
++        return self._print_conjugate(expr)
++
+     def _print_BlockMatrix(self, B):
+         if B.blocks.shape == (1, 1):
+             return self._print(B.blocks[0, 0])

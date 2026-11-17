@@ -1,0 +1,59 @@
+diff --git a/sympy/core/basic.py b/sympy/core/basic.py
+index c9fcdc03960f..82040ebe3d8a 100644
+--- a/sympy/core/basic.py
++++ b/sympy/core/basic.py
+@@ -303,6 +303,8 @@ def copy(self):
+         """
+         Return a shallow copy of the expression.
+ 
++        Atomic expressions are immutable and return themselves when copied.
++
+         Examples
+         ========
+ 
+@@ -2402,6 +2404,10 @@ class Atom(Basic):
+ 
+     __slots__ = ()
+ 
++    def copy(self):
++        """Return this atom, since atomic expressions are immutable."""
++        return self
++
+     def matches(self, expr, repl_dict=None, old=False):
+         if self == expr:
+             if repl_dict is None:
+diff --git a/sympy/core/tests/test_basic.py b/sympy/core/tests/test_basic.py
+index 4cec34bb9b10..f8ac40b7cceb 100644
+--- a/sympy/core/tests/test_basic.py
++++ b/sympy/core/tests/test_basic.py
+@@ -11,7 +11,7 @@
+ from sympy.core.function import Function, Lambda
+ from sympy.core.numbers import I, pi, Float
+ from sympy.core.singleton import S
+-from sympy.core.symbol import symbols, Symbol, Dummy
++from sympy.core.symbol import symbols, Symbol, Dummy, Wild
+ from sympy.concrete.summations import Sum
+ from sympy.functions.elementary.trigonometric import (cos, sin)
+ from sympy.functions.special.gamma_functions import gamma
+@@ -51,6 +51,21 @@ def test_immutable():
+         b1.x = 1
+ 
+ 
++def test_copy():
++    copied = b21.copy()
++    assert copied == b21
++    assert copied is not b21
++    assert all(a is b for a, b in zip(copied.args, b21.args))
++
++
++def test_atom_copy():
++    x = Symbol('x', positive=True)
++    atoms = [x, Atom(), Dummy('d'), Wild('w', exclude=[x]),
++             S(2), S(2)/3, Float('1.23456789', 50)]
++    for atom in atoms:
++        assert atom.copy() is atom
++
++
+ def test_equality():
+     instances = [b1, b2, b3, b21, Basic(b1, b1, b1), Basic]
+     for i, b_i in enumerate(instances):

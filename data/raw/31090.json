@@ -1,0 +1,99 @@
+{
+  "additions": 19,
+  "author": "zorgonk",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\nLocal source: doc/src/contributing/pull-request-guidelines.rst\nKeep all section headings below. -->\n\n#### References to other Issues or PRs\nCloses #31039 \n\n#### Brief description of what is fixed or changed\n`nsolve` now raises a `TypeError` that the initial guess should be a Number or Python number when an unevaluated SymPy `Expr` (like `pi` or `E`) is passed as an initial guess instead of crashing with `TypeError: cannot create mpf from pi`\n\n- Validates elements of `x0` to reject instances of `Expr` that are not `Number`\n- Iterates through all values of `x0` when iterable to make sure every guess gets checked -in case of multivariate systems or other 1D  bracketed stuff\n\n#### Other comments\n\n- Allowed `S.ImaginaryUnit` (`I`), since `mpmath` handles it natively and existing tests rely on it.\n- Added regression tests in `sympy/solvers/tests/test_numeric.py`.\n\n#### AI Generation Disclosure\n\nConstantly used Gemini 4 (Hydrogen) to assist with the style of writing the code\n\n#### Release Notes\n\n\n<!-- BEGIN RELEASE NOTES -->\n* solvers\n  * `nsolve` now raises a `TypeError` when an unevaluated SymPy `Expr` (such as `pi` or `E`) is passed as an initial guess instead of a `Number` or Python number\n<!-- END RELEASE NOTES -->\n",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "Anandhu Sathyan",
+      "message": "raise TypeError for non-Number Expr initial guess in nsolve",
+      "sha": "af3025ddb9bb4ea2d8b420f7e9c5566ae4bb2a79"
+    },
+    {
+      "author": "Anandhu Sathyan",
+      "message": "Update sympy/solvers/solvers.py\n\nCo-authored-by: Christopher Smith <smichr@gmail.com>",
+      "sha": "3409094aad34346fb1e6fc641a7371f6e6e71998"
+    },
+    {
+      "author": "Anandhu Sathyan",
+      "message": "Update sympy/solvers/tests/test_numeric.py\n\nCo-authored-by: Christopher Smith <smichr@gmail.com>",
+      "sha": "05b6b4f76f396bba34f48624d77dc64c0f71e3f5"
+    },
+    {
+      "author": "Anandhu Sathyan",
+      "message": "Update sympy/solvers/solvers.py\n\nCo-authored-by: Christopher Smith <smichr@gmail.com>",
+      "sha": "7b54c2a76027f523a30260ecd48b153826a2b14b"
+    }
+  ],
+  "created_at": "2026-11-14T06:01:26Z",
+  "deletions": 0,
+  "diff": "diff --git a/sympy/solvers/solvers.py b/sympy/solvers/solvers.py\nindex 89bec42b6c7c..28b0745db192 100644\n--- a/sympy/solvers/solvers.py\n+++ b/sympy/solvers/solvers.py\n@@ -21,6 +21,7 @@\n                                  Function, expand_power_exp, _mexpand, expand,\n                                  expand_func)\n from sympy.core.logic import fuzzy_not, fuzzy_and\n+from sympy.core.evalf import pure_complex\n from sympy.core.numbers import Float, Rational, _illegal\n from sympy.core.intfunc import integer_log, ilcm\n from sympy.core.power import Pow\n@@ -3108,6 +3109,14 @@ def nsolve(*args, dict=False, **kwargs):\n         f = Matrix(f).T\n     if iterable(x0):\n         x0 = list(x0)\n+\n+    for i in (x0 if isinstance(x0, list) else [x0]):\n+        if isinstance(i, Expr) and pure_complex(i, or_real=True) is None:\n+            raise TypeError(\n+                \"You must evaluate numeric initial guesses; \"\n+                \"e.g. use pi.n() instead of pi\"\n+            )\n+\n     if not isinstance(f, Matrix):\n         # assume it's a SymPy expression\n         if isinstance(f, Eq):\ndiff --git a/sympy/solvers/tests/test_numeric.py b/sympy/solvers/tests/test_numeric.py\nindex 5e6f4d7158e3..cf56b67e8bf0 100644\n--- a/sympy/solvers/tests/test_numeric.py\n+++ b/sympy/solvers/tests/test_numeric.py\n@@ -138,3 +138,13 @@ def test_issue_14950():\n     eqn = x + x0\n     assert nsolve(eqn, x, x0) == nfloat(-x0)\n     assert nsolve(eqn.T, x.T, x0.T) == nfloat(-x0)\n+\n+def test_issue_31039():\n+    x, y = symbols('x y')\n+    raises(TypeError, lambda: nsolve(sin(x), x, pi))\n+    raises(TypeError, lambda: nsolve(sin(x), x, (3, pi)))\n+    raises(TypeError, lambda: nsolve([sin(x), y - 1], [x, y], [pi, 1]))\n+    assert abs(nsolve(sin(x), x, pi.n(2)) - pi) < 1e-15\n+    assert nsolve(x - 1 + I, x, 1 - I/2) == 1.0 - 1.0*I\n+    assert nsolve(x - 1 + I, x, '42') == 1.0 - 1.0*I\n+    assert nsolve(x - 1 + I, x, 42) == 1.0 - 1.0*I\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* solvers\n  * `nsolve` now raises a `TypeError` when an unevaluated SymPy `Expr` (such as `pi` or `E`) is passed as an initial guess instead of a `Number` or Python number ([#31090](https://github.com/sympy/sympy/pull/31090) by [@zorgonk](https://github.com/zorgonk))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\n    Local source: doc/src/contributing/pull-request-guidelines.rst\n    Keep all section headings below. -->\n\n    #### References to other Issues or PRs\n    Closes #31039 \n\n    #### Brief description of what is fixed or changed\n    `nsolve` now raises a `TypeError` that the initial guess should be a Number or Python number when an unevaluated SymPy `Expr` (like `pi` or `E`) is passed as an initial guess instead of crashing with `TypeError: cannot create mpf from pi`\n\n    - Validates elements of `x0` to reject instances of `Expr` that are not `Number`\n    - Iterates through all values of `x0` when iterable to make sure every guess gets checked -in case of multivariate systems or other 1D  bracketed stuff\n\n    #### Other comments\n\n    - Allowed `S.ImaginaryUnit` (`I`), since `mpmath` handles it natively and existing tests rely on it.\n    - Added regression tests in `sympy/solvers/tests/test_numeric.py`.\n\n    #### AI Generation Disclosure\n\n    Constantly used Gemini 4 (Hydrogen) to assist with the style of writing the code\n\n    #### Release Notes\n\n\n    <!-- BEGIN RELEASE NOTES -->\n    * solvers\n      * `nsolve` now raises a `TypeError` when an unevaluated SymPy `Expr` (such as `pi` or `E`) is passed as an initial guess instead of a `Number` or Python number\n    <!-- END RELEASE NOTES -->\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-14T06:01:29Z"
+    },
+    {
+      "author": "zorgonk",
+      "body": "Thank you so much for reviewing the code and making those changes, @smichr. That was a silly oversight on my part.",
+      "created_at": "2026-11-15T17:29:34Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "11350613",
+      "body": "sympy commit hash: de06b948bd78245559aa355081c1b85feec67f03 (current master)\n\n---\n\n```python\nIn [1]: nsolve(sin(x), x, pi)\nTypeError                                 Traceback (most recent call last)\nCell In[1], line 1\n----> 1 nsolve(sin(x), x, pi)\n\nFile ~/sympy-dev/sympy/sympy/external/mpmath.py:223, in conserve_mpmath_dps.<locals>.func_wrapper(*args, **kwargs)\n221 dps = mpmath.mp.dps\n222 try:\n--> 223     return func(*args, **kwargs)\n224 finally:\n225     mpmath.mp.dps = dps\n\nFile ~/sympy-dev/sympy/sympy/solvers/solvers.py:3135, in nsolve(dict, *args, **kwargs)\n3129 # the function is much better behaved if there is no denominator\n3130 # but sending the numerator is left to the user since sometimes\n3131 # the function is better behaved when the denominator is present\n3132 # e.g., issue 11768\n3134 f = lambdify(fargs, f, modules)\n-> 3135 x = sympify(findroot(f, x0, **kwargs))\n3136 if as_dict:\n3137     return [{fargs: x}]\n\nFile ~/sympy-dev/sympy/venv/lib/python3.12/site-packages/mpmath/calculus/optimization.py:923, in findroot(ctx, f, x0, solver, tol, verbose, verify, **kwargs)\n921     x0 = [ctx.convert(x) for x in x0]\n922 else:\n--> 923     x0 = [ctx.convert(x0)]\n925 if isinstance(solver, str):\n926     try:\n\nFile ~/sympy-dev/sympy/venv/lib/python3.12/site-packages/mpmath/ctx_mp_python.py:866, in PythonMPContext.convert(ctx, x, strings)\n864 if type(x).module == 'decimal':\n865     return ctx.make_mpf(from_Decimal(x, prec, rounding))\n--> 866 return ctx._convert_fallback(x, strings)\n\nFile ~/sympy-dev/sympy/venv/lib/python3.12/site-packages/mpmath/ctx_mp.py:605, in MPContext._convert_fallback(ctx, x, strings)\n603     else:\n604         raise ValueError(\"can only create mpf from zero-width interval\")\n--> 605 raise TypeError(\"cannot create mpf from \" + repr(x))\n\nTypeError: cannot create mpf from pi\n```\n\n---\n\n~Expected result = 3.14159265358979~\n\nUpdate: see https://github.com/sympy/sympy/issues/31039#issuecomment-6862665609",
+      "is_pull_request": false,
+      "number": 31039,
+      "state": "closed",
+      "title": "`nsolve(sin(x), x, pi)`"
+    }
+  ],
+  "merge_commit_sha": "0f6197ee72b661b9c3efbcfdcc109dbf750b30ef",
+  "merged_at": "2026-11-15T19:03:48Z",
+  "number": 31090,
+  "review_comments": [
+    {
+      "author": "smichr",
+      "body": "```suggestion\nfrom sympy.core.evalf import pure_complex\nfrom sympy.core.numbers import Float, Rational, _illegal\n```",
+      "created_at": "2026-11-15T02:22:28Z",
+      "path": "sympy/solvers/solvers.py"
+    },
+    {
+      "author": "smichr",
+      "body": "```suggestion\n    assert abs(nsolve(sin(x), x, pi.n(2)) - pi) < 1e-15\n    assert nsolve(x - 1 + I, x, 1 - I/2) == 1.0 - 1.0*I\n    assert nsolve(x - 1 + I, x, '42') == 1.0 - 1.0*I\n    assert nsolve(x - 1 + I, x, 42) == 1.0 - 1.0*I\n```",
+      "created_at": "2026-11-15T06:57:29Z",
+      "path": "sympy/solvers/tests/test_numeric.py"
+    },
+    {
+      "author": "smichr",
+      "body": "```suggestion\n    for i in (x0 if isinstance(x0, list) else [x0]):\n        if isinstance(i, Expr) and pure_complex(i, or_real=True) is None:\n            raise TypeError(\n                \"You must evaluate numeric initial guesses; \"\n                \"e.g. use pi.n() instead of pi\"\n            )\n```",
+      "created_at": "2026-11-15T07:33:45Z",
+      "path": "sympy/solvers/solvers.py"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-15T02:22:28Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-15T06:57:29Z"
+    },
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-15T07:33:45Z"
+    }
+  ],
+  "title": "raise TypeError for non-Number Expr initial guess in nsolve"
+}

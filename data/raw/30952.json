@@ -1,0 +1,76 @@
+{
+  "additions": 50,
+  "author": "raman118",
+  "base": "master",
+  "body": "#### References to other Issues or PRs\n\nFixes #30951\n\n#### Brief description of what is fixed or changed\n\n`reshape` now validates counts before division: negative counts and nonpositive total sizes raise `ValueError`. Nested zero-size groups are supported when the overall template has positive size; for example, `reshape([1, 2, 3, 4], ([0], 4))` returns `[([], 1, 2, 3, 4)]`.\n\nThe recursive grouping follows smichr's suggestion, passing and returning the sequence position explicitly instead of using `nonlocal`.\n\n#### Other comments\n\nThe new regressions failed before the revision. All 49 iterable tests, repository quality checks, `ruff check sympy`, and `python bin/mailmap_check.py` passed. The commit author's email and aliases are included in `.mailmap`.\n\n#### AI Generation Disclosure\n\nOpenAI Codex (GPT-6.1 Sol) generated the original changes in `sympy/utilities/iterables.py` and `sympy/utilities/tests/test_iterables.py`. OpenAI Codex (GPT-6 Astra) generated the follow-up changes in those files based on smichr's suggestion, added the user-provided identity to `.mailmap`, and wrote this description at the account owner's request.\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* utilities\n  * Fixed `reshape` to reject negative counts and nonpositive total template sizes with `ValueError`, while supporting nested zero-size groups in templates with a positive total size.\n<!-- END RELEASE NOTES -->\n",
+  "changed_files": 3,
+  "commits": [
+    {
+      "author": "raman118",
+      "message": "utilities: validate reshape template size before division\n\nAI-assisted implementation and tests by OpenAI Codex using GPT-6.1 Sol; reviewed by GPT-6 Astra.\n\nCo-authored-by: OpenAI Codex <noreply@openai.com>",
+      "sha": "930c1e6ce673ffe55aa212d89e817f1cb524e89f"
+    },
+    {
+      "author": "Doremon",
+      "message": "Add Doremon to .mailmap\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>",
+      "sha": "35dd83642006685b8b5c900b1c8f42f5a4951eed"
+    },
+    {
+      "author": "raman118",
+      "message": "author: map Doremon commit identity to raman118\n\nAI-assisted change by OpenAI Codex (GPT-6 Astra).",
+      "sha": "2d7204a145b635298f6a2baae7d1b0f539e67970"
+    },
+    {
+      "author": "raman118",
+      "message": "Handle nested zero counts and reject negative reshape counts\n\nAdapt the recursive grouping approach suggested by smichr. Pass and return the sequence position explicitly to avoid nonlocal state, and validate the complete template once.\n\nAI-generated changes by OpenAI Codex (GPT-6 Astra).",
+      "sha": "8c54de2c131a4ee7a8090464070ceb0878253bbe"
+    }
+  ],
+  "created_at": "2026-11-05T12:12:29Z",
+  "deletions": 19,
+  "diff": "diff --git a/.mailmap b/.mailmap\nindex 8cb2cc06a13c..2719c2fc31c1 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -1941,6 +1941,9 @@ prsdx <prsdx.dev@gmail.com>\n prshnt19 <prashant.rawat216@gmail.com>\n rahil-amin <rahilamin201@gmail.com>\n rahuldan <rahul02013@gmail.com>\n+raman118 <rcho38706@gmail.com>\n+raman118 <rcho38706@gmail.com> Doremon <113814705+raman118@users.noreply.github.com>\n+raman118 <rcho38706@gmail.com> Doremon <rcho38706@gmail.com>\n ramvenkat98 <ramvenkat98@gmail.com>\n rathmann <rathmann.os@gmail.com> <peter@ubuntu.ubuntu-domain>\n rationa-kunal <kunalgk1999@gmail.com> kunal <kunalgk1999@gmail.com>\ndiff --git a/sympy/utilities/iterables.py b/sympy/utilities/iterables.py\nindex 45a2e86012de..a27e6758f31f 100644\n--- a/sympy/utilities/iterables.py\n+++ b/sympy/utilities/iterables.py\n@@ -144,6 +144,10 @@ def unflatten(iter, n=2):\n def reshape(seq, how):\n     \"\"\"Reshape the sequence according to the template in ``how``.\n \n+    Counts in the template must be nonnegative, with a positive total\n+    that divides the length of ``seq``. Nested templates may have zero\n+    total size.\n+\n     Examples\n     ========\n \n@@ -178,26 +182,28 @@ def reshape(seq, how):\n     [[0, 1, [2, 3, 4], {5, 6}, (7, (8, 9, 10), 11)]]\n \n     \"\"\"\n-    m = sum(flatten(how))\n-    n, rem = divmod(len(seq), m)\n-    if m < 0 or rem:\n-        raise ValueError('template must sum to positive number '\n-        'that divides the length of the sequence')\n-    i = 0\n-    container = type(how)\n-    rv = [None]*n\n-    for k in range(len(rv)):\n-        _rv = []\n-        for hi in how:\n-            if isinstance(hi, int):\n-                _rv.extend(seq[i: i + hi])\n-                i += hi\n+    sizes = flatten(how)\n+    m = sum(sizes)\n+    if any(s < 0 for s in sizes) or m <= 0 or len(seq) % m:\n+        raise ValueError('template must contain nonnegative counts '\n+                         'with a positive sum that divides the sequence length')\n+\n+    def make_group(template, i):\n+        result = []\n+        for item in template:\n+            if isinstance(item, int):\n+                result.extend(seq[i:i + item])\n+                i += item\n             else:\n-                n = sum(flatten(hi))\n-                hi_type = type(hi)\n-                _rv.append(hi_type(reshape(seq[i: i + n], hi)[0]))\n-                i += n\n-        rv[k] = container(_rv)\n+                group, i = make_group(item, i)\n+                result.append(group)\n+        return type(template)(result), i\n+\n+    i = 0\n+    rv = []\n+    for _ in range(len(seq) // m):\n+        group, i = make_group(how, i)\n+        rv.append(group)\n     return type(seq)(rv)\n \n \ndiff --git a/sympy/utilities/tests/test_iterables.py b/sympy/utilities/tests/test_iterables.py\nindex a9e42444f62c..687446bd8cd6 100644\n--- a/sympy/utilities/tests/test_iterables.py\n+++ b/sympy/utilities/tests/test_iterables.py\n@@ -706,10 +706,32 @@ def test_reshape():\n         (([1], 2, (3, 4)), ([5], 6, (7, 8)))\n     assert reshape(list(range(12)), [2, [3], {2}, (1, (3,), 1)]) == \\\n         [[0, 1, [2, 3, 4], {5, 6}, (7, (8, 9, 10), 11)]]\n+    assert reshape(seq, (0, 4)) == reshape(seq, (4, 0)) == reshape(seq, (4,))\n+    for how in [(), [], ((),), ([],), (0,), (1, -1)]:\n+        raises(ValueError, lambda: reshape((1,), how))\n+        raises(ValueError, lambda: reshape((), how))\n     raises(ValueError, lambda: reshape([0, 1], [-1]))\n     raises(ValueError, lambda: reshape([0, 1], [3]))\n \n \n+def test_reshape_nested_zero_counts():\n+    seq = [1, 2, 3, 4]\n+    assert reshape(seq, ([0], 4)) == [([], 1, 2, 3, 4)]\n+    assert reshape(seq, ((0,), 4)) == [((), 1, 2, 3, 4)]\n+    assert reshape(seq, ([0], (0,), 4)) == [([], (), 1, 2, 3, 4)]\n+    assert reshape(seq, ([], (), 4)) == [([], (), 1, 2, 3, 4)]\n+    assert reshape(seq, (1, [0, (0,)], 1)) == [\n+        (1, [()], 2), (3, [()], 4)]\n+    assert reshape(tuple(seq), ([0], 2)) == (([], 1, 2), ([], 3, 4))\n+    assert reshape([], ([0], 4)) == []\n+\n+\n+def test_reshape_negative_counts():\n+    for how in [(-1, 5), (2, -1, 3), (0, -1, 5), ([-1], 5)]:\n+        raises(ValueError, lambda: reshape([1, 2, 3, 4], how))\n+        raises(ValueError, lambda: reshape([], how))\n+\n+\n def test_uniq():\n     assert list(uniq(p for p in partitions(4))) == \\\n         [{4: 1}, {1: 1, 3: 1}, {2: 2}, {1: 2, 2: 1}, {1: 4}]\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* utilities\n  * Fixed `reshape` to reject negative counts and nonpositive total template sizes with `ValueError`, while supporting nested zero-size groups in templates with a positive total size. ([#30952](https://github.com/sympy/sympy/pull/30952) by [@raman118](https://github.com/raman118))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    #### References to other Issues or PRs\n\n    Fixes #30951\n\n    #### Brief description of what is fixed or changed\n\n    `reshape` now validates counts before division: negative counts and nonpositive total sizes raise `ValueError`. Nested zero-size groups are supported when the overall template has positive size; for example, `reshape([1, 2, 3, 4], ([0], 4))` returns `[([], 1, 2, 3, 4)]`.\n\n    The recursive grouping follows smichr's suggestion, passing and returning the sequence position explicitly instead of using `nonlocal`.\n\n    #### Other comments\n\n    The new regressions failed before the revision. All 49 iterable tests, repository quality checks, `ruff check sympy`, and `python bin/mailmap_check.py` passed. The commit author's email and aliases are included in `.mailmap`.\n\n    #### AI Generation Disclosure\n\n    OpenAI Codex (GPT-6.1 Sol) generated the original changes in `sympy/utilities/iterables.py` and `sympy/utilities/tests/test_iterables.py`. OpenAI Codex (GPT-6 Astra) generated the follow-up changes in those files based on smichr's suggestion, added the user-provided identity to `.mailmap`, and wrote this description at the account owner's request.\n\n    #### Release Notes\n\n    <!-- BEGIN RELEASE NOTES -->\n    * utilities\n      * Fixed `reshape` to reject negative counts and nonpositive total template sizes with `ValueError`, while supporting nested zero-size groups in templates with a positive total size.\n    <!-- END RELEASE NOTES -->\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-05T12:12:38Z"
+    },
+    {
+      "author": "smichr",
+      "body": "Thanks for looking into this. What about\r\n\r\n```diff\r\ndiff --git a/sympy/utilities/iterables.py b/sympy/utilities/iterables.py\r\nindex 45a2e86012..955d60afab 100644\r\n--- a/sympy/utilities/iterables.py\r\n+++ b/sympy/utilities/iterables.py\r\n@@ -178,27 +178,26 @@ def reshape(seq, how):\r\n     [[0, 1, [2, 3, 4], {5, 6}, (7, (8, 9, 10), 11)]]\r\n \r\n     \"\"\"\r\n-    m = sum(flatten(how))\r\n-    n, rem = divmod(len(seq), m)\r\n-    if m < 0 or rem:\r\n-        raise ValueError('template must sum to positive number '\r\n-        'that divides the length of the sequence')\r\n+    sizes = flatten(how)\r\n+    m = sum(sizes)\r\n+    if any(s < 0 for s in sizes) or m <= 0 or len(seq) % m:\r\n+        raise ValueError('template must contain nonnegative counts '\r\n+                         'with a positive sum that divides the sequence length')\r\n+\r\n     i = 0\r\n-    container = type(how)\r\n-    rv = [None]*n\r\n-    for k in range(len(rv)):\r\n-        _rv = []\r\n-        for hi in how:\r\n-            if isinstance(hi, int):\r\n-                _rv.extend(seq[i: i + hi])\r\n-                i += hi\r\n+\r\n+    def make_group(template):\r\n+        nonlocal i\r\n+        result = []\r\n+        for item in template:\r\n+            if isinstance(item, int):\r\n+                result.extend(seq[i:i + item])\r\n+                i += item\r\n             else:\r\n-                n = sum(flatten(hi))\r\n-                hi_type = type(hi)\r\n-                _rv.append(hi_type(reshape(seq[i: i + n], hi)[0]))\r\n-                i += n\r\n-        rv[k] = container(_rv)\r\n-    return type(seq)(rv)\r\n+                result.append(make_group(item))\r\n+        return type(template)(result)\r\n+\r\n+    return type(seq)([make_group(how) for _ in range(len(seq) // m)])\r\n \r\n \r\n @overload\r\ndiff --git a/sympy/utilities/tests/test_iterables.py b/sympy/utilities/tests/test_iterables.py\r\nindex a9e42444f6..cb50706430 100644\r\n--- a/sympy/utilities/tests/test_iterables.py\r\n+++ b/sympy/utilities/tests/test_iterables.py\r\n@@ -709,6 +709,19 @@ def test_reshape():\r\n     raises(ValueError, lambda: reshape([0, 1], [-1]))\r\n     raises(ValueError, lambda: reshape([0, 1], [3]))\r\n \r\n+    seq = [1, 2, 3, 4]\r\n+\r\n+    assert reshape(seq, (0, 4)) == [(1, 2, 3, 4)]\r\n+    assert reshape(seq, ([0], 4)) == [([], 1, 2, 3, 4)]\r\n+    assert reshape(seq, ((0,), 4)) == [((), 1, 2, 3, 4)]\r\n+    assert reshape(seq, ([0], (0,), 4)) == [\r\n+        ([], (), 1, 2, 3, 4)]\r\n+\r\n+    assert reshape(seq, (2, [2])) == [(1, 2, [3, 4])]\r\n+\r\n+    for how in [(-1, 5), (2, -1, 3), (0, -1, 5)]:\r\n+        raises(ValueError, lambda: reshape(seq, how))\r\n+\r\n \r\n def test_uniq():\r\n     assert list(uniq(p for p in partitions(4))) == \\\r\n```",
+      "created_at": "2026-11-05T16:14:26Z"
+    },
+    {
+      "author": "Haeherfeder",
+      "body": "i personally don't like the nonlocal, but will look at it when at home",
+      "created_at": "2026-11-05T16:24:28Z"
+    },
+    {
+      "author": "raman118",
+      "body": "@Haeherfeder sure\r\n",
+      "created_at": "2026-11-05T17:00:13Z"
+    },
+    {
+      "author": "smichr",
+      "body": "Thanks, this is in.",
+      "created_at": "2026-11-05T19:29:45Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "Haeherfeder",
+      "body": "sympy.reshape((1,),how=()) fails with division by zero error, after it sums how, and divides the length of the main argument by it, and only after that checks if it is less than 0 and raises a ValueError",
+      "is_pull_request": false,
+      "number": 30951,
+      "state": "closed",
+      "title": "Division by zero error in reshape"
+    }
+  ],
+  "merge_commit_sha": "7282d9a5e38fdd40452638a8c4c79cc5289eaa2f",
+  "merged_at": "2026-11-05T19:29:15Z",
+  "number": 30952,
+  "review_comments": [],
+  "reviews": [],
+  "title": "Fix reshape validation for empty templates"
+}

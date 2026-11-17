@@ -1,0 +1,66 @@
+diff --git a/doc/src/modules/core.rst b/doc/src/modules/core.rst
+index e497574f7b62..7df61daf427b 100644
+--- a/doc/src/modules/core.rst
++++ b/doc/src/modules/core.rst
+@@ -211,6 +211,8 @@ mul
+ ---
+ .. module:: sympy.core.mul
+ 
++.. py:class:: MonomKey
++
+ .. autoclass:: Mul
+    :members:
+ 
+diff --git a/sympy/core/mul.py b/sympy/core/mul.py
+index 6b0bccc86f0e..edd6a02dc583 100644
+--- a/sympy/core/mul.py
++++ b/sympy/core/mul.py
+@@ -22,6 +22,8 @@
+ 
+ if TYPE_CHECKING:
+     from .numbers import Number
++    from .symbol import Symbol
++    from sympy.polys.orderings import MonomKey
+ 
+ 
+ # internal marker to indicate:
+@@ -164,10 +166,10 @@ class Mul(Expr, AssocOp):
+     """
+     __slots__ = ()
+ 
+-    is_Mul = True
++    is_Mul: bool = True
+ 
+     _args_type = Expr
+-    _kind_dispatcher = KindDispatcher("Mul_kind_dispatcher", commutative=True)
++    _kind_dispatcher: KindDispatcher = KindDispatcher("Mul_kind_dispatcher", commutative=True)
+ 
+     identity: ClassVar[Expr]
+ 
+@@ -191,7 +193,7 @@ def could_extract_minus_sign(self):
+         c = self.args[0]
+         return c.is_Number and c.is_extended_negative
+ 
+-    def __neg__(self):
++    def __neg__(self) -> Expr:
+         c, args = self.as_coeff_mul()
+         if args[0] is not S.ComplexInfinity:
+             c = -c
+@@ -2094,7 +2096,7 @@ def as_content_primitive(self, radical=False, clear=True):
+         # e.g. (2+2*x)*(3+3*x) should be (6, (1 + x)**2) not (6, (1+x)*(1+x))
+         return coef, self.func(*args)
+ 
+-    def as_ordered_factors(self, order=None):
++    def as_ordered_factors(self, order: str | Symbol | MonomKey | None = None) -> list[Expr]:
+         """Transform an expression into an ordered list of factors.
+ 
+         Examples
+@@ -2112,7 +2114,7 @@ def as_ordered_factors(self, order=None):
+         return cpart + ncpart
+ 
+     @property
+-    def _sorted_args(self):
++    def _sorted_args(self) -> tuple[Expr, ...]:
+         return tuple(self.as_ordered_factors())
+ 
+ mul = AssocOpDispatcher('mul')

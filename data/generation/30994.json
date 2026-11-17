@@ -1,0 +1,124 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 5020,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 6517,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 6517,
+      "cacheReadInputTokens": 23397,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0347157,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 630,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30994,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"core\",\"text\":\"Removed workarounds in `Basic` methods such as `xreplace`, `subs`, `replace`, `doit` and `sort_key` that tolerated non-`Basic` objects in `args`. Classes that put non-`Basic` objects in their `args` will now raise errors.\"},{\"submodule\":\"codegen\",\"text\":\"Fixed `reshape` in `sympy.codegen.fnodes` so that nested lists and tuples as arguments are converted to array constructors and work with `hash`, `sort_key` and `doit`.\"},{\"submodule\":\"tensor\",\"text\":\"Fixed `TensorHead` with `comm=None` so that it stores the commutation value as a SymPy `Integer` (`2`) instead of `None`.\"}],\"reasoning\":\"The diff removes user-visible tolerance for non-Basic args in core Basic methods (a behavior change), and fixes two buggy classes (`reshape` nested lists in codegen, `TensorHead` with comm=None in tensor). Entries are based on the diff.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "core",
+        "text": "Removed workarounds in `Basic` methods such as `xreplace`, `subs`, `replace`, `doit` and `sort_key` that tolerated non-`Basic` objects in `args`. Classes that put non-`Basic` objects in their `args` will now raise errors."
+      },
+      {
+        "submodule": "codegen",
+        "text": "Fixed `reshape` in `sympy.codegen.fnodes` so that nested lists and tuples as arguments are converted to array constructors and work with `hash`, `sort_key` and `doit`."
+      },
+      {
+        "submodule": "tensor",
+        "text": "Fixed `TensorHead` with `comm=None` so that it stores the commutation value as a SymPy `Integer` (`2`) instead of `None`."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The diff removes user-visible tolerance for non-Basic args in core Basic methods (a behavior change), and fixes two buggy classes (`reshape` nested lists in codegen, `TensorHead` with comm=None in tensor). Entries are based on the diff."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30994/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30994/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "core",
+            "text": "Removed workarounds in `Basic` methods such as `xreplace`, `subs`, `replace`, `doit` and `sort_key` that tolerated non-`Basic` objects in `args`. Classes that put non-`Basic` objects in their `args` will now raise errors."
+          },
+          {
+            "submodule": "codegen",
+            "text": "Fixed `reshape` in `sympy.codegen.fnodes` so that nested lists and tuples as arguments are converted to array constructors and work with `hash`, `sort_key` and `doit`."
+          },
+          {
+            "submodule": "tensor",
+            "text": "Fixed `TensorHead` with `comm=None` so that it stores the commutation value as a SymPy `Integer` (`2`) instead of `None`."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The diff removes user-visible tolerance for non-Basic args in core Basic methods (a behavior change), and fixes two buggy classes (`reshape` nested lists in codegen, `TensorHead` with comm=None in tensor). Entries are based on the diff."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0347157,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 6517,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 6517,
+    "cache_read_input_tokens": 23397,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 6076,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 6076,
+        "cache_read_input_tokens": 11919,
+        "input_tokens": 2,
+        "output_tokens": 436,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 630,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

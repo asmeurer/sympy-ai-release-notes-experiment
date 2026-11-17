@@ -1,0 +1,92 @@
+diff --git a/.mailmap b/.mailmap
+index e637044e2ebd..5159655837e9 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -1584,6 +1584,8 @@ Seth Poulsen <poulsenseth@yahoo.com>
+ Seth Troisi <sethtroisi@google.com>
+ Shahid Rahaman <shahidrahman333@gmail.com> <44476706+shahid-rahaman@users.noreply.github.com>
+ Shai 'Deshe' Wyborski <shaide@cs.huji.ac.il>
++Shakestein <vinodajmeera002@gmail.com>
++Shakestein <vinodajmeera002@gmail.com> Vinod Ajmeera <vinodajmeera002@gmail.com>
+ Shaoliang Jin <18322825326@163.com> 0382 <18322825326@163.com>
+ Shaoliang Jin <18322825326@163.com> jinshaoliang <18322825326@163.com>
+ Shashank Agarwal <shashank.agarwal94@gmail.com>
+diff --git a/sympy/physics/control/lti.py b/sympy/physics/control/lti.py
+index c4a4fa421e1c..9f88f2631175 100644
+--- a/sympy/physics/control/lti.py
++++ b/sympy/physics/control/lti.py
+@@ -1581,7 +1581,7 @@ def to_expr(self):
+         1/((b - p)*(3*b + p))
+         >>> tf3 = TransferFunction((s - 2)*(s - 3), (s - 1)*(s - 2)*(s - 3), s)
+         >>> tf3.to_expr()
+-        ((s - 3)*(s - 2))/(((s - 3)*(s - 2)*(s - 1)))
++        ((s - 3)*(s - 2))/((s - 3)*(s - 2)*(s - 1))
+ 
+         """
+ 
+diff --git a/sympy/printing/str.py b/sympy/printing/str.py
+index c602f5461f01..643070f7b473 100644
+--- a/sympy/printing/str.py
++++ b/sympy/printing/str.py
+@@ -311,7 +311,9 @@ def _print_Mul(self, expr):
+                 pre = [self._print(d.pop(0))]
+             else:
+                 pre = []
+-            dfactors = pre + [self.parenthesize(a, prec, strict=False)
++            dfactors = pre + [self.parenthesize(a,
++                PRECEDENCE["Pow"] if a.is_Pow and a.exp in (-S.One, -S.Half)
++                else PRECEDENCE["Mul"], strict=False)
+                 for a in d]
+ 
+             n = '*'.join(nfactors)
+@@ -376,12 +378,12 @@ def apow(i):
+         a = a or [S.One]
+ 
+         a_str = [self.parenthesize(x, prec, strict=False) for x in a]
+-        b_str = [self.parenthesize(x, prec, strict=False) for x in b]
++        b_str = [self.parenthesize(x, PRECEDENCE["Mul"], strict=False) for x in b]
+ 
+         # To parenthesize Pow with exp = -1 and having more than one Symbol
+         for item in pow_paren:
+             if item.base in b:
+-                b_str[b.index(item.base)] = "(%s)" % b_str[b.index(item.base)]
++                b_str[b.index(item.base)] = "(%s)" % self._print(item.base)
+ 
+         if not b:
+             return sign + '*'.join(a_str)
+diff --git a/sympy/printing/tests/test_str.py b/sympy/printing/tests/test_str.py
+index fc64b7113a91..1c517b5edf74 100644
+--- a/sympy/printing/tests/test_str.py
++++ b/sympy/printing/tests/test_str.py
+@@ -315,6 +315,31 @@ class CustomClass2(Expr):
+     assert str(cc1*Rational(2)*cc2) == '2*CustomClass1()*CustomClass2()'
+ 
+ 
++def test_issue_18788():
++    denominator = Pow(x*y, -1, evaluate=False)
++    assert str(Mul(2, denominator, evaluate=False)) == '2/(x*y)'
++    assert str(Mul(-2, z, denominator, evaluate=False)) == '-2*z/(x*y)'
++    denominator = Pow(Mul(x, x, evaluate=False), -1, evaluate=False)
++    assert str(Mul(2, denominator, evaluate=False)) == '2/(x*x)'
++    assert str(Mul(-2, z, denominator, evaluate=False)) == '-2*z/(x*x)'
++    denominator = Pow(x**y, -1, evaluate=False)
++    assert str(Mul(2, denominator, evaluate=False)) == '2/(x**y)'
++    d = Pow(x*y, -1, evaluate=False)
++    e = Mul(2, d, Pow(z, -1, evaluate=False), evaluate=False)
++    assert str(e) == '2/(z*(x*y))'
++
++
++def test_unevaluated_reciprocal_denominator():
++    for coefficient, base, expected in [
++            (1, 1/y, '1/(1/y)'), (1, 1/sqrt(y), '1/(1/sqrt(y))'),
++            (1, Rational(2, 3), '1/(2/3)'),
++            (-2, Rational(2, 3), '-2/(2/3)')]:
++        d = Pow(base, -1, evaluate=False)
++        e = Mul(coefficient, d, evaluate=False)
++        assert str(e) == expected
++        assert S(str(e)).equals(e)
++
++
+ def test_numeric_factors_first():
+     # Numeric functions need not be Number instances. Ordering them is
+     # a printer preference and should not evaluate their values.

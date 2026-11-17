@@ -1,0 +1,38 @@
+diff --git a/sympy/core/numbers.py b/sympy/core/numbers.py
+index d109685df524..c1360a138270 100644
+--- a/sympy/core/numbers.py
++++ b/sympy/core/numbers.py
+@@ -3439,7 +3439,7 @@ def __truediv__(self, other):
+ 
+     @cacheit
+     def sort_key(self, order=None):
+-        return self.class_key(), (0, ()), (), S.NegativeInfinity
++        return (1, 0, 'NaN'), (0, ()), (), S.NegativeInfinity
+ 
+     def floor(self):
+         return self
+diff --git a/sympy/core/tests/test_sorting.py b/sympy/core/tests/test_sorting.py
+index d525521f448b..e6a09685c380 100644
+--- a/sympy/core/tests/test_sorting.py
++++ b/sympy/core/tests/test_sorting.py
+@@ -1,4 +1,7 @@
+ from __future__ import annotations
++from itertools import permutations
++
++from sympy.core.numbers import nan, oo
+ from sympy.core.sorting import default_sort_key, ordered
+ from sympy.testing.pytest import raises
+ 
+@@ -16,6 +19,12 @@ def __repr__(self):
+     assert sorted([x, func], key=default_sort_key) == [func, x]
+ 
+ 
++def test_nan_sort_key():
++    for values in permutations([nan, -oo, oo]):
++        assert sorted(values, key=default_sort_key) == [nan, -oo, oo]
++        assert list(ordered(values, warn=True)) == [nan, -oo, oo]
++
++
+ def test_ordered():
+     # Issue 7210 - this had been failing with python2/3 problems
+     assert (list(ordered([{1:3, 2:4, 9:10}, {1:3}])) == \

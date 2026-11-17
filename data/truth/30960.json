@@ -1,0 +1,16 @@
+{
+  "ai_disclosure": "Discussed with ChatGPT.",
+  "author": "smichr",
+  "entries": [],
+  "merged_at": "2026-11-05T20:57:26Z",
+  "number": 30960,
+  "overlap": {
+    "title_similarity": null,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "NO ENTRY",
+  "status": "no_entry",
+  "title": "Allow two ULPs for Newton root accuracy on different platforms"
+}

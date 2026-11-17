@@ -1,0 +1,16 @@
+{
+  "ai_disclosure": "Claude ran the tests and the bisect. I checked the results.",
+  "author": "tqa236",
+  "entries": [],
+  "merged_at": "2026-11-03T14:23:46Z",
+  "number": 30931,
+  "overlap": {
+    "title_similarity": null,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "NO ENTRY",
+  "status": "no_entry",
+  "title": "Remove stale xfails"
+}

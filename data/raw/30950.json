@@ -1,0 +1,110 @@
+{
+  "additions": 15,
+  "author": "raman118",
+  "base": "master",
+  "body": "#### References to other Issues or PRs\r\n\r\nAddresses the `get_abs` recursion case reported in #30925.\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\nNumerically evaluating an unevaluated absolute value of a complex number could recurse indefinitely when evaluation was disabled. This computes the magnitude from the evaluated numeric components and adds a regression test.\r\n\r\n#### Other comments\r\n\r\nVerification:\r\n- `python -m pytest sympy/core/tests/test_evalf.py -q` \u2014 61 passed\r\n- `python bin/test quality` \u2014 6 passed\r\n- `ruff check sympy` \u2014 passed\r\n- `python bin/mailmap_check.py` \u2014 passed\r\n\r\n#### AI Generation Disclosure\r\n\r\nOpenAI Codex using GPT-6 Astra generated changes in `.mailmap`, `sympy/core/evalf.py`, and `sympy/core/tests/test_evalf.py`.\r\n\r\n#### Release Notes\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\n* core\r\n  * Fixed recursion when numerically evaluating a complex absolute value with evaluation disabled.\r\n<!-- END RELEASE NOTES -->",
+  "changed_files": 3,
+  "commits": [
+    {
+      "author": "raman118",
+      "message": "core: fix evalf Abs recursion with evaluate(False)\n\nCo-authored-by: OpenAI Codex (GPT-6 Astra) <noreply@openai.com>",
+      "sha": "7027c3af12530c74ca16f9981b9b2ff694db6858"
+    },
+    {
+      "author": "raman118",
+      "message": "author: add raman118 to .mailmap\n\nCo-authored-by: OpenAI Codex (GPT-6 Astra) <noreply@openai.com>",
+      "sha": "0c016e19063eb11b3fcc920807641f2f03b7869d"
+    },
+    {
+      "author": "Doremon",
+      "message": "Add GitHub noreply email to mailmap",
+      "sha": "724bf6d994618872f49a1d54d3830db30f90ba03"
+    },
+    {
+      "author": "Doremon",
+      "message": "Fix mailmap ordering",
+      "sha": "a95ab776a4b48cdb683796ca862865d7d231fb1b"
+    },
+    {
+      "author": "Doremon",
+      "message": "Merge branch 'master' into fix-evalf-get-abs-recursion-30925",
+      "sha": "614277ce3708a45eb5b995e15f3ca3fb7d37b05d"
+    },
+    {
+      "author": "Doremon",
+      "message": "Add Doremon to .mailmap",
+      "sha": "c4828f02762a70de1629d8c51ef8ad7e76707661"
+    },
+    {
+      "author": "raman118",
+      "message": "Fix ordering of Doremon mailmap entry\n\nAI-assisted correction by OpenAI Codex (GPT-6 Astra).",
+      "sha": "a38e53ab9810fc9207a44039bf17964a0823275f"
+    },
+    {
+      "author": "Christopher Smith",
+      "message": "Apply suggestion from @smichr",
+      "sha": "de3c150f83f3bc3934af938195d4c5faa32752f8"
+    }
+  ],
+  "created_at": "2026-11-05T10:29:16Z",
+  "deletions": 5,
+  "diff": "diff --git a/.mailmap b/.mailmap\nindex b8927fedebb0..ee6abbe630c4 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -617,6 +617,8 @@ Dmitry Batkovich <batya239@gmail.com>\n Dmitry Savransky <dsavransky@gmail.com>\n Dominik Sta\u0144czak <stanczakdominik@gmail.com>\n Donald Wilson <donwilson1029@gmail.com> wilds-23 <wilds-23@rhodes.edu>\n+Doremon <113814705+raman118@users.noreply.github.com>\n+Doremon <rcho38706@gmail.com>\n Duane Nykamp <nykamp@umn.edu>\n Duc-Minh Phan <alephvn@gmail.com>\n Dustin Gadal <Dustin.Gadal@gmail.com> <dustin.gadal@gmail.com>\n@@ -1949,9 +1951,6 @@ prsdx <prsdx.dev@gmail.com>\n prshnt19 <prashant.rawat216@gmail.com>\n rahil-amin <rahilamin201@gmail.com>\n rahuldan <rahul02013@gmail.com>\n-raman118 <rcho38706@gmail.com>\n-raman118 <rcho38706@gmail.com> Doremon <113814705+raman118@users.noreply.github.com>\n-raman118 <rcho38706@gmail.com> Doremon <rcho38706@gmail.com>\n ramvenkat98 <ramvenkat98@gmail.com>\n rathmann <rathmann.os@gmail.com> <peter@ubuntu.ubuntu-domain>\n rationa-kunal <kunalgk1999@gmail.com> kunal <kunalgk1999@gmail.com>\ndiff --git a/sympy/core/evalf.py b/sympy/core/evalf.py\nindex 08d8043c5156..7c513bd163a9 100644\n--- a/sympy/core/evalf.py\n+++ b/sympy/core/evalf.py\n@@ -269,8 +269,8 @@ def get_abs(expr: Expr, prec: int, options: OPT_DICT) -> TMP_RES:\n         re, re_acc, im, im_acc = im, im_acc, re, re_acc\n     if im:\n         if expr.is_number:\n-            abs_expr, _, acc, _ = evalf(abs(N(expr, prec + 2)),\n-                                        prec + 2, options)\n+            abs_expr = mpc_abs((mpf_abs(re), mpf_abs(im)), prec, rnd)\n+            acc = min(prec, complex_accuracy(result))\n             return abs_expr, None, acc, None\n         else:\n             if 'subs' in options:\ndiff --git a/sympy/core/tests/test_evalf.py b/sympy/core/tests/test_evalf.py\nindex daa0ac667a01..2e531cb7acb0 100644\n--- a/sympy/core/tests/test_evalf.py\n+++ b/sympy/core/tests/test_evalf.py\n@@ -10,6 +10,7 @@\n from sympy.core import (GoldenRatio)\n from sympy.core.numbers import (AlgebraicNumber, E, Float, I, Rational,\n                                 oo, zoo, nan, pi)\n+from sympy.core.parameters import evaluate\n from sympy.core.power import Pow\n from sympy.core.relational import Eq\n from sympy.core.singleton import S\n@@ -93,6 +94,16 @@ def test_evalf_complex():\n     assert NS('I*(2+I)', 15) == '-1.00000000000000 + 2.00000000000000*I'\n \n \n+def test_evalf_abs_evaluate_false():\n+    for z, expected in (\n+        (1 + I, sqrt(2)),\n+        (10**20 + I, sqrt(10**40 + 1)),\n+    ):\n+        with evaluate(False):\n+            result = Abs(z, evaluate=False).evalf(50)\n+        assert result == expected.evalf(50)\n+\n+\n @XFAIL\n def test_evalf_complex_bug():\n     assert NS('(pi+E*I)*(E+pi*I)', 15) in ('0.e-15 + 17.25866050002*I',\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* core\n  * Fixed recursion when numerically evaluating a complex absolute value with evaluation disabled. ([#30950](https://github.com/sympy/sympy/pull/30950) by [@raman118](https://github.com/raman118) and [@smichr](https://github.com/smichr))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    #### References to other Issues or PRs\r\n\r\n    Addresses the `get_abs` recursion case reported in #30925.\r\n\r\n    #### Brief description of what is fixed or changed\r\n\r\n    Numerically evaluating an unevaluated absolute value of a complex number could recurse indefinitely when evaluation was disabled. This computes the magnitude from the evaluated numeric components and adds a regression test.\r\n\r\n    #### Other comments\r\n\r\n    Verification:\r\n    - `python -m pytest sympy/core/tests/test_evalf.py -q` \u2014 61 passed\r\n    - `python bin/test quality` \u2014 6 passed\r\n    - `ruff check sympy` \u2014 passed\r\n    - `python bin/mailmap_check.py` \u2014 passed\r\n\r\n    #### AI Generation Disclosure\r\n\r\n    OpenAI Codex using GPT-6 Astra generated changes in `.mailmap`, `sympy/core/evalf.py`, and `sympy/core/tests/test_evalf.py`.\r\n\r\n    #### Release Notes\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    * core\r\n      * Fixed recursion when numerically evaluating a complex absolute value with evaluation disabled.\r\n    <!-- END RELEASE NOTES -->\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-05T10:29:24Z"
+    },
+    {
+      "author": "smichr",
+      "body": "check AUTHORS error",
+      "created_at": "2026-11-05T19:21:09Z"
+    },
+    {
+      "author": "smichr",
+      "body": "A simple rebase on master and the force push back to here might fix the error.",
+      "created_at": "2026-11-05T20:11:07Z"
+    },
+    {
+      "author": "raman118",
+      "body": "@smichr try to give it a look \r\n",
+      "created_at": "2026-11-08T17:47:14Z"
+    },
+    {
+      "author": "smichr",
+      "body": "I'll mark that one off on the issue. Thanks for working on this.",
+      "created_at": "2026-11-08T19:20:53Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "smichr",
+      "body": "#30874 identified an issue in evalf (fixed in #30924) and an audit reveals the following items that could also use attention:\n\n- [x] Fix recursion in `get_abs` under `evaluate(False)`. #30950\n\n  ```python\n  from sympy import Abs, I\n  from sympy.core.parameters import evaluate\n\n  with evaluate(False):\n      Abs(1 + I, evaluate=False).evalf()\n  ```\n\n- [ ] Fix recursion in `evalf_log` for complex arguments under `evaluate(False)`.\n\n  ```python\n  from sympy import I, log\n  from sympy.core.parameters import evaluate\n\n  with evaluate(False):\n      log(1 + I, evaluate=False).evalf()\n  ```\n\n- [ ] Fix recursion in `evalf_mul` when multiplying complex infinities under `evaluate(False)`.\n\n  ```python\n  from sympy import Mul, zoo\n  from sympy.core.parameters import evaluate\n\n  with evaluate(False):\n      Mul(zoo, zoo, evaluate=False).evalf()\n  ```\n\n- [ ] Preserve the sign of finite factors when multiplying by infinity.\n\n  ```python\n  from sympy import Mul, oo\n\n  assert Mul(-1, oo, evaluate=False).evalf() == -oo\n  ```\n\n- [ ] Preserve the sign of finite factors when multiplying by negative infinity.\n\n  ```python\n  from sympy import Mul, oo\n\n  assert Mul(-1, -oo, evaluate=False).evalf() == oo\n  ```\n\n- [ ] Fix recursion in `evalf_log` for logarithms with a base under `evaluate(False)`.\n\n  ```python\n  from sympy import log\n  from sympy.core.parameters import evaluate\n\n  with evaluate(False):\n      log(2, 3, evaluate=False).evalf(20)\n  ```\n\n- [ ] Fix `evalf_prod` handling of integer bounds under `evaluate(False)`.\n\n  ```python\n  from sympy import Product, symbols\n  from sympy.core.parameters import evaluate\n\n  n = symbols('n', integer=True)\n  p = Product(n, (n, 1, 4))\n\n  with evaluate(False):\n      assert p.evalf() == 24\n  ```",
+      "is_pull_request": false,
+      "number": 30925,
+      "state": "open",
+      "title": "avoid Basic ops during evalf"
+    }
+  ],
+  "merge_commit_sha": "d01b971a178aa7696ba0e52c0b5d9293664e755a",
+  "merged_at": "2026-11-08T20:48:01Z",
+  "number": 30950,
+  "review_comments": [
+    {
+      "author": "smichr",
+      "body": "```suggestion\ndef test_evalf_abs_evaluate_false():\n    for z, expected in (\n        (1 + I, sqrt(2)),\n        (10**20 + I, sqrt(10**40 + 1)),\n    ):\n        with evaluate(False):\n            result = Abs(z, evaluate=False).evalf(50)\n        assert result == expected.evalf(50)\n```",
+      "created_at": "2026-11-08T19:20:01Z",
+      "path": "sympy/core/tests/test_evalf.py"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "smichr",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-08T19:20:00Z"
+    }
+  ],
+  "title": "core: fix evalf Abs recursion with evaluate(False)"
+}

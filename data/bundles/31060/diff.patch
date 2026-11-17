@@ -1,0 +1,54 @@
+diff --git a/.mailmap b/.mailmap
+index b9c07b1fff71..240be98ab55f 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -1584,7 +1584,6 @@ Seth Poulsen <poulsenseth@yahoo.com>
+ Seth Troisi <sethtroisi@google.com>
+ Shahid Rahaman <shahidrahman333@gmail.com> <44476706+shahid-rahaman@users.noreply.github.com>
+ Shai 'Deshe' Wyborski <shaide@cs.huji.ac.il>
+-Shakestein <vinodajmeera002@gmail.com>
+ Shakestein <vinodajmeera002@gmail.com> Vinod Ajmeera <vinodajmeera002@gmail.com>
+ Shaoliang Jin <18322825326@163.com> 0382 <18322825326@163.com>
+ Shaoliang Jin <18322825326@163.com> jinshaoliang <18322825326@163.com>
+diff --git a/sympy/printing/pretty/pretty.py b/sympy/printing/pretty/pretty.py
+index 2143e848b380..430507f6ef2b 100644
+--- a/sympy/printing/pretty/pretty.py
++++ b/sympy/printing/pretty/pretty.py
+@@ -1979,7 +1979,10 @@ def _print_Mod(self, expr):
+         if pform.binding > prettyForm.MUL:
+             pform = prettyForm(*pform.parens())
+         pform = prettyForm(*pform.right(' mod '))
+-        pform = prettyForm(*pform.right(self._print(expr.args[1])))
++        divisor = self._print(expr.args[1])
++        if divisor.binding > prettyForm.MUL:
++            divisor = prettyForm(*divisor.parens())
++        pform = prettyForm(*pform.right(divisor))
+         pform.binding = prettyForm.OPEN
+         return pform
+ 
+diff --git a/sympy/printing/pretty/tests/test_pretty.py b/sympy/printing/pretty/tests/test_pretty.py
+index 769744394db6..e8f5d198b49b 100644
+--- a/sympy/printing/pretty/tests/test_pretty.py
++++ b/sympy/printing/pretty/tests/test_pretty.py
+@@ -7,6 +7,7 @@
+ from sympy.core.containers import (Dict, Tuple)
+ from sympy.core.function import (Derivative, Function, Lambda, Subs)
+ from sympy.core.mul import Mul
++from sympy.core.mod import Mod
+ from sympy.core import (EulerGamma, GoldenRatio, Catalan)
+ from sympy.core.numbers import (I, Rational, oo, pi)
+ from sympy.core.power import Pow
+@@ -6997,6 +6998,13 @@ def test_pretty_Mod():
+     assert upretty(2 * Mod(x, 7)) == ucode_str5
+ 
+ 
++def test_issue_23912():
++    assert pretty(Mod(x, y + z)) == 'x mod (y + z)'
++    assert upretty(Mod(x, y + z)) == 'x mod (y + z)'
++    assert pretty(Mod(x + 1, y + z)) == '(x + 1) mod (y + z)'
++    assert upretty(Mod(x + 1, y + z)) == '(x + 1) mod (y + z)'
++
++
+ def test_issue_11801():
+     assert pretty(Symbol("")) == ""
+     assert upretty(Symbol("")) == ""

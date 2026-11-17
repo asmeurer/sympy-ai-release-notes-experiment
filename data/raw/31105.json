@@ -1,0 +1,51 @@
+{
+  "additions": 15,
+  "author": "jiyakaushik26",
+  "base": "master",
+  "body": "#### References to other Issues or PRs\nFixes #31083\n\n#### Brief description of what is fixed or changed\nCalling `trigsimp` with `method='groebner'` or `method='combined'` raises a `PolificationFailed` exception on expressions whose coefficients do not contain any polynomial generators.\n\nDuring generator discovery, if no generators are found, the expression cannot be converted into a polynomial ring as expected. This PR catches that edge case and falls back to an empty generator set so simplification can proceed without failing.\n\nRegression tests covering the original issue and similar edge cases for both methods have been added.\n\n#### Other comments\nI ran the focused `trigsimp` test file locally: 30 tests passed and 1 test was expected to fail (`xfailed`). I also verified the reported examples.\n\n#### AI Generation Disclosure\nAI tools were used during investigation to help trace the `PolificationFailed` traceback and verify edge-case behavior. [Add details of any AI assistance with code, tests, or PR text, as applicable.]\n\n#### Release Notes\n<!-- BEGIN RELEASE NOTES -->\n* simplify\n  * Fixed a `PolificationFailed` error in `trigsimp` when using the `groebner` or `combined` methods on expressions without polynomial generators.\n<!-- END RELEASE NOTES -->",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "Jiya Kaushik",
+      "message": "Fix PolificationFailed in trigsimp groebner",
+      "sha": "aff183e515607db8f6d0279f568ae5527ffbcc99"
+    }
+  ],
+  "created_at": "2026-11-14T20:00:35Z",
+  "deletions": 1,
+  "diff": "diff --git a/sympy/simplify/tests/test_trigsimp.py b/sympy/simplify/tests/test_trigsimp.py\nindex 79cf025fa565..0bc17cc2d455 100644\n--- a/sympy/simplify/tests/test_trigsimp.py\n+++ b/sympy/simplify/tests/test_trigsimp.py\n@@ -384,6 +384,17 @@ def test_trigsimp_groebner():\n     assert trigsimp((-s + 1)/c + c/(-s + 1),\n                     method='groebner', polynomial=True) == 2/c\n \n+    assert trigsimp(y + s**2 + c**2, method='groebner') == y + 1\n+    assert trigsimp(2*y + 3 + s**2 + c**2,\n+                    method='groebner') == 2*y + 4\n+    assert trigsimp(y + tan(x)*c, method='groebner') == y + s\n+    assert trigsimp(y*s**2 + y*c**2, method='groebner') == y\n+\n+    assert trigsimp(y + s**2 + c**2, method='combined') == y + 1\n+    assert trigsimp(2*y + 3 + s**2 + c**2,\n+                    method='combined') == 2*y + 4\n+    assert trigsimp(y + tan(x)*c, method='combined') == y + s\n+\n     # Test quick=False works\n     assert trigsimp_groebner(ex, hints=[2]) in results\n     assert trigsimp_groebner(ex, hints=[int(2)]) in results\ndiff --git a/sympy/simplify/trigsimp.py b/sympy/simplify/trigsimp.py\nindex f934dcdd8b59..e3c187370314 100644\n--- a/sympy/simplify/trigsimp.py\n+++ b/sympy/simplify/trigsimp.py\n@@ -381,7 +381,10 @@ def analyse_gens(gens, hints):\n         num = Poly(num, gens=gens+freegens).eject(*gens)\n         res = []\n         for monom, coeff in num.terms():\n-            ourgens = set(parallel_poly_from_expr([coeff, denom])[1].gens)\n+            try:\n+                ourgens = set(parallel_poly_from_expr([coeff, denom])[1].gens)\n+            except PolificationFailed:\n+                ourgens = set()\n             # We compute the transitive closure of all generators that can\n             # be reached from our generators through relations in the ideal.\n             changed = True\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* simplify\n  * Fixed a `PolificationFailed` error in `trigsimp` when using the `groebner` or `combined` methods on expressions without polynomial generators. ([#31105](https://github.com/sympy/sympy/pull/31105) by [@jiyakaushik26](https://github.com/jiyakaushik26))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    #### References to other Issues or PRs\n    Fixes #31083\n\n    #### Brief description of what is fixed or changed\n    Calling `trigsimp` with `method='groebner'` or `method='combined'` raises a `PolificationFailed` exception on expressions whose coefficients do not contain any polynomial generators.\n\n    During generator discovery, if no generators are found, the expression cannot be converted into a polynomial ring as expected. This PR catches that edge case and falls back to an empty generator set so simplification can proceed without failing.\n\n    Regression tests covering the original issue and similar edge cases for both methods have been added.\n\n    #### Other comments\n    I ran the focused `trigsimp` test file locally: 30 tests passed and 1 test was expected to fail (`xfailed`). I also verified the reported examples.\n\n    #### AI Generation Disclosure\n    AI tools were used during investigation to help trace the `PolificationFailed` traceback and verify edge-case behavior. [Add details of any AI assistance with code, tests, or PR text, as applicable.]\n\n    #### Release Notes\n    <!-- BEGIN RELEASE NOTES -->\n    * simplify\n      * Fixed a `PolificationFailed` error in `trigsimp` when using the `groebner` or `combined` methods on expressions without polynomial generators.\n    <!-- END RELEASE NOTES -->\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-14T20:00:38Z"
+    },
+    {
+      "author": "smichr",
+      "body": "This seems reasonable. Although you can get PolificationError for other reasons I am not sure those reasons would be raised with this code. This is in.",
+      "created_at": "2026-11-15T02:17:57Z"
+    },
+    {
+      "author": "jiyakaushik26",
+      "body": "Thanks for reviewing and merging this! I really enjoyed working on this issue and learned a lot while exploring the `trigsimp` implementation. Appreciate the review and feedback! \ud83d\ude0a",
+      "created_at": "2026-11-15T05:36:29Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "csp256",
+      "body": "`trigsimp` with `method='groebner'` or `method='combined'` raises `PolificationFailed` when the expression has a term that does not involve the trigonometric functions and whose coefficient is a number.\n\n### Reproducer\n\n```python\n>>> from sympy import trigsimp, sin, cos, tan\n>>> from sympy.abc import x, y\n>>> trigsimp(y + sin(x)**2 + cos(x)**2, method='groebner')\nTraceback (most recent call last):\n...\nsympy.polys.polyerrors.PolificationFailed: Cannot construct polynomials from 1, 1\n>>> trigsimp(y + sin(x)**2 + cos(x)**2, method='combined')\nTraceback (most recent call last):\n...\nsympy.polys.polyerrors.PolificationFailed: Cannot construct polynomials from 1, 1\n```\n\nThe expected result is `y + 1`. The same happens for `2*y + 3 + sin(x)**2 + cos(x)**2` and `y + tan(x)*cos(x)`. When every term involves the other symbol, it works: `trigsimp(y*sin(x)**2 + y*cos(x)**2, method='groebner')` gives `y`.\n\n### How this was found\n\nSimplifying Riemann tensor components of the Kerr metric (rational functions of `sin(theta)`, `cos(theta)`, `r`, `M` and `a`) with the different `trigsimp` methods: `method='combined'` failed with this error on one of them, and the reproducer above is the smallest expression that shows the same failure.\n\n### Cause\n\nIn `trigsimp_groebner`, when the expression has generators that are not involved in the trigonometric ideal (`freegens`), the numerator is split into one coefficient per monomial in those generators, and for each coefficient the generators it involves are found with\n\n```python\nourgens = set(parallel_poly_from_expr([coeff, denom])[1].gens)\n```\n\n(`sympy/simplify/trigsimp.py`, line 384 on master). If `coeff` and `denom` are both numbers (here, the coefficient of `y` is `1` and the denominator is `1`), there is nothing to build polynomials from and `parallel_poly_from_expr` raises `PolificationFailed`. The same function already catches this exception for its first `parallel_poly_from_expr` call (line 361) but not here.\n\n### Proposed fix\n\nA number coefficient involves no generators, so treat it that way:\n\n```python\ntry:\n    ourgens = set(parallel_poly_from_expr([coeff, denom])[1].gens)\nexcept PolificationFailed:\n    ourgens = set()\n```\n\nWith this change the reproducer gives `y + 1` for both methods, `2*y + 3 + sin(x)**2 + cos(x)**2` gives `2*y + 4`, `y + tan(x)*cos(x)` gives `y + sin(x)`, and `sympy/simplify/tests/test_trigsimp.py` passes (28 passed, 1 xfailed).\n\n### Versions\n\nReproduced with SymPy 1.14.0 and master `2864aaefe1` (1.15.0.dev), Python 3.14.0, macOS arm64, ground types `python`.\n\n---\n\n*Investigation and write-up assisted by an AI model (Claude), reproduced, checked and reviewed by me.*\n",
+      "is_pull_request": false,
+      "number": 31083,
+      "state": "closed",
+      "title": "trigsimp with method='groebner' or 'combined' raises PolificationFailed for y + sin(x)**2 + cos(x)**2"
+    }
+  ],
+  "merge_commit_sha": "bad9365d788889cdf450cd9a24a734004b876e2b",
+  "merged_at": "2026-11-15T02:18:39Z",
+  "number": 31105,
+  "review_comments": [],
+  "reviews": [],
+  "title": "Fix PolificationFailed in trigsimp groebner"
+}

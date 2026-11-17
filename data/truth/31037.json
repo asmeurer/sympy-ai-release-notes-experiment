@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "An AI assistant helped compare the `Max` vs. `Piecewise` variants, drafted the one-line code change, and drafted the corresponding test cases across `sympy/sets`. I reviewed the changes thoroughly, verified them, and ran the test suite locally.",
+  "author": "Hirata-Origami",
+  "entries": [
+    {
+      "submodule": "sets",
+      "text": "Fixed interval measure calculation for symbolic endpoints to use `Max(0, end - start)` instead of returning a negative measure or a complex `Piecewise` expression."
+    }
+  ],
+  "merged_at": "2026-11-11T16:01:57Z",
+  "number": 31037,
+  "overlap": {
+    "title_similarity": 0.49777777777777776,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* sets\n  * Fixed interval measure calculation for symbolic endpoints to use `Max(0, end - start)` instead of returning a negative measure or a complex `Piecewise` expression.",
+  "status": "entry",
+  "title": "Fix interval measure for reversed/symbolic bounds using Max(0, end - start)"
+}

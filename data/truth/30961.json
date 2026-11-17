@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "OpenAI Codex (GPT-6 Astra) generated all changes in `sympy/sets/handlers/add.py` and `sympy/sets/tests/test_setexpr.py`.",
+  "author": "raman118",
+  "entries": [
+    {
+      "submodule": "sets",
+      "text": "Fixed interval addition with positive or negative infinity producing nested singleton sets in `SetExpr`."
+    }
+  ],
+  "merged_at": "2026-11-06T06:52:26Z",
+  "number": 30961,
+  "overlap": {
+    "title_similarity": 0.4900662251655629,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* sets\n  * Fixed interval addition with positive or negative infinity producing nested singleton sets in `SetExpr`.",
+  "status": "entry",
+  "title": "Fix nested sets in interval addition with infinity"
+}

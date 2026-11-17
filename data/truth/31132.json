@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "I used an AI assistant (Antigravity powered by Gemini 3.8 Flash (High)) to help investigate the root cause, verify the algebraic `leading_sign` formulation, and draft regression tests. I reviewed and verified the mathematical logic and test suite locally.",
+  "author": "hardikkaurani",
+  "entries": [
+    {
+      "submodule": "algebras",
+      "text": "Fixed `Quaternion.from_rotation_matrix` returning zero quaternion for 180-degree rotation matrices and eliminated premature branching using algebraic sign selection."
+    }
+  ],
+  "merged_at": "2026-11-16T19:09:44Z",
+  "number": 31132,
+  "overlap": {
+    "title_similarity": 0.5194805194805194,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* algebras\n  * Fixed `Quaternion.from_rotation_matrix` returning zero quaternion for 180-degree rotation matrices and eliminated premature branching using algebraic sign selection.",
+  "status": "entry",
+  "title": "algebras: fix Quaternion.from_rotation_matrix for 180-degree rotations"
+}

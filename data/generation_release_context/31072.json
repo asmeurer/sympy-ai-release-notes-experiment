@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 5267,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 5982,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 5982,
+      "cacheReadInputTokens": 24201,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0332561,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 690,
+      "provider": "firstParty",
+      "thinkingTokens": 103,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 31072,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"printing\",\"text\":\"Fixed a `RecursionError` in `lambdify` with the `'cmath'` module for expressions containing floating-point numbers, such as `lambdify(x, x + 2.5, 'cmath')`.\"}],\"reasoning\":\"The change removed a broken `CmathPrinter._print_Float` that recursed infinitely, so `lambdify(..., 'cmath')` failed on any expression with a float constant. That is a user-visible bug fix. Nothing in the PR or its linked issue suggests the bug appeared after 1.14.0, so I treated it as a bug users have seen.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "printing",
+        "text": "Fixed a `RecursionError` in `lambdify` with the `'cmath'` module for expressions containing floating-point numbers, such as `lambdify(x, x + 2.5, 'cmath')`."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The change removed a broken `CmathPrinter._print_Float` that recursed infinitely, so `lambdify(..., 'cmath')` failed on any expression with a float constant. That is a user-visible bug fix. Nothing in the PR or its linked issue suggests the bug appeared after 1.14.0, so I treated it as a bug users have seen."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31072/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31072/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31072/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "printing",
+            "text": "Fixed a `RecursionError` in `lambdify` with the `'cmath'` module for expressions containing floating-point numbers, such as `lambdify(x, x + 2.5, 'cmath')`."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The change removed a broken `CmathPrinter._print_Float` that recursed infinitely, so `lambdify(..., 'cmath')` failed on any expression with a float constant. That is a user-visible bug fix. Nothing in the PR or its linked issue suggests the bug appeared after 1.14.0, so I treated it as a bug users have seen."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0332561,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 5982,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 5982,
+    "cache_read_input_tokens": 24201,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 5541,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 5541,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 401,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 690,
+    "output_tokens_details": {
+      "thinking_tokens": 103
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

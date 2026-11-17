@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "NO AI USE",
+  "author": "tusharcancodehere",
+  "entries": [
+    {
+      "submodule": "printing",
+      "text": "Fixed `IndexError` when calling `latex()` or `pretty()` on an `NDimArray` with a zero dimension (e.g. `Array([], (0, 2))`)."
+    }
+  ],
+  "merged_at": "2026-11-17T12:06:27Z",
+  "number": 31148,
+  "overlap": {
+    "title_similarity": 0.48520710059171596,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* printing\n  * Fixed `IndexError` when calling `latex()` or `pretty()` on an `NDimArray` with a zero dimension (e.g. `Array([], (0, 2))`).",
+  "status": "entry",
+  "title": "printing: fix IndexError for empty NDimArray in LaTeX and pretty printers"
+}

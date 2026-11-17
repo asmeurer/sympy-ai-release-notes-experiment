@@ -1,0 +1,41 @@
+{
+  "additions": 22,
+  "author": "smichr",
+  "base": "master",
+  "body": "#### References to other Issues or PRs\r\n\r\nCorrects issue raised in #31031 int instead of floor was being used to compute Mod(a, b) when the ratio was a negative number.\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\n\r\n#### Other comments\r\n\r\n\r\n#### AI Generation Disclosure\r\n\r\nCollaboration with ChatGPT.\r\n\r\n#### Release Notes\r\n\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\n* core\r\n  * mod(a,b) with a/b < 0 now correctly computes value for symbolic a and b (and numeric a/b)\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "Christopher Smith",
+      "message": "core: correct Mod evaluation for negative known ratios",
+      "sha": "9c366ba2dd13a22b440b5e5d76276c09a5564815"
+    }
+  ],
+  "created_at": "2026-11-12T02:24:48Z",
+  "deletions": 4,
+  "diff": "diff --git a/sympy/core/mod.py b/sympy/core/mod.py\nindex 65edc25790c2..48e17169ba7f 100644\n--- a/sympy/core/mod.py\n+++ b/sympy/core/mod.py\n@@ -91,10 +91,15 @@ def number_eval(p, q):\n                 pass\n             else:\n                 if isinstance(d, int):\n-                    rv = p - d*q\n-                    if (rv*q < 0) == True:\n-                        rv += q\n-                    return rv\n+                    # int() truncates toward zero, whereas modulo uses\n+                    # floor division. Correct the quotient from its value,\n+                    # rather than the sign of an undecidable symbolic product.\n+                    smaller = r < d\n+                    if smaller is S.true:\n+                        d -= 1\n+                    elif smaller is not S.false:\n+                        return\n+                    return p - d*q\n \n             # by difference\n             # -2|q| < p < 2|q|\ndiff --git a/sympy/core/tests/test_arit.py b/sympy/core/tests/test_arit.py\nindex dd38fa531c1a..7017186041eb 100644\n--- a/sympy/core/tests/test_arit.py\n+++ b/sympy/core/tests/test_arit.py\n@@ -1886,6 +1886,19 @@ def test_Mod():\n             reps = [(x, _x), (y, _y)]\n             assert Mod(3*x + y, 9).subs(reps) == (3*_x + _y) % 9\n \n+    # Known negative ratios must use floor, not truncation toward zero.\n+    # The sign of the modulus can be unknown even though p/q is rational.\n+    assert Mod(-x, 2*x) == x\n+    assert Mod(x, -2*x) == -x\n+    assert Mod(-x, 3*x) == 2*x\n+    assert Mod(-x**2, 2*x**2) == x**2\n+    a, b = symbols('a b', integer=True)\n+    t = a*x + b\n+    expr = Mod(-t**2, 2*t**2)\n+    assert expr == t**2\n+    params = {a: 0, b: 1}\n+    assert expr.subs(params) == Mod((-t**2).subs(params), (2*t**2).subs(params)) == 1\n+\n     # denesting\n     t = Symbol('t', real=True)\n     assert Mod(Mod(x, t), t) == Mod(x, t)\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* core\n  * mod(a,b) with a/b < 0 now correctly computes value for symbolic a and b (and numeric a/b) ([#31051](https://github.com/sympy/sympy/pull/31051) by [@smichr](https://github.com/smichr))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    #### References to other Issues or PRs\r\n\r\n    Corrects issue raised in #31031 int instead of floor was being used to compute Mod(a, b) when the ratio was a negative number.\r\n\r\n    #### Brief description of what is fixed or changed\r\n\r\n\r\n    #### Other comments\r\n\r\n\r\n    #### AI Generation Disclosure\r\n\r\n    Collaboration with ChatGPT.\r\n\r\n    #### Release Notes\r\n\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    * core\r\n      * mod(a,b) with a/b < 0 now correctly computes value for symbolic a and b (and numeric a/b)\r\n    <!-- END RELEASE NOTES -->\r\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-12T02:24:52Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "asmeurer",
+      "body": "Mod has strange automatic evaluation with Float arguments:\n\n```\n>>> Mod(x, 1.0)\nMod(1.0*x, 1)\n>>> Mod(x, 3.3)\nMod(1.0*x, 3.3)\n>>> Mod(x, 0.5)\n0.5*(Mod(2*x, 1))\n```\n\nIt's not clear to me that any of these rewrites are necessary. \n\nNote to contributors and AI agents: this issue needs discussion before a PR can be submitted. Do not submit a PR before a consensus is reached or it will be closed. If you want to contribute to this issue, you can contribute by taking part in the discussion on this issue. ",
+      "is_pull_request": false,
+      "number": 31031,
+      "state": "closed",
+      "title": "Automatic Mod evaluation with Floats"
+    }
+  ],
+  "merge_commit_sha": "3eba337be0b9f9864048ffa1fa10b1cd9afc0814",
+  "merged_at": "2026-11-12T06:36:21Z",
+  "number": 31051,
+  "review_comments": [],
+  "reviews": [],
+  "title": "core: correct Mod evaluation for negative known ratios"
+}

@@ -1,0 +1,51 @@
+diff --git a/sympy/matrices/matrixbase.py b/sympy/matrices/matrixbase.py
+index c8109215e26f..055f78291f5f 100644
+--- a/sympy/matrices/matrixbase.py
++++ b/sympy/matrices/matrixbase.py
+@@ -5200,7 +5200,7 @@ def normalized(self, iszerofunc: Callable[[Expr], bool | None] = _iszero) -> Sel
+             out = self.applyfunc(lambda i: i / norm)
+         return out
+ 
+-    def norm(self, ord: int | str | None = 2) -> Expr:
++    def norm(self, ord: int | str | None = None) -> Expr:
+         """Return the Norm of a Matrix or Vector.
+ 
+         In the simplest case this is the geometric size of the vector
+@@ -5255,7 +5255,7 @@ def norm(self, ord: int | str | None = 2) -> Expr:
+         # Row or Column Vector Norms
+         vals = list(self.values()) or [S.Zero]
+         if S.One in self.shape:
+-            if ord == 2:  # Common case sqrt(<x, x>)
++            if ord in (2, None):  # Common case sqrt(<x, x>)
+                 return sqrt(Add(*(abs(i) ** 2 for i in vals)))
+ 
+             elif ord == 1:  # sum(abs(x))
+diff --git a/sympy/matrices/tests/test_matrixbase.py b/sympy/matrices/tests/test_matrixbase.py
+index b9cd75e109ae..da776f5d9e63 100644
+--- a/sympy/matrices/tests/test_matrixbase.py
++++ b/sympy/matrices/tests/test_matrixbase.py
+@@ -2884,16 +2884,24 @@ def test_matrix_norm():
+     # Test columns and symbols
+     x = Symbol('x', real=True)
+     v = Matrix([cos(x), sin(x)])
++    assert trigsimp(v.norm()) == 1
++    assert trigsimp(v.norm(None)) == 1
+     assert trigsimp(v.norm(2)) == 1
+     assert v.norm(10) == Pow(cos(x)**10 + sin(x)**10, Rational(1, 10))
+ 
+     # Test Rows
+     A = Matrix([[5, Rational(3, 2)]])
+     assert A.norm() == Pow(25 + Rational(9, 4), S.Half)
++    assert A.norm(None) == Pow(25 + Rational(9, 4), S.Half)
+     assert A.norm(oo) == max(A)
+     assert A.norm(-oo) == min(A)
+ 
+     # Matrix Tests
++    A = Matrix([[1, 2], [3, 4]])
++    assert A.norm() == sqrt(30)
++    assert A.norm(None) == sqrt(30)
++    assert A.norm(2) == sqrt(15 + sqrt(221))
++
+     # Intuitive test
+     A = Matrix([[1, 1], [1, 1]])
+     assert A.norm(2) == 2

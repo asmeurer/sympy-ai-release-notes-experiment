@@ -1,0 +1,47 @@
+{
+  "additions": 29,
+  "author": "hunterhogan",
+  "base": "master",
+  "body": "\ud83e\udd16 *This description was drafted by an AI agent (Claude Code).*\n\n#### References to other Issues or PRs\n\n`S.EmptySet` is left out until #30946 merges: `singularities()` is annotated `-> set[Symbol]` but returns `S.EmptySet`, and #30946 changes that annotation to `Set`.\n\n#### Brief description of what is fixed or changed\n\nAdds `Rationals`, `Naturals`, `Naturals0`, `Integers`, `Reals`, `Complexes`, and `UniversalSet` to `SingletonRegistry`.\n\n`StochasticProcess.index_set` and the `state_space` parameter are annotated as `Set`, since subclasses use `S.Naturals0`.\n\n#### Other comments\n\n#### AI Generation Disclosure\n\nClaude Code (Claude Opus 5.5) \n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* core\n    * singleton: Add 8 more types\n<!-- END RELEASE NOTES -->\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n",
+  "changed_files": 2,
+  "commits": [
+    {
+      "author": "Hunter Hogan",
+      "message": "Declare the set singletons on SingletonRegistry\n\nS.Integers, S.Reals, and the other set singletons were Unknown to type\ncheckers. StochasticProcess.index_set and state_space are annotated as Set\nso subclasses may use other sets. S.EmptySet is left for later because\nsingularities() declares set[Symbol] while returning S.EmptySet.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "0a6650f8c434147152aa04b081f60553961cefbc"
+    },
+    {
+      "author": "Hunter Hogan",
+      "message": "Remove incomplete typing",
+      "sha": "8e782c161120bf5e21008c6ef3d54011d6ae4f20"
+    }
+  ],
+  "created_at": "2026-11-10T13:31:39Z",
+  "deletions": 7,
+  "diff": "diff --git a/sympy/core/singleton.py b/sympy/core/singleton.py\nindex 4e73155f5a71..64d6d2c9ba5d 100644\n--- a/sympy/core/singleton.py\n+++ b/sympy/core/singleton.py\n@@ -32,6 +32,15 @@\n         BooleanTrue as _BooleanTrue,\n         BooleanFalse as _BooleanFalse,\n     )\n+    from sympy.sets.fancysets import (\n+        Rationals as _Rationals,\n+        Naturals as _Naturals,\n+        Naturals0 as _Naturals0,\n+        Integers as _Integers,\n+        Reals as _Reals,\n+        Complexes as _Complexes,\n+    )\n+    from sympy.sets.sets import UniversalSet as _UniversalSet\n \n     from .basic import Basic\n     from .expr import Expr\n@@ -136,6 +145,14 @@ class SingletonRegistry(Registry):\n     true: _BooleanTrue\n     false: _BooleanFalse\n \n+    Complexes: _Complexes\n+    Integers: _Integers\n+    Naturals: _Naturals\n+    Naturals0: _Naturals0\n+    Rationals: _Rationals\n+    Reals: _Reals\n+    UniversalSet: _UniversalSet\n+\n     # Also allow things like S(5)\n     @overload\n     def __call__(self, a: int, *, strict: bool = False) -> Integer: ... # type: ignore\n@@ -191,10 +208,10 @@ def __getattr__(self, name):\n         del self._classes_to_install[name]\n         return value_to_install\n \n-    def __repr__(self):\n+    def __repr__(self) -> str:\n         return \"S\"\n \n-    def __reduce__(self):\n+    def __reduce__(self) -> str:\n         # S is a singleton: pickling and copying should return the same\n         # instance so that it compares equal to itself after a round-trip.\n         return \"S\"\ndiff --git a/sympy/stats/stochastic_process_types.py b/sympy/stats/stochastic_process_types.py\nindex f2549a9cff93..a890ffb9f6d9 100644\n--- a/sympy/stats/stochastic_process_types.py\n+++ b/sympy/stats/stochastic_process_types.py\n@@ -1,7 +1,8 @@\n from __future__ import annotations\n import random\n import itertools\n-from typing import Sequence as tSequence\n+from typing import TYPE_CHECKING\n+\n from sympy.concrete.summations import Sum\n from sympy.core.add import Add\n from sympy.core.basic import Basic\n@@ -51,9 +52,13 @@\n from sympy.stats.crv_types import Normal, NormalDistribution, Gamma, GammaDistribution\n from sympy.core.sympify import _sympify, sympify\n \n-EmptySet = S.EmptySet\n+if TYPE_CHECKING:\n+    from collections.abc import Sequence as tSequence\n+    from typing_extensions import Self\n+\n+EmptySet: Set = S.EmptySet\n \n-__all__ = [\n+__all__: list[str] = [\n     'StochasticProcess',\n     'DiscreteTimeStochasticProcess',\n     'DiscreteMarkovChain',\n@@ -180,9 +185,9 @@ class StochasticProcess(Basic):\n     DiscreteTimeStochasticProcess\n     \"\"\"\n \n-    index_set = S.Reals\n+    index_set: Set = S.Reals\n \n-    def __new__(cls, sym, state_space=S.Reals, **kwargs):\n+    def __new__(cls, sym: str | Symbol, state_space: Set = S.Reals) -> Self:\n         sym = _symbol_converter(sym)\n         state_space = _set_converter(state_space)\n         return Basic.__new__(cls, sym, state_space)\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* core\n  * singleton: Add 8 more types ([#31027](https://github.com/sympy/sympy/pull/31027) by [@hunterhogan](https://github.com/hunterhogan))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    \ud83e\udd16 *This description was drafted by an AI agent (Claude Code).*\n\n    #### References to other Issues or PRs\n\n    `S.EmptySet` is left out until #30946 merges: `singularities()` is annotated `-> set[Symbol]` but returns `S.EmptySet`, and #30946 changes that annotation to `Set`.\n\n    #### Brief description of what is fixed or changed\n\n    Adds `Rationals`, `Naturals`, `Naturals0`, `Integers`, `Reals`, `Complexes`, and `UniversalSet` to `SingletonRegistry`.\n\n    `StochasticProcess.index_set` and the `state_space` parameter are annotated as `Set`, since subclasses use `S.Naturals0`.\n\n    #### Other comments\n\n    #### AI Generation Disclosure\n\n    Claude Code (Claude Opus 5.5) \n\n    #### Release Notes\n\n    <!-- BEGIN RELEASE NOTES -->\n    * core\n        * singleton: Add 8 more types\n    <!-- END RELEASE NOTES -->\n\n    \ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-10T13:31:44Z"
+    }
+  ],
+  "labels": [],
+  "linked": [
+    {
+      "author": "hunterhogan",
+      "body": "\ud83e\udd16 This PR description was drafted by an AI agent (Claude Code).\n\n<!-- DO NOT DELETE OR REPLACE THIS TEMPLATE or the PR will be closed.\n\nRead our Policy on AI Generated Code and Communication at\nhttps://docs.sympy.org/dev/contributing/ai-generated-code-policy.html. -->\n\n#### References to other Issues or PRs\n\n#### Brief description of what is fixed or changed\n\nAnnotates `solveset`, `solveset_real`, and `solveset_complex` so type checkers infer `Set` as the return type.\n\n- `f: Basic | complex` and `symbol: Basic | None`, because both are passed through `sympify`, and internal callers (`sympy/calculus/singularities.py`) pass `Basic` and `Boolean` values.\n- `domain: Set`, return `-> Set`.\n\nAfter annotating the symbols in the signature, it was necessary to create new symbols in the function body if they object type changed, such as `f` to `expr`. The public API is unchanged. No behavior change.\n\n#### Other comments\n\n`mypy sympy`, `ruff`, `bin/test quality`, `sympy/solvers/tests/test_solveset.py`, `sympy/calculus` tests, and the `solveset.py` doctests pass.\n\n#### AI Generation Disclosure\n\nClaude Code (Claude Opus 5.5) generated code changes and drafted this PR description at my direction. Hunter \"The Human\" Hogan reviewed everything.\n\n#### Release Notes\n\n<!-- BEGIN RELEASE NOTES -->\n* solvers\n    * Annotate the signatures of `solveset`, `solveset_real`, and `solveset_complex`.\n* calculus\n    * Annotate `singularities` signature and body: fix: return `Set`, not `set[Symbol]`.\n    * because free_symbol may not return `Symbol`, added a guard to narrow the types.\n    * clearer error messages\n<!-- END RELEASE NOTES -->\n",
+      "is_pull_request": true,
+      "merged_at": null,
+      "number": 30946,
+      "state": "open",
+      "title": "Annotate `solvers.solveset`"
+    }
+  ],
+  "merge_commit_sha": "3c47cb91fdd3cc0bf76704f434c6561c1b698e2d",
+  "merged_at": "2026-11-13T17:17:56Z",
+  "number": 31027,
+  "review_comments": [],
+  "reviews": [],
+  "title": "\ud83e\udd16 Declare the set singletons on SingletonRegistry"
+}

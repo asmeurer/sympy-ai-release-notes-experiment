@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4496,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 4680,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 4680,
+      "cacheReadInputTokens": 24201,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0271381,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 599,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 30972,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"printing\",\"text\":\"Fixed pretty printing of sequences with symbolic bounds, such as `sequence(n, (n, 0, k))`, which previously raised `NotImplementedError`. They are now printed in constructor notation, e.g. `SeqFormula(n, (n, 0, k))`.\"}],\"reasoning\":\"Pretty-printing a sequence with symbolic bounds used to raise NotImplementedError in 1.14, and now prints in constructor form; this is a user-visible fix in the pretty printer (diff in pretty.py). The problem comes from long-standing behavior (issue from 2016), not something introduced after 1.14.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "printing",
+        "text": "Fixed pretty printing of sequences with symbolic bounds, such as `sequence(n, (n, 0, k))`, which previously raised `NotImplementedError`. They are now printed in constructor notation, e.g. `SeqFormula(n, (n, 0, k))`."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "Pretty-printing a sequence with symbolic bounds used to raise NotImplementedError in 1.14, and now prints in constructor form; this is a user-visible fix in the pretty printer (diff in pretty.py). The problem comes from long-standing behavior (issue from 2016), not something introduced after 1.14."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30972/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30972/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30972/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "printing",
+            "text": "Fixed pretty printing of sequences with symbolic bounds, such as `sequence(n, (n, 0, k))`, which previously raised `NotImplementedError`. They are now printed in constructor notation, e.g. `SeqFormula(n, (n, 0, k))`."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "Pretty-printing a sequence with symbolic bounds used to raise NotImplementedError in 1.14, and now prints in constructor form; this is a user-visible fix in the pretty printer (diff in pretty.py). The problem comes from long-standing behavior (issue from 2016), not something introduced after 1.14."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0271381,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 4680,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 4680,
+    "cache_read_input_tokens": 24201,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 4239,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 4239,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 310,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 599,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

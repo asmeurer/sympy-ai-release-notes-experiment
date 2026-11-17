@@ -1,0 +1,96 @@
+diff --git a/sympy/matrices/expressions/matadd.py b/sympy/matrices/expressions/matadd.py
+index a147dc472db9..acac39209051 100644
+--- a/sympy/matrices/expressions/matadd.py
++++ b/sympy/matrices/expressions/matadd.py
+@@ -105,8 +105,7 @@ def doit(self, **hints):
+         return canonicalize(MatAdd(*args))
+ 
+     def _eval_derivative(self, x):
+-        # MatAdd does not remove ZeroMatrix unless you call .doit():
+-        return super()._eval_derivative(x).doit()
++        return MatAdd(*[arg.diff(x) for arg in self.args]).doit()
+ 
+ add.register_handlerclass((Add, MatAdd), MatAdd)
+ 
+diff --git a/sympy/matrices/expressions/matexpr.py b/sympy/matrices/expressions/matexpr.py
+index 57e0604e1c52..6ab41a64f180 100644
+--- a/sympy/matrices/expressions/matexpr.py
++++ b/sympy/matrices/expressions/matexpr.py
+@@ -231,15 +231,8 @@ def _eval_derivative_n_times(self, x, n):
+     def _eval_derivative(self, x):
+         # `x` is a scalar:
+         if self.has(x) or (isinstance(x, MatrixElement) and self.has(x.parent)):
+-            # See if there are other methods using it:
+-            eval_derivative = getattr(super(), "_eval_derivative", None)
+-            if eval_derivative is not None:
+-                return eval_derivative(x)
+-            # Signal that the derivative could not be computed, so that
+-            # ``Derivative`` remains unevaluated:
+             return None
+-        else:
+-            return ZeroMatrix(*self.shape)
++        return ZeroMatrix(*self.shape)
+ 
+     @classmethod
+     def _check_dim(cls, dim):
+diff --git a/sympy/matrices/expressions/matmul.py b/sympy/matrices/expressions/matmul.py
+index a77e34be6dc0..7ce0c351ca05 100644
+--- a/sympy/matrices/expressions/matmul.py
++++ b/sympy/matrices/expressions/matmul.py
+@@ -223,6 +223,19 @@ def _eval_inverse(self):
+             ).doit()
+         return Inverse(self)
+ 
++    def _eval_derivative(self, x):
++        from .matadd import MatAdd
++        args = self.args
++        terms = []
++        for i, arg in enumerate(args):
++            d_arg = arg.diff(x)
++            term = MatMul(*(args[:i] + (d_arg,) + args[i + 1:])).doit()
++            if not term.is_ZeroMatrix:
++                terms.append(term)
++        if not terms:
++            return ZeroMatrix(*self.shape)
++        return MatAdd(*terms).doit()
++
+     def doit(self, **hints):
+         deep = hints.get('deep', True)
+         if deep:
+diff --git a/sympy/matrices/expressions/tests/test_derivatives.py b/sympy/matrices/expressions/tests/test_derivatives.py
+index d8e90502ca5d..835a140c9f24 100644
+--- a/sympy/matrices/expressions/tests/test_derivatives.py
++++ b/sympy/matrices/expressions/tests/test_derivatives.py
+@@ -902,3 +902,32 @@ def test_hadamard_product_derivative():
+         dexpr = expr.diff(X2).as_explicit().subs(nums).doit()
+         ref = derive_by_array(explicit, Xe).subs(nums).doit()
+         assert list(flatten(dexpr.tolist())) == list(flatten(ref.tolist()))
++
++
++def test_matadd_eval_derivative():
++    from sympy.matrices.expressions.special import MatrixUnit
++    x, y = symbols('x y')
++    A = MatrixSymbol('A', 3, 3)
++    B = MatrixSymbol('B', 3, 3)
++
++    assert (x*A + y*B).diff(x) == A
++    assert (x*A + y*B).diff(y) == B
++    assert (A + B).diff(x) == ZeroMatrix(3, 3)
++    assert (A + B).diff(A[0, 1]) == MatrixUnit(3, 3, 0, 1)
++
++
++def test_matmul_eval_derivative():
++    from sympy.matrices.expressions.special import MatrixUnit
++    x, y = symbols('x y')
++    A = MatrixSymbol('A', 3, 3)
++    B = MatrixSymbol('B', 3, 3)
++    C = MatrixSymbol('C', 3, 3)
++
++    assert (A * B).diff(x) == ZeroMatrix(3, 3)
++    assert (x * A * B).diff(x) == A * B
++    assert ((x**2) * A * (y * B)).diff(x) == (2*x*y) * A * B
++    assert ((x*A + B) * (x*B + A)).diff(x) == (x*A + B)*B + A*(x*B + A)
++    expected = -A * (x*B + C).I * B * (x*B + C).I * A
++    assert (A * (x*B + C).I * A).diff(x) == expected
++    assert (A * B).diff(A[0, 1]) == MatrixUnit(3, 3, 0, 1) * B
++    assert (A * B).diff(B[1, 2]) == A * MatrixUnit(3, 3, 1, 2)

@@ -1,0 +1,108 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4570,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 5931,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 5931,
+      "cacheReadInputTokens": 24187,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0315107,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 536,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30971,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"sets\",\"text\":\"Fixed several inconsistencies in `SetExpr` addition and multiplication with scalars and infinite values. For example, multiplying `SetExpr` of an interval containing 0 by `oo` now gives a set that includes `nan`, and `SetExpr` now converts Python sets like `{1, 2}` to a `FiniteSet` and raises `TypeError` for non-set arguments.\"}],\"reasoning\":\"The diff changes user-visible SetExpr behavior (interval*infinity yielding nan-containing sets, scalar results handled in finite-set operations, sympification of the argument with a TypeError for non-sets). Nothing indicates the problems were introduced after 1.14.0, so this is documented as a fix.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "sets",
+        "text": "Fixed several inconsistencies in `SetExpr` addition and multiplication with scalars and infinite values. For example, multiplying `SetExpr` of an interval containing 0 by `oo` now gives a set that includes `nan`, and `SetExpr` now converts Python sets like `{1, 2}` to a `FiniteSet` and raises `TypeError` for non-set arguments."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The diff changes user-visible SetExpr behavior (interval*infinity yielding nan-containing sets, scalar results handled in finite-set operations, sympification of the argument with a TypeError for non-sets). Nothing indicates the problems were introduced after 1.14.0, so this is documented as a fix."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30971/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30971/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "sets",
+            "text": "Fixed several inconsistencies in `SetExpr` addition and multiplication with scalars and infinite values. For example, multiplying `SetExpr` of an interval containing 0 by `oo` now gives a set that includes `nan`, and `SetExpr` now converts Python sets like `{1, 2}` to a `FiniteSet` and raises `TypeError` for non-set arguments."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The diff changes user-visible SetExpr behavior (interval*infinity yielding nan-containing sets, scalar results handled in finite-set operations, sympification of the argument with a TypeError for non-sets). Nothing indicates the problems were introduced after 1.14.0, so this is documented as a fix."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0315107,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 5931,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 5931,
+    "cache_read_input_tokens": 24187,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 5490,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 5490,
+        "cache_read_input_tokens": 12314,
+        "input_tokens": 2,
+        "output_tokens": 342,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 536,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

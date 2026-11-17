@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4833,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 12256,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 12256,
+      "cacheReadInputTokens": 17114,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.05665340000000001,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 591,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 30805,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"printing\",\"text\":\"Printing a `Poly` or `PurePoly` over a polynomial ring or fraction field domain now uses explicit constructors such as `ZZ.frac_field(beta)` when the abbreviated domain string would not round-trip, for example with symbol assumptions, generators named like SymPy functions, nested domains, or a non-default monomial order.\"}],\"reasoning\":\"The diff changes how str/repr of Poly prints composite domains so the output can be evaluated back to an equal Poly, which affects users. Nothing indicates the old behavior was new since 1.14, so it counts as a user-visible fix.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "printing",
+        "text": "Printing a `Poly` or `PurePoly` over a polynomial ring or fraction field domain now uses explicit constructors such as `ZZ.frac_field(beta)` when the abbreviated domain string would not round-trip, for example with symbol assumptions, generators named like SymPy functions, nested domains, or a non-default monomial order."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The diff changes how str/repr of Poly prints composite domains so the output can be evaluated back to an equal Poly, which affects users. Nothing indicates the old behavior was new since 1.14, so it counts as a user-visible fix."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30805/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30805/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30805/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "printing",
+            "text": "Printing a `Poly` or `PurePoly` over a polynomial ring or fraction field domain now uses explicit constructors such as `ZZ.frac_field(beta)` when the abbreviated domain string would not round-trip, for example with symbol assumptions, generators named like SymPy functions, nested domains, or a non-default monomial order."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The diff changes how str/repr of Poly prints composite domains so the output can be evaluated back to an equal Poly, which affects users. Nothing indicates the old behavior was new since 1.14, so it counts as a user-visible fix."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.05665340000000001,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 12256,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 12256,
+    "cache_read_input_tokens": 17114,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 4728,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 4728,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 302,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 591,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

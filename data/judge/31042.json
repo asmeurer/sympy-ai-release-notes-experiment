@@ -1,0 +1,137 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 10651,
+  "human_is": "B",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 15858,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 15858,
+      "cacheReadInputTokens": 15322,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.1515244,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1079,
+      "provider": "firstParty",
+      "thinkingTokens": 181,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31042,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"Somewhat long; the first bullet runs past a single sentence plus an example\",\"Uses present tense ('no longer rearranges', 'now reduces') rather than past tense\"]},\"candidate_b\":{\"accuracy\":\"minor_inaccuracy\",\"overall\":2,\"problems\":[\"Too vague: 'improved' does not say that symbolic Mod with Floats is now left unevaluated, which is a behavior change users may notice\",\"Not a complete sentence: lowercase start, no period, and uses the abbreviation 'wrt'\",\"Does not mention the new reduction of integer-term coefficients modulo a Rational\"]},\"same_substance\":false,\"preferred\":\"A\",\"strength\":\"clear\",\"rationale\":\"The diff makes two user-visible changes to Mod. Symbolic Mod expressions that contain Floats are no longer rearranged, rescaled, or reduced by gcd extraction; for example, Mod(6*x, 0.2*x) now stays unevaluated instead of becoming 0. Separately, Integer or Rational coefficients on integer-valued terms are now reduced modulo a Rational modulus; for example, Mod(3*i + x, 2) becomes Mod(i + x, 2). Candidate A states both changes correctly and gives examples that the tests confirm, though it is a bit wordy and uses present tense. Candidate B only says the evaluation was \\\"improved\\\" without saying how. That hides a change in behavior, and B also breaks the guide's formatting rules (not a complete sentence, starts lowercase, no period, uses the abbreviation \\\"wrt\\\").\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "Somewhat long; the first bullet runs past a single sentence plus an example",
+        "Uses present tense ('no longer rearranges', 'now reduces') rather than past tense"
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "minor_inaccuracy",
+      "overall": 2,
+      "problems": [
+        "Too vague: 'improved' does not say that symbolic Mod with Floats is now left unevaluated, which is a behavior change users may notice",
+        "Not a complete sentence: lowercase start, no period, and uses the abbreviation 'wrt'",
+        "Does not mention the new reduction of integer-term coefficients modulo a Rational"
+      ]
+    },
+    "preferred": "A",
+    "rationale": "The diff makes two user-visible changes to Mod. Symbolic Mod expressions that contain Floats are no longer rearranged, rescaled, or reduced by gcd extraction; for example, Mod(6*x, 0.2*x) now stays unevaluated instead of becoming 0. Separately, Integer or Rational coefficients on integer-valued terms are now reduced modulo a Rational modulus; for example, Mod(3*i + x, 2) becomes Mod(i + x, 2). Candidate A states both changes correctly and gives examples that the tests confirm, though it is a bit wordy and uses present tense. Candidate B only says the evaluation was \"improved\" without saying how. That hides a change in behavior, and B also breaks the guide's formatting rules (not a complete sentence, starts lowercase, no period, uses the abbreviation \"wrt\").",
+    "same_substance": false,
+    "should_have_entry": "yes",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31042/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31042/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "Somewhat long; the first bullet runs past a single sentence plus an example",
+            "Uses present tense ('no longer rearranges', 'now reduces') rather than past tense"
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "minor_inaccuracy",
+          "overall": 2,
+          "problems": [
+            "Too vague: 'improved' does not say that symbolic Mod with Floats is now left unevaluated, which is a behavior change users may notice",
+            "Not a complete sentence: lowercase start, no period, and uses the abbreviation 'wrt'",
+            "Does not mention the new reduction of integer-term coefficients modulo a Rational"
+          ]
+        },
+        "preferred": "A",
+        "rationale": "The diff makes two user-visible changes to Mod. Symbolic Mod expressions that contain Floats are no longer rearranged, rescaled, or reduced by gcd extraction; for example, Mod(6*x, 0.2*x) now stays unevaluated instead of becoming 0. Separately, Integer or Rational coefficients on integer-valued terms are now reduced modulo a Rational modulus; for example, Mod(3*i + x, 2) becomes Mod(i + x, 2). Candidate A states both changes correctly and gives examples that the tests confirm, though it is a bit wordy and uses present tense. Candidate B only says the evaluation was \"improved\" without saying how. That hides a change in behavior, and B also breaks the guide's formatting rules (not a complete sentence, starts lowercase, no period, uses the abbreviation \"wrt\").",
+        "same_substance": false,
+        "should_have_entry": "yes",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.1515244,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 15858,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 15858,
+    "cache_read_input_tokens": 15322,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 10270,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 10270,
+        "cache_read_input_tokens": 10455,
+        "input_tokens": 2,
+        "output_tokens": 879,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1079,
+    "output_tokens_details": {
+      "thinking_tokens": 181
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

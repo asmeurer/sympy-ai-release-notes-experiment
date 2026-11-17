@@ -1,0 +1,135 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 9171,
+  "human_is": "A",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 7983,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 7983,
+      "cacheReadInputTokens": 15200,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.08504,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 906,
+      "provider": "firstParty",
+      "thinkingTokens": 146,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 31075,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"wrong\",\"overall\":1,\"problems\":[\"Describes the CmathPrinter float-recursion fix from the outdated PR description, but the merged diff only touches torch_code in sympy/printing/pytorch.py.\",\"Claims a lambdify/cmath fix that this PR does not contain.\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"The clause about assign_to describes something that already worked before, which slightly clutters the entry.\",\"Could say more directly that passing these settings used to fail.\"]},\"same_substance\":false,\"preferred\":\"B\",\"strength\":\"clear\",\"rationale\":\"The merged diff only changes `torch_code` in sympy/printing/pytorch.py. Extra settings such as `fully_qualified_modules` now reach `TorchPrinter`; before, they were wrongly passed to `doprint`. `assign_to` is still handled separately. The PR description is stale and talks about a CmathPrinter recursion fix that was never merged. Candidate A repeated that stale description, so its entry is false. Candidate B correctly describes the `torch_code` fix, which is a user-facing bug fix that belongs in the release notes.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "wrong",
+      "overall": 1,
+      "problems": [
+        "Describes the CmathPrinter float-recursion fix from the outdated PR description, but the merged diff only touches torch_code in sympy/printing/pytorch.py.",
+        "Claims a lambdify/cmath fix that this PR does not contain."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "The clause about assign_to describes something that already worked before, which slightly clutters the entry.",
+        "Could say more directly that passing these settings used to fail."
+      ]
+    },
+    "preferred": "B",
+    "rationale": "The merged diff only changes `torch_code` in sympy/printing/pytorch.py. Extra settings such as `fully_qualified_modules` now reach `TorchPrinter`; before, they were wrongly passed to `doprint`. `assign_to` is still handled separately. The PR description is stale and talks about a CmathPrinter recursion fix that was never merged. Candidate A repeated that stale description, so its entry is false. Candidate B correctly describes the `torch_code` fix, which is a user-facing bug fix that belongs in the release notes.",
+    "same_substance": false,
+    "should_have_entry": "yes",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31075/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/31075/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "wrong",
+          "overall": 1,
+          "problems": [
+            "Describes the CmathPrinter float-recursion fix from the outdated PR description, but the merged diff only touches torch_code in sympy/printing/pytorch.py.",
+            "Claims a lambdify/cmath fix that this PR does not contain."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "The clause about assign_to describes something that already worked before, which slightly clutters the entry.",
+            "Could say more directly that passing these settings used to fail."
+          ]
+        },
+        "preferred": "B",
+        "rationale": "The merged diff only changes `torch_code` in sympy/printing/pytorch.py. Extra settings such as `fully_qualified_modules` now reach `TorchPrinter`; before, they were wrongly passed to `doprint`. `assign_to` is still handled separately. The PR description is stale and talks about a CmathPrinter recursion fix that was never merged. Candidate A repeated that stale description, so its entry is false. Candidate B correctly describes the `torch_code` fix, which is a user-facing bug fix that belongs in the release notes.",
+        "same_substance": false,
+        "should_have_entry": "yes",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.08504,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 7983,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 7983,
+    "cache_read_input_tokens": 15200,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 2517,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 2517,
+        "cache_read_input_tokens": 10333,
+        "input_tokens": 2,
+        "output_tokens": 706,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 906,
+    "output_tokens_details": {
+      "thinking_tokens": 146
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

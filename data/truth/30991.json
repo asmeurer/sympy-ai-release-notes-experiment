@@ -1,0 +1,21 @@
+{
+  "ai_disclosure": "I used Claude Code (Claude Opus 5.5) to identify this bug from the list in #30844 and help implement the change in `sympy/printing/rcode.py` (`_print_For`) and update the test in `sympy/printing/tests/test_rcode.py` (`test_rcode_For`). I reviewed the changes, checked the generated output myself, and understand what was changed.",
+  "author": "Swayam-27",
+  "entries": [
+    {
+      "submodule": "printing",
+      "text": "Fixed rcode output for For loops, which was missing a closing parenthesis and produced invalid R code."
+    }
+  ],
+  "merged_at": "2026-11-08T15:50:06Z",
+  "number": 30991,
+  "overlap": {
+    "title_similarity": 0.41025641025641024,
+    "truth_quoted_in_commits": false,
+    "truth_quoted_in_description": false,
+    "truth_quoted_in_title": false
+  },
+  "raw": "* printing\n  * Fixed rcode output for For loops, which was missing a closing parenthesis and produced invalid R code.",
+  "status": "entry",
+  "title": "printing: close the for( parenthesis in rcode of For loops"
+}

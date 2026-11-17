@@ -1,0 +1,83 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4714,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 2110,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 2110,
+      "cacheReadInputTokens": 2260,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.02522,
+      "inputTokens": 2,
+      "maxOutputTokens": 128000,
+      "outputTokens": 394,
+      "provider": "firstParty",
+      "thinkingTokens": 131,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 2,
+  "number": 31066,
+  "permission_denials": [],
+  "result_text": "{\"disclosure\":\"ai_assist\",\"entry_looks_ai_written\":\"likely\",\"evidence\":\"The disclosure says only that Codex generated the code and test changes in three named files, and says nothing about the description or release notes. The description reads like generated text, with lines such as \\\"The underlying logarithm formula and mpmath precision handling are unchanged\\\" and a neat \\\"Added tests cover:\\\" list. The entry is a clean, error-free summary of that same prose (\\\"powers and reciprocals of `log2`\\\"), with none of the shorthand or small mistakes that suggest a person typed it.\"}",
+  "structured_output": {
+    "disclosure": "ai_assist",
+    "entry_looks_ai_written": "likely",
+    "evidence": "The disclosure says only that Codex generated the code and test changes in three named files, and says nothing about the description or release notes. The description reads like generated text, with lines such as \"The underlying logarithm formula and mpmath precision handling are unchanged\" and a neat \"Added tests cover:\" list. The entry is a clean, error-free summary of that same prose (\"powers and reciprocals of `log2`\"), with none of the shorthand or small mistakes that suggest a person typed it."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "disclosure": "ai_assist",
+        "entry_looks_ai_written": "likely",
+        "evidence": "The disclosure says only that Codex generated the code and test changes in three named files, and says nothing about the description or release notes. The description reads like generated text, with lines such as \"The underlying logarithm formula and mpmath precision handling are unchanged\" and a neat \"Added tests cover:\" list. The entry is a clean, error-free summary of that same prose (\"powers and reciprocals of `log2`\"), with none of the shorthand or small mistakes that suggest a person typed it."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.02522,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 2110,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 2110,
+    "cache_read_input_tokens": 2260,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 2,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 2110,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 2110,
+        "cache_read_input_tokens": 2260,
+        "input_tokens": 2,
+        "output_tokens": 394,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 394,
+    "output_tokens_details": {
+      "thinking_tokens": 131
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

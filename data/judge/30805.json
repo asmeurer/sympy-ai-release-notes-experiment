@@ -1,0 +1,139 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 10972,
+  "human_is": "B",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 10836,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 10836,
+      "cacheReadInputTokens": 14162,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.1094764,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 997,
+      "provider": "firstParty",
+      "thinkingTokens": 202,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30805,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"Long for a release note; the list of trigger conditions could be cut down.\",\"\\\"Fixed\\\" frames an improvement as a bug fix, though this is defensible.\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":2,\"problems\":[\"Not a complete sentence: starts lowercase and has no period.\",\"Not in the past tense (\\\"are made\\\").\",\"Never says it is about printing `Poly`/`PurePoly`, so users can't tell what output changed.\",\"Vague: does not say when the explicit form is used (symbols with assumptions, names like `beta` that clash with functions, non-default order).\"]},\"same_substance\":true,\"preferred\":\"A\",\"strength\":\"clear\",\"rationale\":\"The diff changes `str()` of `Poly`/`PurePoly`. When the short domain string (e.g. 'ZZ[beta]') would not parse back to the same domain, it now prints explicit constructors like `ZZ.poly_ring(beta)`, so the printed output can be copied and evaluated. Both candidates describe this change correctly. A is a clear, past-tense, complete sentence with a concrete example, though it is wordy. B leaves out Poly and printing, is not a proper sentence, and is not past tense, so an end user would struggle to understand it.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "Long for a release note; the list of trigger conditions could be cut down.",
+        "\"Fixed\" frames an improvement as a bug fix, though this is defensible."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 2,
+      "problems": [
+        "Not a complete sentence: starts lowercase and has no period.",
+        "Not in the past tense (\"are made\").",
+        "Never says it is about printing `Poly`/`PurePoly`, so users can't tell what output changed.",
+        "Vague: does not say when the explicit form is used (symbols with assumptions, names like `beta` that clash with functions, non-default order)."
+      ]
+    },
+    "preferred": "A",
+    "rationale": "The diff changes `str()` of `Poly`/`PurePoly`. When the short domain string (e.g. 'ZZ[beta]') would not parse back to the same domain, it now prints explicit constructors like `ZZ.poly_ring(beta)`, so the printed output can be copied and evaluated. Both candidates describe this change correctly. A is a clear, past-tense, complete sentence with a concrete example, though it is wordy. B leaves out Poly and printing, is not a proper sentence, and is not past tense, so an end user would struggle to understand it.",
+    "same_substance": true,
+    "should_have_entry": "yes",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30805/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30805/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "Long for a release note; the list of trigger conditions could be cut down.",
+            "\"Fixed\" frames an improvement as a bug fix, though this is defensible."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 2,
+          "problems": [
+            "Not a complete sentence: starts lowercase and has no period.",
+            "Not in the past tense (\"are made\").",
+            "Never says it is about printing `Poly`/`PurePoly`, so users can't tell what output changed.",
+            "Vague: does not say when the explicit form is used (symbols with assumptions, names like `beta` that clash with functions, non-default order)."
+          ]
+        },
+        "preferred": "A",
+        "rationale": "The diff changes `str()` of `Poly`/`PurePoly`. When the short domain string (e.g. 'ZZ[beta]') would not parse back to the same domain, it now prints explicit constructors like `ZZ.poly_ring(beta)`, so the printed output can be copied and evaluated. Both candidates describe this change correctly. A is a clear, past-tense, complete sentence with a concrete example, though it is wordy. B leaves out Poly and printing, is not a proper sentence, and is not past tense, so an end user would struggle to understand it.",
+        "same_substance": true,
+        "should_have_entry": "yes",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.1094764,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 10836,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 10836,
+    "cache_read_input_tokens": 14162,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 4284,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 4284,
+        "cache_read_input_tokens": 10357,
+        "input_tokens": 2,
+        "output_tokens": 797,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 997,
+    "output_tokens_details": {
+      "thinking_tokens": 202
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

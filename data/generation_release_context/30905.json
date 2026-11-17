@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 5381,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 11192,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 11192,
+      "cacheReadInputTokens": 17114,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0530074,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 652,
+      "provider": "firstParty",
+      "thinkingTokens": 77,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 30905,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"printing\",\"text\":\"Fixed `pycode` and `lambdify` with the `math` module giving wrong results for expressions like `2*frac(x)`, which were printed as `2*x % 1` instead of `2*(x % 1)`.\"}],\"reasoning\":\"The diff wraps the Python code printer's output for `frac` in parentheses, fixing wrong generated code and wrong `lambdify` results; the NumPy printer output is unchanged. The `frac` printing predates 1.14 and nothing indicates the bug is new, so users have seen it and it needs an entry.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "printing",
+        "text": "Fixed `pycode` and `lambdify` with the `math` module giving wrong results for expressions like `2*frac(x)`, which were printed as `2*x % 1` instead of `2*(x % 1)`."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The diff wraps the Python code printer's output for `frac` in parentheses, fixing wrong generated code and wrong `lambdify` results; the NumPy printer output is unchanged. The `frac` printing predates 1.14 and nothing indicates the bug is new, so users have seen it and it needs an entry."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30905/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30905/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/30905/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "printing",
+            "text": "Fixed `pycode` and `lambdify` with the `math` module giving wrong results for expressions like `2*frac(x)`, which were printed as `2*x % 1` instead of `2*(x % 1)`."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The diff wraps the Python code printer's output for `frac` in parentheses, fixing wrong generated code and wrong `lambdify` results; the NumPy printer output is unchanged. The `frac` printing predates 1.14 and nothing indicates the bug is new, so users have seen it and it needs an entry."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0530074,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 11192,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 11192,
+    "cache_read_input_tokens": 17114,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 3664,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 3664,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 363,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 652,
+    "output_tokens_details": {
+      "thinking_tokens": 77
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 4510,
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-sonnet-5-5",
+  "model_usage": {
+    "claude-sonnet-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 5968,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 5968,
+      "cacheReadInputTokens": 24201,
+      "canonicalModel": "claude-sonnet-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.0323201,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 602,
+      "provider": "firstParty",
+      "thinkingTokens": 0,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 5,
+  "number": 31016,
+  "permission_denials": [],
+  "result_text": "{\"no_entry\":false,\"entries\":[{\"submodule\":\"solvers\",\"text\":\"Fixed `solveset` returning wrong results for equations like `Mod(2**x, 42) = 0`, where the base of the power shares a factor with the modulus. Such equations are now returned unevaluated as a `ConditionSet`. Also fixed a `TypeError` raised by `solveset` for equations like `Mod(2*2**x - 1, 42)`.\"}],\"reasoning\":\"The PR fixes wrong solveset results (and a TypeError) for modular power equations. This is a user-visible bug that existed in 1.14, since nothing indicates it was introduced afterward. The entry is based on the diff in solveset.py.\"}",
+  "structured_output": {
+    "entries": [
+      {
+        "submodule": "solvers",
+        "text": "Fixed `solveset` returning wrong results for equations like `Mod(2**x, 42) = 0`, where the base of the power shares a factor with the modulus. Such equations are now returned unevaluated as a `ConditionSet`. Also fixed a `TypeError` raised by `solveset` for equations like `Mod(2*2**x - 1, 42)`."
+      }
+    ],
+    "no_entry": false,
+    "reasoning": "The PR fixes wrong solveset results (and a TypeError) for modular power equations. This is a user-visible bug that existed in 1.14, since nothing indicates it was introduced afterward. The entry is based on the diff in solveset.py."
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31016/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31016/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/runs/31016/linked.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "entries": [
+          {
+            "submodule": "solvers",
+            "text": "Fixed `solveset` returning wrong results for equations like `Mod(2**x, 42) = 0`, where the base of the power shares a factor with the modulus. Such equations are now returned unevaluated as a `ConditionSet`. Also fixed a `TypeError` raised by `solveset` for equations like `Mod(2*2**x - 1, 42)`."
+          }
+        ],
+        "no_entry": false,
+        "reasoning": "The PR fixes wrong solveset results (and a TypeError) for modular power equations. This is a user-visible bug that existed in 1.14, since nothing indicates it was introduced afterward. The entry is based on the diff in solveset.py."
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.0323201,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 5968,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 5968,
+    "cache_read_input_tokens": 24201,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 5527,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 5527,
+        "cache_read_input_tokens": 12321,
+        "input_tokens": 2,
+        "output_tokens": 313,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 602,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

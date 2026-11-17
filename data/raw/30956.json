@@ -1,0 +1,76 @@
+{
+  "additions": 7,
+  "author": "smichr",
+  "base": "master",
+  "body": "#### References to other Issues or PRs\r\n\r\n\r\n#### Brief description of what is fixed or changed\r\n\r\nThis makes the existing author and code quality checks prerequisites for running further tests.\r\n\r\n#### Other comments\r\n\r\n#### AI Generation Disclosure\r\n\r\nAuthor's idea was implemented and iterated over with ChatGPT that wrote all code. It was further simplified at the request of @oscarbenjamin .\r\n\r\n#### Release Notes\r\n\r\n\r\n<!-- BEGIN RELEASE NOTES -->\r\nNO ENTRY\r\n<!-- END RELEASE NOTES -->\r\n",
+  "changed_files": 1,
+  "commits": [
+    {
+      "author": "Christopher Smith",
+      "message": "ci: gate test jobs on existing Check Authors and Code Quality",
+      "sha": "27a2003e8f9d0b921f66f65a845fcd2591d3547c"
+    }
+  ],
+  "created_at": "2026-11-05T17:05:17Z",
+  "deletions": 8,
+  "diff": "diff --git a/.github/workflows/runtests.yml b/.github/workflows/runtests.yml\nindex 8d96447913a5..4fee6c3f1dcf 100644\n--- a/.github/workflows/runtests.yml\n+++ b/.github/workflows/runtests.yml\n@@ -63,7 +63,7 @@ jobs:\n \n   mypy:\n     name: Mypy\n-    needs: code-quality\n+    needs: [code-quality, authors]\n \n     runs-on: ubuntu-latest\n     steps:\n@@ -81,7 +81,7 @@ jobs:\n \n   mypy-flint:\n     name: Mypy With python-flint\n-    needs: code-quality\n+    needs: [code-quality, authors]\n \n     runs-on: ubuntu-latest\n     steps:\n@@ -101,7 +101,7 @@ jobs:\n \n   sphinx-lint:\n     name: Sphinx Lint\n-    needs: code-quality\n+    needs: [code-quality, authors]\n \n     runs-on: ubuntu-latest\n     steps:\n@@ -121,7 +121,6 @@ jobs:\n \n   authors:\n     name: Check Authors\n-    needs: code-quality\n     runs-on: ubuntu-latest\n     steps:\n       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1\n@@ -140,7 +139,7 @@ jobs:\n \n   doctests-latest:\n     name: Doctests\n-    needs: code-quality\n+    needs: [code-quality, authors]\n \n     runs-on: ubuntu-latest\n     steps:\n@@ -158,7 +157,7 @@ jobs:\n   # ------------------------- Test latest Python ------------------- #\n \n   tests-latest:\n-    needs: code-quality\n+    needs: [code-quality, authors]\n \n     runs-on: ubuntu-latest\n \n@@ -365,7 +364,7 @@ jobs:\n \n   tests-slow:\n     name: Slow Tests\n-    needs: code-quality\n+    needs: [code-quality, authors]\n \n     runs-on: ubuntu-latest\n \n@@ -473,7 +472,7 @@ jobs:\n \n   sphinx:\n     name: Build Docs\n-    needs: code-quality\n+    needs: [code-quality, authors]\n \n     runs-on: ubuntu-latest\n     steps:\n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\n* No release notes entry will be added for this pull request.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    #### References to other Issues or PRs\r\n\r\n\r\n    #### Brief description of what is fixed or changed\r\n\r\n    This makes the existing author and code quality checks prerequisites for running further tests.\r\n\r\n    #### Other comments\r\n\r\n    #### AI Generation Disclosure\r\n\r\n    Author's idea was implemented and iterated over with ChatGPT that wrote all code. It was further simplified at the request of @oscarbenjamin .\r\n\r\n    #### Release Notes\r\n\r\n\r\n    <!-- BEGIN RELEASE NOTES -->\r\n    NO ENTRY\r\n    <!-- END RELEASE NOTES -->\r\n\n\n</details><p>\n",
+      "created_at": "2026-11-05T17:05:21Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "I don't like overcomplicating CI. Can we not just make other checks wait for the mailmap check that is already there?\r\n",
+      "created_at": "2026-11-05T19:03:13Z"
+    },
+    {
+      "author": "smichr",
+      "body": "@oscarbenjamin , I was only thinking with so many new contributors that there is no sense running testing resources needlessly when the .mailmap is not ready. I suspect this would hardly need any maintenance once it is in place. I am +1/3 to adding it, so if you just want to close with WontFix that is ok with me.",
+      "created_at": "2026-11-05T19:23:39Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "The mailmap check has needed a lot of maintenance over the years.\r\n\r\nI'm just suggesting a simpler approach: make it so that other jobs wait for .mailmap and code quality checks before running.",
+      "created_at": "2026-11-05T19:28:21Z"
+    },
+    {
+      "author": "smichr",
+      "body": "How about squashing this as an option?",
+      "created_at": "2026-11-05T19:38:13Z"
+    },
+    {
+      "author": "smichr",
+      "body": "@asmeurer @oscarbenjamin this no longer does anything to any scripts, just makes the author check a prereq.",
+      "created_at": "2026-11-11T20:26:26Z"
+    },
+    {
+      "author": "smichr",
+      "body": "@asmeurer it looks like both maintainers need to approve the change.",
+      "created_at": "2026-11-11T22:13:23Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "I think it is approved already. The problem is the checks haven't completed. I'm not sure why they are not running but it seems like GitHub Actions is a bit paused or something.",
+      "created_at": "2026-11-11T22:37:49Z"
+    }
+  ],
+  "labels": [
+    "CI"
+  ],
+  "linked": [],
+  "merge_commit_sha": "bbc1499f10cc55c5ade0b793083d2806f66a5337",
+  "merged_at": "2026-11-12T01:31:08Z",
+  "number": 30956,
+  "review_comments": [],
+  "reviews": [
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "APPROVED",
+      "submitted_at": "2026-11-11T20:54:07Z"
+    }
+  ],
+  "title": "mailmap and code quality must pass before other tests are run"
+}

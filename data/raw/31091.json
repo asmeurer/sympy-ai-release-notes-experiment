@@ -1,0 +1,137 @@
+{
+  "additions": 10,
+  "author": "hunterhogan",
+  "base": "master",
+  "body": "<!-- Before completing this template, read:\nhttps://docs.sympy.org/dev/contributing/pull-request-guidelines.html\nLocal source: doc/src/contributing/pull-request-guidelines.rst\nKeep all section headings below. -->\n\n#### References to other Issues or PRs\n\n\n#### Brief description of what is fixed or changed\n\n- Annotate `Expr.coeff`\n\n#### Other comments\n\nWith the signature annotated, MyPy checks the function body, requiring the following changes:\n\n- rv.is_Add becomes isinstance(rv, Add).\n- elif co2: becomes else:.\n- reused loop variable `n` is renamed to nc.\n\n#### AI Generation Disclosure\n\nClaude Code\n\n#### Release Notes\n\n\n<!-- BEGIN RELEASE NOTES -->\n* core\n    * Annotate `Expr.coeff` signature.\n<!-- END RELEASE NOTES -->\n",
+  "changed_files": 1,
+  "commits": [
+    {
+      "author": "Hunter Hogan",
+      "message": "Annotate Expr.coeff.\n\nUse isinstance for guard.\nReplace `elif co2:` with `else:` so mypy knows `return None` will not happen.\nRename reused loop identifier `n` due to changed type.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "sha": "3ea99495088bfe443e58c877331beadfa0b15bdc"
+    }
+  ],
+  "created_at": "2026-11-14T06:42:50Z",
+  "deletions": 10,
+  "diff": "diff --git a/sympy/core/expr.py b/sympy/core/expr.py\nindex 901a960659bb..76969157642b 100644\n--- a/sympy/core/expr.py\n+++ b/sympy/core/expr.py\n@@ -22,7 +22,7 @@\n \n \n if TYPE_CHECKING:\n-    from typing import Any, Hashable, TypeVar\n+    from typing import Any, Hashable, TypeVar, SupportsIndex\n     from typing_extensions import Self\n     from .numbers import Number\n     from sympy.core.basic import Tbasic\n@@ -1404,7 +1404,7 @@ def args_cnc(self, cset=False, warn=True, split_1=True):\n                                  [ci for ci in c if list(self.args).count(ci) > 1])\n         return [c, nc]\n \n-    def coeff(self, x: Expr | complex, n=1, right=False, _first=True):\n+    def coeff(self, x: Expr | complex, n: SupportsIndex = 1, right: bool = False, _first: bool = True) -> Expr:\n         \"\"\"\n         Returns the coefficient from the term(s) containing ``x**n``. If ``n``\n         is zero then all terms independent of ``x`` will be returned.\n@@ -1608,7 +1608,7 @@ def find(l, sub, first=True):\n             d = Add(*[i for i in Add.make_args(self.as_independent(xe)[1])\n                 if all(xi in Mul.make_args(i) for xi in xargs)])\n             rv = d.coeff(xe, right=right, _first=False)\n-            if not rv.is_Add or not right:\n+            if not isinstance(rv, Add) or not right:\n                 return rv\n             c_part, nc_part = zip(*[i.args_cnc() for i in rv.args])\n             if has_variety(c_part):\n@@ -1633,7 +1633,7 @@ def find(l, sub, first=True):\n         if one_c:\n             if co2 == []:\n                 return S.Zero\n-            elif co2:\n+            else:\n                 return Add(*co2)\n         else:  # both nc\n             # now check the non-comm parts\n@@ -1671,20 +1671,20 @@ def find(l, sub, first=True):\n                         return Mul(*end[ii + len(nx):])\n             # look for single match\n             hit = None\n-            for i, (r, n) in enumerate(co):\n-                ii = find(n, nx, right)\n+            for i, (r, nc) in enumerate(co):\n+                ii = find(nc, nx, right)\n                 if ii is not None:\n                     if not hit:\n-                        hit = ii, r, n\n+                        hit = ii, r, nc\n                     else:\n                         break\n             else:\n                 if hit:\n-                    ii, r, n = hit\n+                    ii, r, nc = hit\n                     if not right:\n-                        return Mul(*(list(r) + n[:ii]))\n+                        return Mul(*(list(r) + nc[:ii]))\n                     else:\n-                        return Mul(*n[ii + len(nx):])\n+                        return Mul(*nc[ii + len(nx):])\n \n             return S.Zero\n \n",
+  "issue_comments": [
+    {
+      "author": "sympy-bot",
+      "body": ":white_check_mark:\n\nHi, I am the [SymPy bot](https://github.com/sympy/sympy-bot). I'm here to help you write a release notes entry. Please read the [guide on how to write release notes](https://github.com/sympy/sympy/wiki/Writing-Release-Notes).\n\n\n\nYour release notes are in good order.\n\nHere is what the release notes will look like:\n* core\n  * Annotate `Expr.coeff` signature. ([#31091](https://github.com/sympy/sympy/pull/31091) by [@hunterhogan](https://github.com/hunterhogan))\n\nThis will be added to https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15.\n\n<details><summary>Click here to see the pull request description that was parsed.</summary>\n\n    <!-- Before completing this template, read:\n    https://docs.sympy.org/dev/contributing/pull-request-guidelines.html\n    Local source: doc/src/contributing/pull-request-guidelines.rst\n    Keep all section headings below. -->\n\n    #### References to other Issues or PRs\n\n\n    #### Brief description of what is fixed or changed\n\n    - Annotate `Expr.coeff`\n\n    #### Other comments\n\n    With the signature annotated, MyPy checks the function body, requiring the following changes:\n\n    - rv.is_Add becomes isinstance(rv, Add).\n    - elif co2: becomes else:.\n    - reused loop variable `n` is renamed to nc.\n\n    #### AI Generation Disclosure\n\n    Claude Code\n\n    #### Release Notes\n\n\n    <!-- BEGIN RELEASE NOTES -->\n    * core\n        * Annotate `Expr.coeff` signature.\n    <!-- END RELEASE NOTES -->\n\n\n</details><p>\n\n\n**Update**\n\nThe release notes on the [wiki](https://github.com/sympy/sympy/wiki/Release-Notes-for-1.15) have been updated.\n",
+      "created_at": "2026-11-14T06:42:54Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "Looks good.",
+      "created_at": "2026-11-15T22:11:29Z"
+    }
+  ],
+  "labels": [
+    "typing"
+  ],
+  "linked": [],
+  "merge_commit_sha": "43239d67766e39b50d0a160be525be975c832e1e",
+  "merged_at": "2026-11-15T22:11:35Z",
+  "number": 31091,
+  "review_comments": [
+    {
+      "author": "oscarbenjamin",
+      "body": "This potentially constructs returnMe multiple times discarding the previous created expressions.\n\nGenerally I would prefer that a PR that is for typing should just be about typing. There can be a need to make other changes when working on typing but it is not clear to me why this change is here and it does not seem that the code is equivalent.",
+      "created_at": "2026-11-14T15:20:19Z",
+      "path": "sympy/core/expr.py"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "Why\r\n\r\n> it is not clear to me why this change is here\r\n\r\n> * In `Expr.coeff`, [Refactor \"look for single match\"](https://github.com/sympy/sympy/commit/0db54dfdd79498ceef18c7ae1411cc82b92a3cfa) because I couldn't figure out what it did, so I couldn't type it.\r\n\r\nHow\r\n\r\n> This potentially constructs returnMe multiple times discarding the previous created expressions.\r\n\r\nThe statements that start with `returnMe = Mul(...` cannot run more than one time because of the guard `if returnMe is None:`.\r\n\r\nSame\r\n\r\n> it does not seem that the code is equivalent.\r\n\r\nYou might be right. I sincerely cannot fully decipher the code block I replaced. Claude Code said the old code block and the new code block had the same behavior on 400,000 random inputs (IIRC). I _think_ I understand what the code block is supposed to do. If I do understand, then I have high confidence in the loop and conditional checks. I did not second-guess the `Mul` statements.",
+      "created_at": "2026-11-15T13:50:38Z",
+      "path": "sympy/core/expr.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "It is better not to change the code if you don't fully understand it. Best just to leave it as it is.",
+      "created_at": "2026-11-15T14:05:59Z",
+      "path": "sympy/core/expr.py"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "I agree. \n\nI believe I understand the function. I've been trying not to write, \"The code block I replaced was horrible code,\" because I didn't want to be unnecessarily harsh.\n\nI replaced the code block because it was substandard code. I couldn't vouch for my typing proposal because the poor-quality code block prevented me from understanding the flow.\n\n## My reasoning for my code\n\n```python\n# Return `Expr` IFF the list `nx` appears in only one list of non-commutative terms (`nc`).\n# Else return the special form of 0, `S.Zero`.\nreturnMe: Expr | Zero | None = None\n\nwhile co and returnMe != S.Zero:  # `while` conditions avoid using `break` as flow control.\n    r, nc = co.pop()  # consume `co`.\n    index: int | None = find(nc, nx, first=right)  # if `nx` is in `nc`, index will be `int`.\n\n    if index is not None:  # Conditional check avoids using `continue` as flow control.\n        if returnMe is None:  # If `True`, this is the first match, so evaluate the desired value.\n            if right:  # Changed from the original `if not right:`\n                returnMe = Mul(*nc[index + len(nx):None])\n            else:\n                returnMe = Mul(*r, *nc[0:index])\n        else:  # Because `returnMe` has a value and `index` has a value, IFF must be false.\n            returnMe = S.Zero\n\nreturn returnMe or S.Zero  # If `returnMe` is None, then IFF must be false, so return S.Zero.\n``` \n",
+      "created_at": "2026-11-15T17:14:36Z",
+      "path": "sympy/core/expr.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "Was it necessary to change the code for mypy checks to pass?\r\n\r\nHere is another reason not to change the code:\r\n\r\nIt makes it significantly harder for *me* to review the changes because now I need to understand both the old and the new code and think carefully about what the differences might be. If this PR only had all of the other changes I would have just merged it immediately the first time I looked at it.",
+      "created_at": "2026-11-15T19:11:59Z",
+      "path": "sympy/core/expr.py"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "> Was it necessary to change the code for mypy checks to pass?\n\nNo.\n\nI would not have submitted it, however, because I would have been relying on Claude's \"promise\" that everything was correct. \n\nIronically, Claude reminded me repeatedly that you preferred smaller changes. Claude tried to get me to scale back. But I lacked the training, experience, or knowledge to parse the code. \n\nI was too incompetent to submit the PR without refactoring, and I was too idealistic to submit an LLM-generated PR while claiming I understood the code when I didn't fully understand the code.\n\nI may have unknowingly written something that assigned fault to you. I do not feel or think you are at fault for anything. I apologize for anything I wrote that faulted you. I agree with everything you wrote.",
+      "created_at": "2026-11-15T20:10:51Z",
+      "path": "sympy/core/expr.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "I'm not opposed to larger changes. It is just harder for me to find the time to review them.",
+      "created_at": "2026-11-15T22:12:03Z",
+      "path": "sympy/core/expr.py"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "If you want to more efficiently add type annotations to lots of things I'm happy to merge a large PR that adds many type annotations where every annotation is simple, uncontroversial and easy to review. It doesn't have to be all small PRs.",
+      "created_at": "2026-11-15T22:14:04Z",
+      "path": "sympy/core/expr.py"
+    }
+  ],
+  "reviews": [
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-14T15:20:18Z"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-15T13:50:38Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-15T14:05:59Z"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-15T17:14:36Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-15T19:11:59Z"
+    },
+    {
+      "author": "hunterhogan",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-15T20:10:51Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-15T22:12:03Z"
+    },
+    {
+      "author": "oscarbenjamin",
+      "body": "",
+      "state": "COMMENTED",
+      "submitted_at": "2026-11-15T22:14:05Z"
+    }
+  ],
+  "title": "Type Expr.coeff"
+}

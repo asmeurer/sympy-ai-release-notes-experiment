@@ -1,0 +1,137 @@
+{
+  "claude_code_version": "2.1.326",
+  "duration_ms": 12223,
+  "human_is": "A",
+  "is_error": false,
+  "mcp_servers": [],
+  "model": "claude-opus-5-5",
+  "model_usage": {
+    "claude-opus-5-5": {
+      "cacheCreationEphemeral1hInputTokens": 11833,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationInputTokens": 11833,
+      "cacheReadInputTokens": 15374,
+      "canonicalModel": "claude-opus-5-5",
+      "contextWindow": 1000000,
+      "costBasis": "list",
+      "costUSD": 0.1232748,
+      "inputTokens": 4,
+      "maxOutputTokens": 128000,
+      "outputTokens": 1276,
+      "provider": "firstParty",
+      "thinkingTokens": 305,
+      "webSearchRequests": 0
+    }
+  },
+  "num_turns": 4,
+  "number": 30988,
+  "permission_denials": [],
+  "result_text": "{\"should_have_entry\":\"yes\",\"candidate_a\":{\"accuracy\":\"minor_inaccuracy\",\"overall\":3,\"problems\":[\"The first bullet mentions only `SetExpr` and leaves out the main user-visible change: `imageset(sin, Interval(...))` and `cos` over an interval now return an evaluated `Interval` instead of an unevaluated `ImageSet`.\",\"The bullets are vague. 'Improved evaluation', 'interval image calculations' and 'Prevented enumeration' don't tell users what results they now get, such as the result being left unevaluated rather than hanging.\",\"'Prevented enumeration of infinite singularity sets' reads like an implementation detail.\"]},\"candidate_b\":{\"accuracy\":\"accurate\",\"overall\":4,\"problems\":[\"The bullets are wordy, with several sentences each where the guide asks for about one sentence per entry.\",\"Some phrasing uses the present tense ('now returns') rather than the past tense the guide asks for.\"]},\"same_substance\":false,\"preferred\":\"B\",\"strength\":\"clear\",\"rationale\":\"The diff makes four changes. It limits the critical-point search to the interval, so `imageset(sin, Interval(-2, 1))` now gives `Interval(-1, sin(1))` (the doctest was updated to show this). It fixes whether endpoints of the image are open or closed. It makes `sin` and `cos` of a `SetExpr` interval evaluate. It leaves an image unevaluated, instead of trying to list the singularities, when there are infinitely many, as with `tan` over the reals. Candidate B covers all of these accurately and gives concrete examples a user can check, though it is wordier than the guide recommends. Candidate A presents the main improvement as if it only affected `SetExpr`, so it misses the plain `imageset` change. Its other two bullets are too vague to tell users what behavior changed.\"}",
+  "structured_output": {
+    "candidate_a": {
+      "accuracy": "minor_inaccuracy",
+      "overall": 3,
+      "problems": [
+        "The first bullet mentions only `SetExpr` and leaves out the main user-visible change: `imageset(sin, Interval(...))` and `cos` over an interval now return an evaluated `Interval` instead of an unevaluated `ImageSet`.",
+        "The bullets are vague. 'Improved evaluation', 'interval image calculations' and 'Prevented enumeration' don't tell users what results they now get, such as the result being left unevaluated rather than hanging.",
+        "'Prevented enumeration of infinite singularity sets' reads like an implementation detail."
+      ]
+    },
+    "candidate_b": {
+      "accuracy": "accurate",
+      "overall": 4,
+      "problems": [
+        "The bullets are wordy, with several sentences each where the guide asks for about one sentence per entry.",
+        "Some phrasing uses the present tense ('now returns') rather than the past tense the guide asks for."
+      ]
+    },
+    "preferred": "B",
+    "rationale": "The diff makes four changes. It limits the critical-point search to the interval, so `imageset(sin, Interval(-2, 1))` now gives `Interval(-1, sin(1))` (the doctest was updated to show this). It fixes whether endpoints of the image are open or closed. It makes `sin` and `cos` of a `SetExpr` interval evaluate. It leaves an image unevaluated, instead of trying to list the singularities, when there are infinitely many, as with `tan` over the reals. Candidate B covers all of these accurately and gives concrete examples a user can check, though it is wordier than the guide recommends. Candidate A presents the main improvement as if it only affected `SetExpr`, so it misses the plain `imageset` change. Its other two bullets are too vague to tell users what behavior changed.",
+    "same_substance": false,
+    "should_have_entry": "yes",
+    "strength": "clear"
+  },
+  "subtype": "success",
+  "tool_calls": [
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30988/diff.patch"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "file_path": "<repo>/work/judge-runs/30988/pr.md"
+      },
+      "name": "Read"
+    },
+    {
+      "input": {
+        "candidate_a": {
+          "accuracy": "minor_inaccuracy",
+          "overall": 3,
+          "problems": [
+            "The first bullet mentions only `SetExpr` and leaves out the main user-visible change: `imageset(sin, Interval(...))` and `cos` over an interval now return an evaluated `Interval` instead of an unevaluated `ImageSet`.",
+            "The bullets are vague. 'Improved evaluation', 'interval image calculations' and 'Prevented enumeration' don't tell users what results they now get, such as the result being left unevaluated rather than hanging.",
+            "'Prevented enumeration of infinite singularity sets' reads like an implementation detail."
+          ]
+        },
+        "candidate_b": {
+          "accuracy": "accurate",
+          "overall": 4,
+          "problems": [
+            "The bullets are wordy, with several sentences each where the guide asks for about one sentence per entry.",
+            "Some phrasing uses the present tense ('now returns') rather than the past tense the guide asks for."
+          ]
+        },
+        "preferred": "B",
+        "rationale": "The diff makes four changes. It limits the critical-point search to the interval, so `imageset(sin, Interval(-2, 1))` now gives `Interval(-1, sin(1))` (the doctest was updated to show this). It fixes whether endpoints of the image are open or closed. It makes `sin` and `cos` of a `SetExpr` interval evaluate. It leaves an image unevaluated, instead of trying to list the singularities, when there are infinitely many, as with `tan` over the reals. Candidate B covers all of these accurately and gives concrete examples a user can check, though it is wordier than the guide recommends. Candidate A presents the main improvement as if it only affected `SetExpr`, so it misses the plain `imageset` change. Its other two bullets are too vague to tell users what behavior changed.",
+        "same_substance": false,
+        "should_have_entry": "yes",
+        "strength": "clear"
+      },
+      "name": "StructuredOutput"
+    }
+  ],
+  "tools_available": [
+    "Glob",
+    "Grep",
+    "Read",
+    "StructuredOutput"
+  ],
+  "total_cost_usd": 0.1232748,
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 11833,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 11833,
+    "cache_read_input_tokens": 15374,
+    "fallback_credit": null,
+    "inference_geo": "global",
+    "input_tokens": 4,
+    "iterations": [
+      {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 6193,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 6193,
+        "cache_read_input_tokens": 10507,
+        "input_tokens": 2,
+        "output_tokens": 1076,
+        "type": "message"
+      }
+    ],
+    "output_tokens": 1276,
+    "output_tokens_details": {
+      "thinking_tokens": 305
+    },
+    "server_tool_use": {
+      "web_fetch_requests": 0,
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

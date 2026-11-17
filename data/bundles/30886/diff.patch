@@ -1,0 +1,72 @@
+diff --git a/.mailmap b/.mailmap
+index 8cb2cc06a13c..a8809fc94e2f 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -192,6 +192,12 @@
+ 2torus <boris.ettinger@gmail.com>
+ Aadit Kamat <aadit.k12@gmail.com>
+ Aaditya Nair <aadityanair6494@gmail.com>
++Aarav Malde <aarav458@gmail.com> <aarav.malde@iitgn.ac.in>
++Aarav Malde <aarav458@gmail.com> <aaravmalde458@gmail.com>
++Aarav Malde <aarav458@gmail.com> Aarav <aarav458@gmail.com>
++Aarav Malde <aarav458@gmail.com> Aarav Malde <aarav.malde@iitgn.ac.in>
++Aarav Malde <aarav458@gmail.com> aarav570 <aarav.malde@iitgn.ac.in>
++Aarav Malde <aarav458@gmail.com> aarav570 <aaravmalde458@gmail.com>
+ Aaron Gokaslan <aaronGokaslan@gmail.com>
+ Aaron Meurer <asmeurer@gmail.com>
+ Aaron Miller <acmiller273@gmail.com> <78561124+aaron-skydio@users.noreply.github.com>
+diff --git a/sympy/integrals/tests/test_heurisch.py b/sympy/integrals/tests/test_heurisch.py
+index 73903f9d475b..697426cbabca 100644
+--- a/sympy/integrals/tests/test_heurisch.py
++++ b/sympy/integrals/tests/test_heurisch.py
+@@ -416,3 +416,10 @@ def test_heurisch_issue_26922():
+     )
+ 
+     assert i.doit(heurisch=False).expand() == res
++
++
++def test_heurisch_issue_26504():
++    f = 2**(2 + 3*x)*3**(5 + 7*x)
++    ans = 972*2**(3*x)*3**(7*x)/(3*log(2) + 7*log(3))
++    assert heurisch(f, x) == ans
++    assert integrate(f, x) == ans
+diff --git a/sympy/solvers/solvers.py b/sympy/solvers/solvers.py
+index 6f10c3b5872e..6b2247157831 100644
+--- a/sympy/solvers/solvers.py
++++ b/sympy/solvers/solvers.py
+@@ -1794,12 +1794,18 @@ def _remove_duplicate_solutions(solutions: list[dict[Expr, Expr]]
+ 
+ def _solve_system(exprs, symbols, **flags):
+     """return ``(linear, solution)`` where ``linear`` is True
+-    if the system was linear, else False; ``solution``
++    if the system was linear or if no symbols were provided, else False; ``solution``
+     is a list of dictionaries giving solutions for the symbols
+     """
+     if not exprs:
+         return False, []
+ 
++    if not symbols:
++        u = Dummy()
++        if all(e.is_zero or checksol(u, u, e) for e in exprs):
++            return True, [{}]
++        return True, []
++
+     if flags.pop('_split', True):
+         # Split the system into connected components
+         V = exprs
+diff --git a/sympy/solvers/tests/test_solvers.py b/sympy/solvers/tests/test_solvers.py
+index 031ed420598d..d3f3dae3464f 100644
+--- a/sympy/solvers/tests/test_solvers.py
++++ b/sympy/solvers/tests/test_solvers.py
+@@ -2773,3 +2773,11 @@ def test_issue_26503():
+     assert integrate((a**x)/(b**x), x) == Piecewise((a**x/(b**x*log(a) - b**x*log(b)), Ne(a, b)), (x, True))
+     pw = Piecewise((x - 1, x > 0), (S.NaN, True))
+     assert checksol(pw, x, 1) is True
++
++
++def test_issue_26504_solve_empty_symbols():
++    assert solve([log(2) + log(3)]) == []
++    assert solve([log(2) + log(3)], exclude=(x,)) == []
++    assert solve([log(2) + log(3) - log(6)]) == {}
++    assert solve([x - 1, cos(1)**2 + sin(1)**2 - 1], x) == {x: 1}
++    assert solve([x - 1, cos(1)**2 + sin(1)**2 - 2], x) == []

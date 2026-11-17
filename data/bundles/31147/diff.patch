@@ -1,0 +1,156 @@
+diff --git a/.mailmap b/.mailmap
+index 218c7a21ba8b..96345abd7241 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -1409,6 +1409,7 @@ Rajeev Singh <rajs2010@gmail.com>
+ Rajiv Ranjan Singh <rajivperfect007@gmail.com> Rajiv Ranjan Singh <42106787+iamrajiv@users.noreply.github.com>
+ Ralf Stephan <ralf@ark.in-berlin.de>
+ Ralph Bean <rbean@redhat.com>
++Raman Chaudhary Jadodia <113814705+raman118@users.noreply.github.com>
+ Ramana Venkata <idlike2dream@gmail.com>
+ Ramana Venkata <idlike2dream@gmail.com> <vramana@users.noreply.github.com>
+ Randy Heydon <randy.heydon@clockworklab.net>
+@@ -1964,6 +1965,7 @@ pekochun <hamburg_hamburger2000@yahoo.co.jp>
+ philwillnyc <56197213+philwillnyc@users.noreply.github.com>
+ phipf <phipf@online.de>
+ platypus <platypus.computerchip@gmail.com>
++pranjal9091 <pranjalsingh9091@gmail.com>
+ prsdx <prsdx.dev@gmail.com>
+ prshnt19 <prashant.rawat216@gmail.com>
+ rahil-amin <rahilamin201@gmail.com>
+diff --git a/sympy/assumptions/handlers/order.py b/sympy/assumptions/handlers/order.py
+index 916b77a7fac9..aa542aa8a894 100644
+--- a/sympy/assumptions/handlers/order.py
++++ b/sympy/assumptions/handlers/order.py
+@@ -23,28 +23,23 @@
+ 
+ # NegativePredicate
+ 
+-def _NegativePredicate_number(expr, assumptions):
++def _number_sign(expr, positive):
+     r, i = expr.as_real_imag()
+-
+-    if r == S.NaN or i == S.NaN:
+-        return None
+-
+-    # If the imaginary part can symbolically be shown to be zero then
+-    # we just evaluate the real part; otherwise we evaluate the imaginary
+-    # part to see if it actually evaluates to zero and if it does then
+-    # we make the comparison between the real part and zero.
+-    if not i:
+-        r = r.evalf(2)
+-        if r._prec != 1:
+-            return r < 0
+-    else:
++    if r is S.NaN or i is S.NaN:
++        return
++    if i:
+         i = i.evalf(2)
+-        if i._prec != 1:
+-            if i != 0:
+-                return False
+-            r = r.evalf(2)
+-            if r._prec != 1:
+-                return r < 0
++        if getattr(i, '_prec', 1) == 1:
++            return
++        if i:
++            return False
++    r = r.evalf(2)
++    if getattr(r, '_prec', 1) != 1:
++        return r > 0 if positive else r < 0
++
++
++def _NegativePredicate_number(expr, assumptions):
++    return _number_sign(expr, False)
+ 
+ @NegativePredicate.register(Basic)
+ def _(expr, assumptions):
+@@ -169,7 +164,7 @@ def _(expr, assumptions):
+         # if there are no symbols just evalf
+         i = expr.evalf(2)
+         def nonz(i):
+-            if i._prec != 1:
++            if getattr(i, '_prec', 1) != 1:
+                 return i != 0
+         return fuzzy_or(nonz(i) for i in i.as_real_imag())
+ 
+@@ -249,23 +244,7 @@ def _(expr, assumptions):
+ # PositivePredicate
+ 
+ def _PositivePredicate_number(expr, assumptions):
+-    r, i = expr.as_real_imag()
+-    # If the imaginary part can symbolically be shown to be zero then
+-    # we just evaluate the real part; otherwise we evaluate the imaginary
+-    # part to see if it actually evaluates to zero and if it does then
+-    # we make the comparison between the real part and zero.
+-    if not i:
+-        r = r.evalf(2)
+-        if r._prec != 1:
+-            return r > 0
+-    else:
+-        i = i.evalf(2)
+-        if i._prec != 1:
+-            if i != 0:
+-                return False
+-            r = r.evalf(2)
+-            if r._prec != 1:
+-                return r > 0
++    return _number_sign(expr, True)
+ 
+ @PositivePredicate.register(Expr)
+ def _(expr, assumptions):
+diff --git a/sympy/assumptions/handlers/sets.py b/sympy/assumptions/handlers/sets.py
+index b88a762e49ed..c79d9b8c3a07 100644
+--- a/sympy/assumptions/handlers/sets.py
++++ b/sympy/assumptions/handlers/sets.py
+@@ -241,7 +241,7 @@ def _RealPredicate_number(expr, assumptions):
+     # let as_real_imag() work first since the expression may
+     # be simpler to evaluate
+     i = expr.as_real_imag()[1].evalf(2)
+-    if i._prec != 1:
++    if getattr(i, '_prec', 1) != 1:
+         return not i
+     # allow None to be returned if we couldn't show for sure
+     # that i was 0
+@@ -534,7 +534,7 @@ def _Imaginary_number(expr, assumptions):
+     # let as_real_imag() work first since the expression may
+     # be simpler to evaluate
+     r = expr.as_real_imag()[0].evalf(2)
+-    if r._prec != 1:
++    if getattr(r, '_prec', 1) != 1:
+         return not r
+     # allow None to be returned if we couldn't show for sure
+     # that r was 0
+diff --git a/sympy/assumptions/tests/test_query.py b/sympy/assumptions/tests/test_query.py
+index 58c227de4d69..47d687df8d7e 100644
+--- a/sympy/assumptions/tests/test_query.py
++++ b/sympy/assumptions/tests/test_query.py
+@@ -2589,6 +2589,27 @@ def test_issue_28127():
+     assert _ask_recursive(Q.le(y,x), Q.ge(x,y)) is True
+ 
+ 
++def test_radical_root_evalf_prec():
++    from sympy.polys.polyroots import roots
++    y = Symbol('y')
++    r = roots(y**4 + y + 1, y, multiple=True)[0]
++    assert ask(Q.real(r)) is None
++    assert ask(Q.positive(r)) is None
++    assert ask(Q.negative(r)) is None
++    assert ask(Q.imaginary(r)) is None
++    assert ask(Q.nonzero(r)) is None
++
++    r_pos = roots(y**4 - y - 1, y, multiple=True)[3]
++    assert ask(Q.real(r_pos)) is True
++    assert ask(Q.positive(r_pos)) is True
++    assert ask(Q.negative(r_pos)) is False
++
++    r_neg = roots(y**4 - y - 1, y, multiple=True)[2]
++    assert ask(Q.real(r_neg)) is True
++    assert ask(Q.positive(r_neg)) is False
++    assert ask(Q.negative(r_neg)) is True
++
++
+ # https://github.com/sympy/sympy/pull/30175
+ @XFAIL
+ def test_queries_require_satask():
